@@ -1,11 +1,9 @@
 package gr.aegean.palaemon.conductor.service;
 
-import gr.aegean.palaemon.conductor.model.pojo.Geofence;
-import gr.aegean.palaemon.conductor.model.pojo.PameasPerson;
-import gr.aegean.palaemon.conductor.model.pojo.ShipsGeofences;
-import gr.aegean.palaemon.conductor.model.pojo.UpdatePersonStatusTO;
+import gr.aegean.palaemon.conductor.model.pojo.*;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DBProxyService {
 
@@ -22,6 +20,10 @@ public interface DBProxyService {
     public List<PameasPerson> getPassengerDetails();
     public List<PameasPerson> getCrewMembers();
 
+    public Optional<PameasPerson> getSinglePassengerDetails(String hashedMacAddress);
+
 
     public void updatePassengerPath(UpdatePersonStatusTO personStatusTO);
+
+    public void declarePassengerIncident(IncidentTO incidentTO);
 }

@@ -3,10 +3,7 @@ package gr.aegean.palaemon.conductor.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gr.aegean.palaemon.conductor.model.TO.EvacuationStatusTO;
-import gr.aegean.palaemon.conductor.model.pojo.Geofence;
-import gr.aegean.palaemon.conductor.model.pojo.PameasPerson;
-import gr.aegean.palaemon.conductor.model.pojo.ShipsGeofences;
-import gr.aegean.palaemon.conductor.model.pojo.UpdatePersonStatusTO;
+import gr.aegean.palaemon.conductor.model.pojo.*;
 import gr.aegean.palaemon.conductor.service.AccessTokenService;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -168,6 +165,30 @@ public class DBProxyServiceImpl implements DBProxyService {
         return null;
     }
 
+    @Override
+    public Optional<PameasPerson> getSinglePassengerDetails(String hashedMacAddress) {
+        String uri
+                = System.getenv("DB_PROXY_URI") + "getPassengers";
+        HttpHeaders headers = new HttpHeaders();
+        String bearer = "Bearer " + accessTokenService.getAccessToken().get();
+        headers.set("Authorization", bearer);
+
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<String> responseString = restTemplate.exchange(
+                uri, HttpMethod.GET, requestEntity, String.class);
+        ObjectMapper mapper = new ObjectMapper();
+        Optional<PameasPerson> result = Optional.empty();
+
+        try {
+            PameasPerson[] persons = mapper.readValue(responseString.getBody(), PameasPerson[].class);
+            return Arrays.stream(persons).filter(pameasPerson ->
+                    pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress().equals(hashedMacAddress)).findFirst();
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage());
+        }
+        return result;
+    }
+
 
     @Override
     public void updatePassengerPath(UpdatePersonStatusTO personStatusTO) {
@@ -179,5 +200,18 @@ public class DBProxyServiceImpl implements DBProxyService {
         headers.set("Authorization", bearer);
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+    }
+
+    @Override
+    public void declarePassengerIncident(IncidentTO incidentTO) {
+        String url
+                = System.getenv("DB_PROXY_URI") + "declarePassengerIncident";
+        HttpHeaders headers = new HttpHeaders();
+        String bearer = "Bearer " + accessTokenService.getAccessToken().get();
+        headers.set("Authorization", bearer);
+
+        HttpEntity<IncidentTO> request = new HttpEntity<>(incidentTO, headers);
+        String response = restTemplate.postForObject(url, request, String.class);
+        log.info(response);
     }
 }

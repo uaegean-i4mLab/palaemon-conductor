@@ -1,5 +1,6 @@
 package gr.aegean.palaemon.conductor.service.utils;
 
+import gr.aegean.palaemon.conductor.model.TO.NotificationIncidentTO;
 import gr.aegean.palaemon.conductor.model.pojo.*;
 import org.springframework.util.StringUtils;
 
@@ -251,6 +252,23 @@ public class Wrappers {
         response.setHashedMacAddress((String) map.get("hashedMacAddress"));
         response.setPathId((String) map.get("pathId"));
         return response;
+    }
+
+    public static NotificationIncidentTO notificationTo2NotificationIncidientTO(IncidentTO incidentTO){
+        NotificationIncidentTO result = new NotificationIncidentTO();
+        result.setHealthIssues(incidentTO.getHealthIssues());
+        result.setStatus(incidentTO.getStatus().toString());
+        result.setPassengerName(incidentTO.getPassengerName());
+        result.setPassengerSurname(incidentTO.getPassengerSurname());
+        result.setGeofence(incidentTO.getGeofence());
+        result.setXloc(incidentTO.getXLoc());
+        result.setId(incidentTO.getId());
+        result.setPregnancyStatus(incidentTO.getPregnancyStatus());
+        result.setYloc(incidentTO.getYLoc());
+        result.setTimestamp(incidentTO.getTimestamp());
+        result.setMobilityIssues(incidentTO.getMobilityIssues());
+        return result;
+
     }
 
 }

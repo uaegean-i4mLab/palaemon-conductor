@@ -74,7 +74,7 @@ public class GetCrewMembersDetailsTask implements Worker {
      * @param result the result to return to Conductor
      */
     private void getPassengerDetailsTask(Task task, TaskResult result) {
-        List<PameasPerson> personList = dbProxyService.getPassengerDetails();
+        List<PameasPerson> personList = dbProxyService.getCrewMembers();
 //        personList.forEach(pameasPerson -> {
 //            logger.info(pameasPerson.toString());
 //        });

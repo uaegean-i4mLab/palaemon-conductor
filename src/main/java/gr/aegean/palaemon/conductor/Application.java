@@ -104,6 +104,11 @@ public class Application extends SpringBootServletInitializer {
         Worker updatePassengerMSandPath =
                 new UpdatePassengersMSandPathTask("update_passenger_ms_and_path", dbProxyService);
 
+        Worker getSinglePassengerDetailsTask =
+                new GetSinglePassengerLocationHealthTask("get_single_passenger_location_health", dbProxyService);
+        Worker makePassengerIssueTask =
+                new MakePassengerIssueTask("make_passenger_issue", dbProxyService, kafkaService);
+
         // Create TaskRunnerConfigurer
         TaskRunnerConfigurer configurer = new TaskRunnerConfigurer.Builder(taskClient,
                 Arrays.asList(updateGeofenceWorker,
@@ -120,7 +125,9 @@ public class Application extends SpringBootServletInitializer {
                         updateInPositionTask,
                         verifyCrewPositionAndProceed,
                         sendPassengerNotificationCompleted,
-                        updatePassengerMSandPath))
+                        updatePassengerMSandPath,
+                        getSinglePassengerDetailsTask,
+                        makePassengerIssueTask))
                 .withThreadCount(threadCount)
                 .build();
 

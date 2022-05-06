@@ -2,6 +2,7 @@ package gr.aegean.palaemon.conductor.config;
 
 import gr.aegean.palaemon.conductor.service.utils.EnvUtils;
 import gr.aegean.palaemon.conductor.service.utils.KafkaJsonSerializer;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +13,9 @@ import java.util.Properties;
 @Configuration
 public class KafkaConfig {
     //TODO read these from .env
-    private final Properties properties = new Properties();
+    private final Properties producerProperties = new Properties();
+
+    private final Properties consumerProperties = new Properties();
 
 
     public KafkaConfig() {
@@ -21,22 +24,38 @@ public class KafkaConfig {
         String trustStorePass = EnvUtils.getEnvVar("KAFKA_TRUST_STORE_PASSWORD", "teststore");
         String keyStoreLocation = EnvUtils.getEnvVar("KAFKA_KEYSTORE_LOCATION", "/home/ni/code/java/palaemon-db-proxy/keystore.jks");
         String keyStorePass = EnvUtils.getEnvVar("KAFKA_KEY_STORE_PASSWORD", "teststore");
-        this.properties.put("bootstrap.servers", kafkaURI);
-        this.properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        this.properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        this.properties.put("security.protocol", "SSL");
-        this.properties.put("ssl.truststore.location", trustStoreLocation);
-        this.properties.put("ssl.truststore.password", trustStorePass);
-        this.properties.put("ssl.keystore.location", keyStoreLocation);
-        this.properties.put("ssl.keystore.password", keyStorePass);
+        this.producerProperties.put("bootstrap.servers", kafkaURI);
+        this.producerProperties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        this.producerProperties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        this.producerProperties.put("security.protocol", "SSL");
+        this.producerProperties.put("ssl.truststore.location", trustStoreLocation);
+        this.producerProperties.put("ssl.truststore.password", trustStorePass);
+        this.producerProperties.put("ssl.keystore.location", keyStoreLocation);
+        this.producerProperties.put("ssl.keystore.password", keyStorePass);
+
+        this.consumerProperties.put("bootstrap.servers", kafkaURI);
+        this.consumerProperties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        this.consumerProperties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        this.consumerProperties.put("security.protocol", "SSL");
+        this.consumerProperties.put("ssl.truststore.location", trustStoreLocation);
+        this.consumerProperties.put("ssl.truststore.password", trustStorePass);
+        this.consumerProperties.put("ssl.keystore.location", keyStoreLocation);
+        this.consumerProperties.put("ssl.keystore.password", keyStorePass);
+        this.consumerProperties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        this.consumerProperties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        this.consumerProperties.put("group.id", "uaeg-consumer-group");
+
     }
 
     @Bean
     public KafkaProducer producer() {
-        KafkaProducer<String, String> myProducer = new KafkaProducer<String, String>(this.properties, new StringSerializer(),
+        KafkaProducer<String, String> myProducer = new KafkaProducer<String, String>(this.producerProperties, new StringSerializer(),
                 new KafkaJsonSerializer());
         return myProducer;
     }
+
+
+
 
 
 }
