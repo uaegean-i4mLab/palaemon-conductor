@@ -1,4 +1,4 @@
-package gr.aegean.palaemon.conductor.service.utils;
+package gr.aegean.palaemon.conductor.utils;
 
 import org.springframework.util.StringUtils;
 

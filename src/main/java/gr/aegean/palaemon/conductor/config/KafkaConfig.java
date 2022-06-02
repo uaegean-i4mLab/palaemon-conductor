@@ -1,8 +1,7 @@
 package gr.aegean.palaemon.conductor.config;
 
-import gr.aegean.palaemon.conductor.service.utils.EnvUtils;
-import gr.aegean.palaemon.conductor.service.utils.KafkaJsonSerializer;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import gr.aegean.palaemon.conductor.utils.EnvUtils;
+import gr.aegean.palaemon.conductor.utils.KafkaJsonSerializer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;

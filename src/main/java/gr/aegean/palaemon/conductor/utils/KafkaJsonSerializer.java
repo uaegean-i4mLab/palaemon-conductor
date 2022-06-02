@@ -1,4 +1,4 @@
-package gr.aegean.palaemon.conductor.service.utils;
+package gr.aegean.palaemon.conductor.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

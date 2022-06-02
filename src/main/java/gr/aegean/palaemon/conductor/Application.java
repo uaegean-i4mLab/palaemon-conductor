@@ -38,6 +38,9 @@ public class Application extends SpringBootServletInitializer {
     @Autowired
     private KafkaService kafkaService;
 
+    @Autowired
+    private  ConstraintSolverService constraintSolverService;
+
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -109,6 +112,12 @@ public class Application extends SpringBootServletInitializer {
         Worker makePassengerIssueTask =
                 new MakePassengerIssueTask("make_passenger_issue", dbProxyService, kafkaService);
 
+        Worker callConstraintSolverTask =
+                new CallConstraintSolverTask("call_constraint_solver", constraintSolverService,kafkaService);
+
+        Worker crewAssignmentsAcceptedTask =
+                new CrewAssignmentsAcceptenceTask("crew_assignment_acceptance", dbProxyService,messagingServiceCaller);
+
         // Create TaskRunnerConfigurer
         TaskRunnerConfigurer configurer = new TaskRunnerConfigurer.Builder(taskClient,
                 Arrays.asList(updateGeofenceWorker,
@@ -127,7 +136,9 @@ public class Application extends SpringBootServletInitializer {
                         sendPassengerNotificationCompleted,
                         updatePassengerMSandPath,
                         getSinglePassengerDetailsTask,
-                        makePassengerIssueTask))
+                        makePassengerIssueTask,
+                        callConstraintSolverTask,
+                        crewAssignmentsAcceptedTask))
                 .withThreadCount(threadCount)
                 .build();
 

@@ -3,17 +3,15 @@ package gr.aegean.palaemon.conductor.tasks;
 import com.netflix.conductor.client.worker.Worker;
 import com.netflix.conductor.common.metadata.tasks.Task;
 import com.netflix.conductor.common.metadata.tasks.TaskResult;
-import gr.aegean.palaemon.conductor.model.pojo.PameasPerson;
 import gr.aegean.palaemon.conductor.model.pojo.PassengerAssignmentResponse;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
-import gr.aegean.palaemon.conductor.service.utils.Wrappers;
+import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Configurable

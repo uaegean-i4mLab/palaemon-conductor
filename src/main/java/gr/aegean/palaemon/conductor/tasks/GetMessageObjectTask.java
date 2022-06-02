@@ -3,19 +3,11 @@ package gr.aegean.palaemon.conductor.tasks;
 import com.netflix.conductor.client.worker.Worker;
 import com.netflix.conductor.common.metadata.tasks.Task;
 import com.netflix.conductor.common.metadata.tasks.TaskResult;
-import gr.aegean.palaemon.conductor.model.pojo.MessageBody;
 import gr.aegean.palaemon.conductor.model.pojo.MessageObject;
-import gr.aegean.palaemon.conductor.model.pojo.PassengerMessageBodyRequests;
 import gr.aegean.palaemon.conductor.service.RulesEngineService;
-import gr.aegean.palaemon.conductor.service.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Configurable
 public class GetMessageObjectTask implements Worker {

@@ -1,8 +1,6 @@
 package gr.aegean.palaemon.conductor.config;
 
-import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
-import gr.aegean.palaemon.conductor.service.utils.EnvUtils;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
+import gr.aegean.palaemon.conductor.utils.EnvUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;

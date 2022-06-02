@@ -7,17 +7,15 @@ import gr.aegean.palaemon.conductor.model.TO.NotificationIncidentTO;
 import gr.aegean.palaemon.conductor.model.TO.PameasNotificationTO;
 import gr.aegean.palaemon.conductor.model.pojo.Incident;
 import gr.aegean.palaemon.conductor.model.pojo.IncidentTO;
-import gr.aegean.palaemon.conductor.model.pojo.PameasPerson;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
 import gr.aegean.palaemon.conductor.service.KafkaService;
-import gr.aegean.palaemon.conductor.service.utils.Wrappers;
+import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Optional;
 import java.util.UUID;
 
 @Configurable

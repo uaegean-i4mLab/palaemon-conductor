@@ -6,7 +6,7 @@ import com.netflix.conductor.common.metadata.tasks.TaskResult;
 import gr.aegean.palaemon.conductor.model.pojo.MessageBody;
 import gr.aegean.palaemon.conductor.model.pojo.Passenger;
 import gr.aegean.palaemon.conductor.service.MessagingServiceCaller;
-import gr.aegean.palaemon.conductor.service.utils.Wrappers;
+import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
