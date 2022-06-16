@@ -1,6 +1,7 @@
-package gr.aegean.palaemon.conductor.model.pojo;
+package gr.aegean.palaemon.conductor.model.TO;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import gr.aegean.palaemon.conductor.model.pojo.Incident;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,4 +29,5 @@ public class IncidentTO {
     private String deck;
     private String timestamp;
     private Incident.IncidentStatus status;
+    private String incidentId;
 }

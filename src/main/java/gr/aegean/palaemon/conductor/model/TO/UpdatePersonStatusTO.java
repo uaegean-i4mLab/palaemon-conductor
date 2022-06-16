@@ -1,5 +1,6 @@
-package gr.aegean.palaemon.conductor.model.pojo;
+package gr.aegean.palaemon.conductor.model.TO;
 
+import gr.aegean.palaemon.conductor.model.pojo.Personalinfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

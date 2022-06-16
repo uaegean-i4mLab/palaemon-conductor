@@ -87,6 +87,7 @@ public class GetPassengerMSAssignmentsTask implements Worker {
 
         List<LinkedHashMap> geofences = (List<LinkedHashMap>) task.getInputData().get("geofences");
         List<LinkedHashMap> passengers = (List<LinkedHashMap>) task.getInputData().get("passenger_details");
+        String messageCode = (String) task.getInputData().get("message_code");
 
         logger.info("Input: ");
 //        logger.info("Geofence(s) Param:   {}", geofences);
@@ -113,6 +114,13 @@ public class GetPassengerMSAssignmentsTask implements Worker {
             languages.put(hashedMac, language);
         });
 
+        LinkedHashMap<String, String> messageCodes = new LinkedHashMap<>();
+        passengers.stream().map(Wrappers::hashMap2PameasPerson).forEach(passenger -> {
+            String hashedMac = passenger.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress();
+            messageCodes.put(hashedMac, messageCode);
+        });
+
+
         LinkedHashMap<String, String> actions = new LinkedHashMap<>();
         LinkedHashMap<String, String> pathIds = new LinkedHashMap<>();
         LinkedHashMap<String, String> assignedMSs = new LinkedHashMap<>();
@@ -128,7 +136,7 @@ public class GetPassengerMSAssignmentsTask implements Worker {
 
         passengerMessageBodyRequests.setPassengerLanguages(languages);
         passengerMessageBodyRequests.setActions(actions);
-        passengerMessageBodyRequests.setMessageCodes(null);
+        passengerMessageBodyRequests.setMessageCodes(messageCodes);
         passengerMessageBodyRequests.setAssignedPathIDs(pathIds);
         passengerMessageBodyRequests.setBlockedGeofences(blocked);
         passengerMessageBodyRequests.setMusterStation(assignedMSs);

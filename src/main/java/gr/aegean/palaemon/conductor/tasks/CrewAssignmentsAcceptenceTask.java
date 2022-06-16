@@ -3,15 +3,11 @@ package gr.aegean.palaemon.conductor.tasks;
 import com.netflix.conductor.client.worker.Worker;
 import com.netflix.conductor.common.metadata.tasks.Task;
 import com.netflix.conductor.common.metadata.tasks.TaskResult;
+import gr.aegean.palaemon.conductor.model.TO.IncidentTO;
+import gr.aegean.palaemon.conductor.model.TO.NotificationIncidentCrewTO;
 import gr.aegean.palaemon.conductor.model.TO.PameasNotificationTO;
-import gr.aegean.palaemon.conductor.model.TO.PassengerIncidentSolutionTO;
-import gr.aegean.palaemon.conductor.model.pojo.ConstraintSolverIncident;
-import gr.aegean.palaemon.conductor.model.pojo.Geofence;
-import gr.aegean.palaemon.conductor.model.pojo.MessageBody;
-import gr.aegean.palaemon.conductor.model.pojo.PameasPerson;
-import gr.aegean.palaemon.conductor.service.ConstraintSolverService;
+import gr.aegean.palaemon.conductor.model.pojo.*;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
-import gr.aegean.palaemon.conductor.service.KafkaService;
 import gr.aegean.palaemon.conductor.service.MessagingServiceCaller;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
@@ -19,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Configurable
 public class CrewAssignmentsAcceptenceTask implements Worker {
@@ -90,68 +87,34 @@ public class CrewAssignmentsAcceptenceTask implements Worker {
 
         logger.info("Running task: " + task.getTaskDefName());
 
-        ArrayList<Map<String, Object>> assignments = (ArrayList<Map<String, Object>>) task.getInputData().get("assignments");
+        LinkedHashMap<String, Object> assignmentAccepted = (LinkedHashMap<String, Object>) task.getInputData().get("assignment");
         logger.info("Input: ");
-        logger.info("Incidents:   {}", assignments);
+        logger.info("Incidents:   {}", assignmentAccepted);
         logger.info("Output: ");
 
-        assignments.forEach(assignment -> {
-            PameasNotificationTO notificationTO = Wrappers.map2PameasNotificationTO(assignment);
-            Optional<Geofence> incidentGeofence =
-                    dbProxyService.getAllGeofences().getSimple().stream().filter(geofence -> {
-                        return geofence.getGfName().equals(notificationTO.getGeofence());
-                    }).findAny();
-            String incidentDeck = "";
-            if (incidentGeofence.isPresent()) {
-                incidentDeck = incidentGeofence.get().getDeck();
-            } else {
-                incidentGeofence =
-                        dbProxyService.getAllGeofences().getMustering().stream().filter(geofence -> {
-                            return geofence.getGfName().equals(notificationTO.getGeofence());
-                        }).findAny();
-                if (incidentGeofence.isPresent()) {
-                    incidentDeck = incidentGeofence.get().getDeck();
-                }
-            }
+        PameasNotificationTO notificationTO = Wrappers.map2PameasNotificationTO(assignmentAccepted);
+        Optional<IncidentTO> incidentTO = dbProxyService.getIncidentFromId(notificationTO.getId());
+        if (incidentTO.isPresent()) {
+            ArrayList<String> assignedCrewMemberId = (ArrayList<String>) Arrays.stream(notificationTO.getCrew()).map(NotificationIncidentCrewTO::getId).collect(Collectors.toList());
+            // update the profiles of all crew members to ASSIGNED
+            assignedCrewMemberId.forEach(id -> {
+                dbProxyService.getCrewMembers().stream().filter(pameasPerson -> pameasPerson.getId().equals(id)).findFirst().ifPresent(pameasPerson -> {
 
-            String finalIncidentDeck = incidentDeck;
-            Arrays.stream(notificationTO.getCrew()).forEach(crew -> {
-                //GET Crew Member details
-                Optional<PameasPerson> dbCrewMember = this.dbProxyService.getCrewMembers().stream().filter(person -> {
+                    dbProxyService.updateCrewMemberStatus(pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress(),
+                            pameasPerson.getPersonalInfo().getPersonalId(), Personalinfo.AssignmentStatus.ASSIGNED);
+                });
+            });
+            //update the incident
+            incidentTO.get().setStatus(Incident.IncidentStatus.ASSIGNED);
+            dbProxyService.updatePassengerIncident(incidentTO.get());
+        } else {
+            logger.error("no incident found with id " + notificationTO.getId());
+        }
 
-                        person.getId();
-                return person.getId().equals(crew.getId());
-            }).findFirst();
-            if (dbCrewMember.isPresent()) {
-                //get hashedMacAddress
-                //send notification to CrewMemeber
-                ArrayList<MessageBody> bodies = new ArrayList<>();
-                MessageBody body = new MessageBody();
-                StringBuilder builder = new StringBuilder();
-                builder.append("ASSIGNMETN REQUEST")
-                        .append("PROCEED To DECK ")
-                        .append(finalIncidentDeck)
-                        .append("On geofence ")
-                        .append(notificationTO.getGeofence())
-                        .append("Passenger with health condition ")
-                        .append(notificationTO.getHealthIssues())
-                        .append("Passenger mobility status")
-                        .append(notificationTO.getMobilityIssues())
-                        .append("Passenger pregnency status")
-                        .append(notificationTO.getPregnancyStatus())
-                        .append("Passenger Name").append(notificationTO.getPassengerName()).append(notificationTO.getPassengerSurname());
-                body.setContent(builder.toString());
-                body.setHashedMacAddress(dbCrewMember.get().getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress());
-                bodies.add(body);
-                messagingServiceCaller.callSendMessages(bodies);
-            }
-        });
-
-    });
 
 
         logger.info("-----\n");
-}
+    }
 
 
 }

@@ -30,7 +30,8 @@ public class Incident implements Serializable {
 
     public enum IncidentStatus {
         OPEN("OPEN"),
-        CLOSED("CLOSED");
+        CLOSED("CLOSED"),
+        ASSIGNED("ASSIGNED");
         private final String name;
 
         private IncidentStatus(String s) {

@@ -83,8 +83,8 @@ public class GetSinglePassengerLocationHealthTask implements Worker {
         logger.info("Output: ");
 
         if (passenger.isPresent()) {
-            logger.info("Passenger: {}", passenger.get().getPersonalInfo().getPersonalId());
-            logger.info("-----\n");
+//            logger.info("Passenger: {}", passenger.get().getPersonalInfo().getPersonalId());
+//            logger.info("-----\n");
             if (passenger.get().getLocationInfo().getGeofenceHistory() != null && passenger.get().getLocationInfo().getGeofenceHistory().size() > 0) {
                 String geofence = passenger.get().getLocationInfo().getGeofenceHistory()
                         .get(passenger.get().getLocationInfo().getGeofenceHistory().size() - 1)

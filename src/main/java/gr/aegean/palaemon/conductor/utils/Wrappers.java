@@ -3,7 +3,6 @@ package gr.aegean.palaemon.conductor.utils;
 import gr.aegean.palaemon.conductor.model.TO.*;
 import gr.aegean.palaemon.conductor.model.pojo.*;
 import gr.aegean.palaemon.conductor.service.DistanceCalculatorService;
-import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.util.StringUtils;
 
 import java.sql.Timestamp;
@@ -271,6 +270,8 @@ public class Wrappers {
         result.setYloc(incidentTO.getYLoc());
         result.setTimestamp(incidentTO.getTimestamp());
         result.setMobilityIssues(incidentTO.getMobilityIssues());
+        result.setDeck(incidentTO.getDeck());
+
         return result;
 
     }
@@ -332,36 +333,87 @@ public class Wrappers {
         */
         PameasNotificationTO result = new PameasNotificationTO();
         result.setType((String) map.get("type"));
-        if (map.get("status").equals("CLOSED")) {
+        if (map.get("status") != null && map.get("status").equals("CLOSED")) {
             result.setStatus(Incident.IncidentStatus.valueOf(map.get("status").toString()).toString());
         } else {
             result.setStatus("OPEN");
         }
 
-        result.setId((String) map.get("id"));
+        if (map.get("incidentId") != null) {
+            result.setId((String) map.get("incidentId"));
+        } else {
+            result.setId((String) map.get("id"));
+        }
+
         result.setTimestamp((String) map.get("timestamp"));
         result.setMacAddress((String) map.get("macAddress"));
-        result.setPassengerName((String) map.get("passengerName"));
-        result.setPassengerSurname((String) map.get("passengerSurname"));
-        String[] languageArray = new String[((ArrayList<String>) map.get("preferredLanguage")).size()];
-        result.setPreferredLanguage((((ArrayList<String>) map.get("preferredLanguage")).toArray(languageArray)));
+        if (map.get("name") != null) {
+            result.setPassengerName((String) map.get("name"));
+        } else {
+            result.setPassengerName((String) map.get("passengerName"));
+        }
+        if (map.get("surname") != null) {
+            result.setPassengerSurname((String) map.get("surname"));
+        } else {
+            result.setPassengerSurname((String) map.get("passengerSurname"));
+        }
+
+
+        if (map.get("preferredLanguage") != null) {
+            String[] languageArray = new String[((ArrayList<String>) map.get("preferredLanguage")).size()];
+            result.setPreferredLanguage((((ArrayList<String>) map.get("preferredLanguage")).toArray(languageArray)));
+        }
+        if (map.get("passengerLanguage") != null) {
+            String[] languageArray = new String[1];
+            languageArray[0] = (String) map.get("passengerLanguage");
+            result.setPreferredLanguage(languageArray);
+        }
+
         result.setMobilityIssues((String) map.get("mobilityIssues"));
         result.setPregnancyStatus((String) map.get("pregnancyStatus"));
-        String[] assignedCrewMembers = new String[((ArrayList) map.get("assignedCrewMemberId")).size()];
-        result.setAssignedCrewMemberId(((ArrayList<String>) map.get("assignedCrewMemberId")).toArray(assignedCrewMembers));
-        result.setIncident(map2NotificationIncidentTO((Map) map.get("incident")));
+        if (map.get("healthCondition") != null) {
+            result.setHealthIssues((String) map.get("healthCondition"));
+        } else {
+            result.setHealthIssues((String) map.get("healthIssues"));
+
+        }
+
+
+        if (map.get("assignedCrewMemberId") != null) {
+            String[] assignedCrewMembers = new String[((ArrayList) map.get("assignedCrewMemberId")).size()];
+            result.setAssignedCrewMemberId(((ArrayList<String>) map.get("assignedCrewMemberId")).toArray(assignedCrewMembers));
+            result.setIncident(map2NotificationIncidentTO((Map) map.get("incident")));
+        }
         //TODO
 
 //        result.setCrew(map2NotificationIncidentCrewTO((Map) map.get("id")));
-        NotificationIncidentCrewTO[] crewMembers = new NotificationIncidentCrewTO[((ArrayList<Object>) map.get("crew")).size()];
-        ArrayList<NotificationIncidentCrewTO> crewMembersList = new ArrayList<>();
-        ((ArrayList<Object>) map.get("crew")).forEach((crewMember) -> {
-            crewMembersList.add(hash2NotificationIncidentCrewTO((Map<String, Object>) crewMember));
-        });
-        result.setCrew(crewMembersList.toArray(crewMembers));
+        if (map.get("crew") != null) {
+            NotificationIncidentCrewTO[] crewMembers = new NotificationIncidentCrewTO[((ArrayList<Object>) map.get("crew")).size()];
+            ArrayList<NotificationIncidentCrewTO> crewMembersList = new ArrayList<>();
+            ((ArrayList<Object>) map.get("crew")).forEach((crewMember) -> {
+                crewMembersList.add(hash2NotificationIncidentCrewTO((Map<String, Object>) crewMember));
+            });
+            result.setCrew(crewMembersList.toArray(crewMembers));
+        }
         result.setXloc((String) map.get("x_loc"));
         result.setYloc((String) map.get("y_loc"));
         result.setGeofence((String) map.get("geofence"));
+
+        NotificationIncidentTO notificationIncidentTO = new NotificationIncidentTO();
+        notificationIncidentTO.setDeck((String)map.get("deck"));
+        notificationIncidentTO.setStatus(result.getStatus());
+        notificationIncidentTO.setId(result.getId());
+        notificationIncidentTO.setPassengerName(result.getPassengerName());
+        notificationIncidentTO.setPassengerSurname(result.getPassengerSurname());
+        notificationIncidentTO.setHealthIssues(result.getHealthIssues());
+        notificationIncidentTO.setStatus(result.getStatus());
+        notificationIncidentTO.setTimestamp(result.getTimestamp());
+        notificationIncidentTO.setMobilityIssues(result.getMobilityIssues());
+        notificationIncidentTO.setPregnancyStatus(result.getPregnancyStatus());
+        notificationIncidentTO.setYloc(result.getYloc());
+        notificationIncidentTO.setXloc(result.getXloc());
+        notificationIncidentTO.setGeofence(result.getGeofence());
+        result.setIncident(notificationIncidentTO);
 
 
         return result;
@@ -376,10 +428,14 @@ public class Wrappers {
         crewTO.setId((String) map.get("id"));
         crewTO.setName((String) map.get("name"));
         crewTO.setSurname((String) map.get("surname"));
-        crewTO.setAssigned((boolean) map.get("assigned"));
+        if (map.get("assigned") != null)
+            crewTO.setAssigned((boolean) map.get("assigned"));
         crewTO.setEmergencyRole((String) map.get("emergencyRole"));
-        String[] languages = new String[((ArrayList<String>) map.get("languages")).size()];
-        crewTO.setLanguages(((ArrayList<String>) map.get("languages")).toArray(languages));
+        if (map.get("languages") != null) {
+            String[] languages = new String[((ArrayList<String>) map.get("languages")).size()];
+            crewTO.setLanguages(((ArrayList<String>) map.get("languages")).toArray(languages));
+        }
+
         return crewTO;
     }
 
@@ -425,8 +481,9 @@ public class Wrappers {
         ConstraintSolverIncident incident = new ConstraintSolverIncident();
         incident.setIncidentId(notification.getId());
         incident.setHealthCondition(notification.getHealthIssues());
-        //TODO
-        //incident.setDeck(no);
+        incident.setPassengerLanguage(notification.getPreferredLanguage()[0]);
+        if (notification.getIncident() != null)
+            incident.setDeck(notification.getIncident().getDeck());
         incident.setGeofence(notification.getGeofence());
         incident.setPassengerLanguage(notification.getPreferredLanguage()[0]);
         incident.setXLoc(notification.getXloc());
@@ -523,6 +580,7 @@ public class Wrappers {
             notificationIncidentTO.setHealthIssues("");
         }
         notificationIncidentTO.setStatus("ASSIGNED");
+        notificationIncidentTO.setDeck(solution.getDeck());
         return notificationIncidentTO;
     }
 
@@ -540,5 +598,6 @@ public class Wrappers {
         incidentCrewTO.setHashedMacAddress("");
         return incidentCrewTO;
     }
+
 
 }

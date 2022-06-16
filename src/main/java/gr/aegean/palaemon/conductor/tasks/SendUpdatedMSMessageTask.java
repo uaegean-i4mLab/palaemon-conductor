@@ -94,21 +94,23 @@ public class SendUpdatedMSMessageTask implements Worker {
         logger.info("Crew Members updates:   {}", crewMembersMap);
 
 //        PassengerMessageBodyRequests mbRequest = Wrappers.hashMap2MessageBodyRequest(messageBodyRequest);
-        StringBuilder sb = new StringBuilder();
-        sb.append("Passengers from ");
-        msUpdatesMap.forEach((key, value) -> {
-            sb.append("Muster Station ").append(key);
-            sb.append(" are redirected to ").append((String)value);
-        });
-        String messageTxt = sb.toString();
-        List<MessageBody> messageBodies = new ArrayList<>();
-        crewMembers.forEach(crewMember->{
-            MessageBody mb = new MessageBody();
-            mb.setContent(messageTxt);
-            mb.setHashedMacAddress(crewMember.getHashedMacAddress());
-            messageBodies.add(mb);
-        });
-        messagingServiceCaller.callSendMessages(messageBodies);
+        if (msUpdatesMap.size() > 0) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Passengers from ");
+            msUpdatesMap.forEach((key, value) -> {
+                sb.append("Muster Station ").append(key);
+                sb.append(" are redirected to ").append((String) value);
+            });
+            String messageTxt = sb.toString();
+            List<MessageBody> messageBodies = new ArrayList<>();
+            crewMembers.forEach(crewMember -> {
+                MessageBody mb = new MessageBody();
+                mb.setContent(messageTxt);
+                mb.setHashedMacAddress(crewMember.getHashedMacAddress());
+                messageBodies.add(mb);
+            });
+            messagingServiceCaller.callSendMessages(messageBodies);
+        }
 
 
         logger.info("Output: ");

@@ -115,8 +115,11 @@ public class Application extends SpringBootServletInitializer {
         Worker callConstraintSolverTask =
                 new CallConstraintSolverTask("call_constraint_solver", constraintSolverService,kafkaService);
 
-        Worker crewAssignmentsAcceptedTask =
-                new CrewAssignmentsAcceptenceTask("crew_assignment_acceptance", dbProxyService,messagingServiceCaller);
+        Worker crewAssignmentsRequestTask =
+                new CrewAssignmentsRequestTask("crew_assignment_request", dbProxyService,messagingServiceCaller);
+
+        Worker crewAssignmentsAcceptTask =
+                new CrewAssignmentsAcceptenceTask("crew_assignment_accept", dbProxyService,messagingServiceCaller);
 
         // Create TaskRunnerConfigurer
         TaskRunnerConfigurer configurer = new TaskRunnerConfigurer.Builder(taskClient,
@@ -138,7 +141,8 @@ public class Application extends SpringBootServletInitializer {
                         getSinglePassengerDetailsTask,
                         makePassengerIssueTask,
                         callConstraintSolverTask,
-                        crewAssignmentsAcceptedTask))
+                        crewAssignmentsRequestTask,
+                        crewAssignmentsAcceptTask))
                 .withThreadCount(threadCount)
                 .build();
 

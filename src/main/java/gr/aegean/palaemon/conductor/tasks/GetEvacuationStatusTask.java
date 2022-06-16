@@ -85,8 +85,6 @@ public class GetEvacuationStatusTask implements Worker {
         logger.info("EvacuationStatus: {}",res);
         logger.info("-----\n");
         //Register the output of the task
-        //TODO
-
         result.getOutputData().put("evacuation_status", res);
 
 

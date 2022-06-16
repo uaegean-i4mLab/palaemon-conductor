@@ -6,7 +6,7 @@ import com.netflix.conductor.common.metadata.tasks.TaskResult;
 import gr.aegean.palaemon.conductor.model.TO.NotificationIncidentTO;
 import gr.aegean.palaemon.conductor.model.TO.PameasNotificationTO;
 import gr.aegean.palaemon.conductor.model.pojo.Incident;
-import gr.aegean.palaemon.conductor.model.pojo.IncidentTO;
+import gr.aegean.palaemon.conductor.model.TO.IncidentTO;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
 import gr.aegean.palaemon.conductor.service.KafkaService;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
@@ -107,13 +107,16 @@ public class MakePassengerIssueTask implements Worker {
         incidentTO.setTimestamp( new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()));
         incidentTO.setPassengerSurname(surname);
         incidentTO.setPregnancyStatus(pregnancyIssues);
-        incidentTO.setId(UUID.randomUUID().toString());
+        String id = UUID.randomUUID().toString();
+        incidentTO.setId(id);
         incidentTO.setStatus(Incident.IncidentStatus.OPEN);
+        //TODO this should not only be "en"
         incidentTO.setPreferredLanguage(new String[]{"en"});
         incidentTO.setXLoc(xLoc);
         incidentTO.setYLoc(yLoc);
         incidentTO.setAssignedCrewMemberId(null);
         incidentTO.setDeck(deck);
+        incidentTO.setIncidentId(id);
 
         dbProxyService.declarePassengerIncident(incidentTO);
 
@@ -138,6 +141,8 @@ public class MakePassengerIssueTask implements Worker {
         pameasNotificationTO.setXloc(incidentTO.getXLoc());
         pameasNotificationTO.setYloc(incidentTO.getYLoc());
         pameasNotificationTO.setStatus(incidentTO.getStatus().toString());
+        pameasNotificationTO.setPreferredLanguage(incidentTO.getPreferredLanguage());
+
 
         kafkaService.writeToPameasNotification(pameasNotificationTO);
     }

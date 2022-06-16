@@ -37,6 +37,6 @@ public class MessagingServiceCallerImpl implements MessagingServiceCaller {
             log.error(e.getMessage());
         }
 
-//        restTemplate.postForObject(url, request, String.class);
+        restTemplate.postForObject(url, request, String.class);
     }
 }

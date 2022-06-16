@@ -1,5 +1,7 @@
 package gr.aegean.palaemon.conductor.service;
 
+import gr.aegean.palaemon.conductor.model.TO.IncidentTO;
+import gr.aegean.palaemon.conductor.model.TO.UpdatePersonStatusTO;
 import gr.aegean.palaemon.conductor.model.pojo.*;
 
 import java.util.List;
@@ -26,4 +28,11 @@ public interface DBProxyService {
     public void updatePassengerPath(UpdatePersonStatusTO personStatusTO);
 
     public void declarePassengerIncident(IncidentTO incidentTO);
+
+    public void updateCrewMemberStatus(String hashAddress, String id, Personalinfo.AssignmentStatus status);
+
+
+    public void savePassengerIncident(IncidentTO incidentTO);
+    public void updatePassengerIncident(IncidentTO incidentTO);
+    public Optional<IncidentTO> getIncidentFromId(String incidentId);
 }

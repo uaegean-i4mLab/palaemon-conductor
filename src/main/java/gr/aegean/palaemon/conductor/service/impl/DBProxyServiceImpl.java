@@ -3,6 +3,8 @@ package gr.aegean.palaemon.conductor.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gr.aegean.palaemon.conductor.model.TO.EvacuationStatusTO;
+import gr.aegean.palaemon.conductor.model.TO.IncidentTO;
+import gr.aegean.palaemon.conductor.model.TO.UpdatePersonStatusTO;
 import gr.aegean.palaemon.conductor.model.pojo.*;
 import gr.aegean.palaemon.conductor.service.AccessTokenService;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
@@ -192,14 +194,14 @@ public class DBProxyServiceImpl implements DBProxyService {
 
     @Override
     public void updatePassengerPath(UpdatePersonStatusTO personStatusTO) {
-        String uri
-                = System.getenv("DB_PROXY_URI") + "updatePassengerPath";
-
-        HttpHeaders headers = new HttpHeaders();
-        String bearer = "Bearer " + accessTokenService.getAccessToken().get();
-        headers.set("Authorization", bearer);
-
-        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+//        String uri
+//                = System.getenv("DB_PROXY_URI") + "updatePassengerPath";
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        String bearer = "Bearer " + accessTokenService.getAccessToken().get();
+//        headers.set("Authorization", bearer);
+//
+//        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
     }
 
     @Override
@@ -213,5 +215,61 @@ public class DBProxyServiceImpl implements DBProxyService {
         HttpEntity<IncidentTO> request = new HttpEntity<>(incidentTO, headers);
         String response = restTemplate.postForObject(url, request, String.class);
         log.info(response);
+    }
+
+    @Override
+    public void updateCrewMemberStatus(String hashAddress, String id, Personalinfo.AssignmentStatus status) {
+        String url
+                = System.getenv("DB_PROXY_URI") + "updateCrewMemberStatus";
+        HttpHeaders headers = new HttpHeaders();
+        String bearer = "Bearer " + accessTokenService.getAccessToken().get();
+        headers.set("Authorization", bearer);
+
+        UpdatePersonStatusTO personStatusTO = new UpdatePersonStatusTO();
+        personStatusTO.setAssignmentStatus(status);
+        personStatusTO.setHashedMacAddress(hashAddress);
+        personStatusTO.setId(id);
+
+        HttpEntity<UpdatePersonStatusTO> request = new HttpEntity<>(personStatusTO, headers);
+        String response = restTemplate.postForObject(url, request, String.class);
+        log.info(response);
+    }
+
+    @Override
+    public void savePassengerIncident(IncidentTO incidentTO) {
+        String url
+                = System.getenv("DB_PROXY_URI") + "declarePassengerIncident";
+        HttpHeaders headers = new HttpHeaders();
+        String bearer = "Bearer " + accessTokenService.getAccessToken().get();
+        headers.set("Authorization", bearer);
+        HttpEntity<IncidentTO> request = new HttpEntity<>(incidentTO, headers);
+        String response = restTemplate.postForObject(url, request, String.class);
+        log.info(response);
+    }
+
+    @Override
+    public void updatePassengerIncident(IncidentTO incidentTO) {
+        String url
+                = System.getenv("DB_PROXY_URI") + "updatePassengerIncident";
+        HttpHeaders headers = new HttpHeaders();
+        String bearer = "Bearer " + accessTokenService.getAccessToken().get();
+        headers.set("Authorization", bearer);
+        HttpEntity<IncidentTO> request = new HttpEntity<>(incidentTO, headers);
+        String response = restTemplate.postForObject(url, request, String.class);
+        log.info(response);
+    }
+
+    @Override
+    public Optional<IncidentTO> getIncidentFromId(String incidentId) {
+        String uri
+                = System.getenv("DB_PROXY_URI") + "getPassengerIncident?id=" + incidentId;
+        HttpHeaders headers = new HttpHeaders();
+        String bearer = "Bearer " + accessTokenService.getAccessToken().get();
+        headers.set("Authorization", bearer);
+
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<IncidentTO> incidentTo = restTemplate.exchange(
+                uri, HttpMethod.GET, requestEntity, IncidentTO.class);
+        return Optional.ofNullable(incidentTo.getBody());
     }
 }

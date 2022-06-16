@@ -1,6 +1,7 @@
 package gr.aegean.palaemon.conductor.service;
 
 import gr.aegean.palaemon.conductor.model.TO.PameasNotificationTO;
+import gr.aegean.palaemon.conductor.model.pojo.BraceletPojo;
 
 public interface KafkaService {
 
@@ -11,9 +12,12 @@ public interface KafkaService {
     public void monitorEvacuationCoordinator(String message);
 
     public void monitorPameasNotification(String message);
-    public void monitorHeartbeat(String message);
-    //
-    public void resourceDiscoveryRequest(String message);
 
     public void writePameasNotification(PameasNotificationTO notification);
+
+    public void writeToBracelets(BraceletPojo braceletPojo);
+
+
+    public void monitorBraceletFall(String message);
+    public void monitorBraceletHealth(String message);
 }

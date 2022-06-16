@@ -30,6 +30,7 @@ public class NotificationIncidentTO {
     @JsonProperty("timestamp")
     private String timestamp;
     private String status;
+    private String deck;
 
 
 }

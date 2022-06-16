@@ -94,8 +94,7 @@ public class SendPassengerNotificationCompletedTask implements Worker {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         pameasNotification.setTimestamp(timestamp.toString());
         pameasNotification.setType("PASSENGER_ALERT_COMPLETED");
-        //TODO
-        //kafkaService.writeToPameasNotification(pameasNotification);
+        kafkaService.writeToPameasNotification(pameasNotification);
 
         logger.info("-----\n");
 

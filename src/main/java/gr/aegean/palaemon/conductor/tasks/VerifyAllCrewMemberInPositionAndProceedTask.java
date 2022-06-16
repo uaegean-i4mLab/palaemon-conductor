@@ -102,11 +102,8 @@ public class VerifyAllCrewMemberInPositionAndProceedTask implements Worker {
             pameasNotification.setId(UUID.randomUUID().toString());
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             pameasNotification.setTimestamp(timestamp.toString());
-            pameasNotification.setType("crew_in_position");
-
-            //TODO
-            //kafkaService.writeToPameasNotification(pameasNotification);
-
+            pameasNotification.setType("all_crew_in_position");
+            kafkaService.writeToPameasNotification(pameasNotification);
             logger.info("-----\n");
         }
     }
