@@ -16,6 +16,8 @@ public class NetworkInfo implements Serializable {
 
     private List<DeviceInfo> deviceInfoList;
     private String messagingAppClientId;
+    private String braceletId;
+    private String arGlassesId;
 
 
 }

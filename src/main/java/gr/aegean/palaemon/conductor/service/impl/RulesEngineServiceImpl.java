@@ -31,6 +31,7 @@ public class RulesEngineServiceImpl implements RulesEngineService {
         passengerAssignmentRequest.setBlocked(blockedMS);
         passengerAssignmentRequest.setMusteringStations(musterStations);
 
+
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<PassengerAssignmentRequest> request = new HttpEntity<>(passengerAssignmentRequest, headers);
 

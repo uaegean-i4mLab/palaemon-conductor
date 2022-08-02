@@ -122,13 +122,13 @@ public class Wrappers {
         LocationInfo locationInfo = new LocationInfo();
         List<UserLocationUnit> locations = new ArrayList<>();
         List<UserGeofenceUnit> geofenceUnits = new ArrayList<>();
-        if (((List) hashMap.get("locationHistory")).size() > 0) {
+        if (((List) hashMap.get("locationHistory"))!= null && ((List) hashMap.get("locationHistory")).size() > 0) {
             locations = (List<UserLocationUnit>) ((List) hashMap.get("locationHistory")).stream().map(locationUnit -> {
                 return hashMap2UserLocationUnit((LinkedHashMap<String, Object>) locationUnit);
             }).collect(Collectors.toList());
 
         }
-        if (((List) hashMap.get("geofenceHistory")).size() > 0) {
+        if (((List) hashMap.get("geofenceHistory"))!= null && ((List) hashMap.get("geofenceHistory")).size() > 0) {
             geofenceUnits = (List<UserGeofenceUnit>) ((List) hashMap.get("geofenceHistory")).stream().map(geofenceUnit -> {
                 return hashMap2UserGeofenceUnit((LinkedHashMap<String, Object>) geofenceUnit);
             }).collect(Collectors.toList());
@@ -201,7 +201,8 @@ public class Wrappers {
                 requests.setBlockedGeofences((ArrayList<String>) hashMap.get("blockedGeofences"));
             if (hashMap.get("messageCodes") != null)
                 requests.setMessageCodes((LinkedHashMap<String, String>) hashMap.get("messageCodes"));
-
+            if(hashMap.get("currentGeofences") != null)
+                requests.setCurrentGeofences((LinkedHashMap<String, String>) hashMap.get("currentGeofences"));
         }
 
         if (requests.getMessageCodes() == null) {
@@ -254,6 +255,7 @@ public class Wrappers {
         response.setMusterStation((String) map.get("musterStation"));
         response.setHashedMacAddress((String) map.get("hashedMacAddress"));
         response.setPathId((String) map.get("pathId"));
+        response.setGeofence((String) map.get("geofence"));
         return response;
     }
 
@@ -599,5 +601,55 @@ public class Wrappers {
         return incidentCrewTO;
     }
 
+    public static PameasNotificationTO pameasPersonToNotificationTO(PameasPerson person) {
+
+        IncidentTO incident = new IncidentTO();
+        incident.setPassengerSurname(person.getPersonalInfo().getSurname());
+        incident.setPassengerName(person.getPersonalInfo().getName());
+        incident.setPregnancyStatus(person.getPersonalInfo().getPrengencyData());
+        incident.setStatus(Incident.IncidentStatus.OPEN);
+        incident.setXLoc(person.getLocationInfo().getLocationHistory().get(person.getLocationInfo().getLocationHistory().size() - 1).getXLocation());
+        incident.setYLoc(person.getLocationInfo().getLocationHistory().get(person.getLocationInfo().getLocationHistory().size() - 1).getYLocation());
+        incident.setDeck(person.getLocationInfo().getGeofenceHistory().get(person.getLocationInfo().getGeofenceHistory().size() - 1).getDeck());
+        incident.setMobilityIssues(person.getPersonalInfo().getMobilityIssues());
+        incident.setHealthIssues(person.getPersonalInfo().getMedicalCondition());
+        Date date = new Date();
+        incident.setTimestamp((new Timestamp(date.getTime())).toString());
+        incident.setId(UUID.randomUUID().toString());
+        int size = person.getPersonalInfo().getPreferredLanguage().size();
+        String[] languages = new String[size];
+        incident.setPreferredLanguage(person.getPersonalInfo().getPreferredLanguage().toArray(languages));
+        incident.setGeofence(person.getLocationInfo().getGeofenceHistory().get(person.getLocationInfo().getGeofenceHistory().size() - 1).getGfName());
+        incident.setIncidentId(incident.getId());
+
+
+        NotificationIncidentTO notificationIncidentTO = Wrappers.notificationTo2NotificationIncidientTO(incident);
+        PameasNotificationTO pameasNotificationTO = new PameasNotificationTO();
+        pameasNotificationTO.setType("PASSENGER_ISSUE");
+        pameasNotificationTO.setHealthIssues(incident.getHealthIssues());
+        pameasNotificationTO.setTimestamp(incident.getTimestamp());
+        pameasNotificationTO.setId(incident.getId());
+        pameasNotificationTO.setPassengerName(incident.getPassengerName());
+        pameasNotificationTO.setPassengerSurname(incident.getPassengerSurname());
+        pameasNotificationTO.setStatus(incident.getStatus().toString());
+        pameasNotificationTO.setMobilityIssues(notificationIncidentTO.getMobilityIssues());
+        pameasNotificationTO.setAssignedCrewMemberId(null);
+        pameasNotificationTO.setCrew(null);
+        pameasNotificationTO.setGeofence(incident.getGeofence());
+        pameasNotificationTO.setPregnancyStatus(incident.getPregnancyStatus());
+        pameasNotificationTO.setPreferredLanguage(incident.getPreferredLanguage());
+        pameasNotificationTO.setPreferredLanguage(incident.getPreferredLanguage());
+        pameasNotificationTO.setMacAddress(person.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress());
+        pameasNotificationTO.setIncident(notificationIncidentTO);
+        pameasNotificationTO.setXloc(incident.getXLoc());
+        pameasNotificationTO.setYloc(incident.getYLoc());
+        pameasNotificationTO.setStatus(incident.getStatus().toString());
+        pameasNotificationTO.setPreferredLanguage(incident.getPreferredLanguage());
+
+
+        return pameasNotificationTO;
+
+
+    }
 
 }

@@ -6,24 +6,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gr.aegean.palaemon.conductor.model.TO.*;
 import gr.aegean.palaemon.conductor.model.pojo.BraceletPojo;
 import gr.aegean.palaemon.conductor.model.pojo.ConstraintSolverIncident;
+import gr.aegean.palaemon.conductor.model.pojo.PameasPerson;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
 import gr.aegean.palaemon.conductor.service.DistanceCalculatorService;
+import gr.aegean.palaemon.conductor.service.ElasticService;
 import gr.aegean.palaemon.conductor.service.KafkaService;
+import gr.aegean.palaemon.conductor.utils.CryptoUtils;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
@@ -46,12 +54,28 @@ public class KafkaServiceImpl implements KafkaService {
     @Autowired
     private DistanceCalculatorService distanceCalculatorService;
 
+
+    @Autowired
+    ElasticService elasticService;
+
+    @Autowired
+    EvacuationStatusTO evacuationStatusTO;
+
+    @Autowired
+    CryptoUtils cryptoUtils;
+
+    private final KafkaProducer<String, KafkaHeartBeatResponse> heartBeatProducer;
+    private final KafkaProducer<String, EvacuationCoordinatorEventTO> evacuationCoordinatorProducer;
+
     @Autowired
     public KafkaServiceImpl(KafkaProducer<String, PameasNotificationTO> notificationProducer,
-                            KafkaProducer<String, BraceletPojo> braceletProducer) {
+                            KafkaProducer<String, BraceletPojo> braceletProducer,
+                            KafkaProducer<String, KafkaHeartBeatResponse> heartBeatProducer,
+                            KafkaProducer<String, EvacuationCoordinatorEventTO> evacuationCoordinatorProducer) {
         this.notificationProducer = notificationProducer;
         this.braceletProducer = braceletProducer;
-
+        this.heartBeatProducer = heartBeatProducer;
+        this.evacuationCoordinatorProducer = evacuationCoordinatorProducer;
     }
 
 
@@ -105,6 +129,19 @@ public class KafkaServiceImpl implements KafkaService {
         ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             EvacuationCoordinatorEventTO eventTO = mapper.readValue(message, EvacuationCoordinatorEventTO.class);
+            KafkaHeartBeatResponse response = new KafkaHeartBeatResponse();
+            response.setOriginator("PaMEAS-Location");
+            // change PaMEAS status to the received one
+            this.evacuationStatusTO.setStatus(eventTO.getEvacuationStatus());
+            if (this.evacuationStatusTO.getStatus().equals("0")) {
+                response.setOperationMode("0");
+            } else {
+                response.setOperationMode("1");
+            }
+            response.setTimestamp(new Timestamp(System.currentTimeMillis()).toString());
+            this.heartBeatProducer.send(new ProducerRecord<>("evacuation-component-status", response));
+
+            //if the status was set to 2 (EMBARKATION) start the mustering flows
             if (eventTO.getEvacuationStatus().equals("2")) {
                 PhaseTaskTO phaseTaskTO = new PhaseTaskTO("4", "4.1");
                 String conductorUrl = System.getenv("CONDUCTOR_URI");
@@ -113,13 +150,121 @@ public class KafkaServiceImpl implements KafkaService {
                         .header("Content-Type", "application/json")
                         .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(phaseTaskTO)))
                         .build();
-                HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+                HttpResponse<String> httpResponse = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
                 log.info("made a call to ${} instruct_crew_to_positions", conductorUrl);
             }
         } catch (IOException | InterruptedException e) {
             log.error(e.getMessage());
         }
 
+    }
+
+    @Override
+    @KafkaListener(topics = "heartbeat-request", groupId = "uaeg-consumer-group")
+    public void monitorHeartbeat(String message) {
+//        log.info("message from heartbeat-request ${}", message);
+        sendHeartBeatResponse("heartbeat-response");
+    }
+
+    public void sendHeartBeatResponse(String topic) {
+        KafkaHeartBeatResponse response = new KafkaHeartBeatResponse();
+        if (!this.evacuationStatusTO.getStatus().equals("0")) {
+            response.setOperationMode("1");
+        } else {
+            response.setOperationMode("0");
+        }
+        response.setTimestamp(new Timestamp(System.currentTimeMillis()).toString());
+        this.heartBeatProducer.send(new ProducerRecord<>(topic, response));
+    }
+
+    @Override
+    @KafkaListener(topics = "resource-discovery-request", groupId = "uaeg-consumer-group")
+    public void monitorResourceDiscover(String message) {
+//        log.info("message from resource-discovery-request ${}", message);
+        KafkaHeartBeatResponse response = new KafkaHeartBeatResponse();
+        sendHeartBeatResponse("resource-discovery-response");
+    }
+
+    @Override
+    @KafkaListener(topics = "smart-bracelet-sensor-data", groupId = "uaeg-consumer-group")
+    public void monitorBraceletSaturation(String message) {
+        log.info("message from /smart-bracelet-sensor-data ${}", message);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try {
+            BraceletDataTO braceletDataTO = mapper.readValue(message, BraceletDataTO.class);
+            Optional<PameasPerson> person = elasticService.getPersonByBraceletId(braceletDataTO.getId());
+            if (person.isPresent()) {
+                person.get().getPersonalInfo().setOxygenSaturation(braceletDataTO.getSp02());
+                String decryptedPersonaId = this.cryptoUtils.decryptBase64Message(person.get().getPersonalInfo().getPersonalId());
+                elasticService.updatePerson(decryptedPersonaId, person.get());
+            } else {
+                log.error("no person found with bracelet {}", braceletDataTO.getId());
+            }
+        } catch (JsonProcessingException | InvalidKeyException | BadPaddingException | NoSuchAlgorithmException |
+                 IllegalBlockSizeException | NoSuchPaddingException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    @Override
+    @KafkaListener(topics = "smart-bracelet-event-notification", groupId = "uaeg-consumer-group")
+    public void monitorBraceletFallEvent(String message) {
+//        log.info("message from /smart-bracelet-event-notification ${}", message);
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try {
+            BraceletFallTO braceletFallTO = mapper.readValue(message, BraceletFallTO.class);
+            Optional<PameasPerson> person = elasticService.getPersonByBraceletId(braceletFallTO.getId());
+            if (person.isPresent()) {
+                PameasNotificationTO notificationTO = Wrappers.pameasPersonToNotificationTO(person.get());
+                this.writePameasNotification(notificationTO);
+
+                //finally update so that the person is displayed as fallen
+                person.get().getPersonalInfo().setHasFallen("true");
+                String decryptedPersonaId = this.cryptoUtils.decryptBase64Message(person.get().getPersonalInfo().getPersonalId());
+                elasticService.updatePerson(decryptedPersonaId, person.get());
+
+            }
+
+        } catch (JsonProcessingException | IllegalBlockSizeException | NoSuchPaddingException |
+                 NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    @Override
+    @KafkaListener(topics = "srap", groupId = "uaeg-consumer-group")
+    public void monitorSRAP(String message) {
+        log.info("message from /srap ${}", message);
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try {
+            SrapTO srapTO = mapper.readValue(message, SrapTO.class);
+            if (!StringUtils.isEmpty(srapTO.getPassengerId())) {
+                //  status: “string” (assistance_required, movement_delayed, free_movement)
+                if (srapTO.getStatus().equals("assistance_required")) {
+                    Optional<PameasPerson> person = this.elasticService.getPersonByPersonalIdentifierDecrypted(srapTO.getPassengerId());
+                    if (person.isPresent()) {
+                        PameasNotificationTO notificationTO = Wrappers.pameasPersonToNotificationTO(person.get());
+                        this.writePameasNotification(notificationTO);
+                    }
+                }
+            } else {
+                if (!StringUtils.isEmpty(srapTO.getZoneId())) {
+                    //TODO zoneId to geofence (info to be provided by NTUA)
+                    if (srapTO.getStatus().equals("closed")) {
+                        //Zone was blocked!!
+                        PameasNotificationTO pameasNotificationTO = new PameasNotificationTO();
+                        //TODO this needs mapping
+                        pameasNotificationTO.setGeofence(srapTO.getZoneId());
+                        pameasNotificationTO.setStatus("blocked");
+                        pameasNotificationTO.setType("SRAP_BLOCKED_GEOFENCE");
+                        this.writePameasNotification(pameasNotificationTO);
+                    }
+                }
+            }
+        } catch (JsonProcessingException e) {
+            log.error("error parsing SRAP message {}", e.getMessage());
+        }
     }
 
     @Override
@@ -173,7 +318,7 @@ public class KafkaServiceImpl implements KafkaService {
             if (pameasNotificationTO.getType().equals("PASSENGER_EMERGENCY")) {
                 String conductorUrl = System.getenv("CONDUCTOR_URI");
                 String passengerHashedMacAddress = pameasNotificationTO.getId();
-                if(passengerHashedMacAddress == null){
+                if (passengerHashedMacAddress == null) {
                     passengerHashedMacAddress = pameasNotificationTO.getMacAddress();
                 }
                 DetectPassengerIncidentTO detectPassengerIncidentTO = new DetectPassengerIncidentTO(passengerHashedMacAddress);
@@ -252,7 +397,19 @@ public class KafkaServiceImpl implements KafkaService {
                 log.info("made a call to {}crew_assignment_ack", conductorUrl);
                 log.info("response {}", response.body());
             }
-            //
+            //SRAP blocked geofence
+            if (pameasNotificationTO.getType().equals("SRAP_BLOCKED_GEOFENCE")) {
+                BlockedGeofenceTO blockedGeofenceTO = new BlockedGeofenceTO(pameasNotificationTO.getGeofence(), "blocked");
+                String conductorUrl = System.getenv("CONDUCTOR_URI");
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(conductorUrl + "workflow/detect_blocked_geofence?priority=0"))
+                        .header("Content-Type", "application/json")
+                        .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(blockedGeofenceTO)))
+                        .build();
+                HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+                log.info("made a call to ${} detect_blocked_geofence", conductorUrl);
+
+            }
 
 
         } catch (IOException | InterruptedException e) {
@@ -282,14 +439,16 @@ public class KafkaServiceImpl implements KafkaService {
     }
 
     @Override
-    @KafkaListener(topics = "smart-bracelet-event-notification", groupId = "uaeg-consumer-group")
-    public void monitorBraceletFall(String message) {
-        log.info("Fall detected {}", message);
+    public void writeToEvacuationCoordinator(EvacuationCoordinatorEventTO eventTO) {
+        try {
+            log.info("pushing to  kafka {}", eventTO);
+            this.evacuationCoordinatorProducer.send(new ProducerRecord<>("evacuation-coordinator", eventTO));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
-    @Override
-    @KafkaListener(topics = "smart-bracelet-sensor-data", groupId = "uaeg-consumer-group")
-    public void monitorBraceletHealth(String message) {
-//        log.info("Health data {}", message);
-    }
 }
+
+
+

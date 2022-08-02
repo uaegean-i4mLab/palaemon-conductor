@@ -7,14 +7,17 @@ import gr.aegean.palaemon.conductor.model.TO.NotificationIncidentTO;
 import gr.aegean.palaemon.conductor.model.TO.PameasNotificationTO;
 import gr.aegean.palaemon.conductor.model.pojo.Incident;
 import gr.aegean.palaemon.conductor.model.TO.IncidentTO;
+import gr.aegean.palaemon.conductor.model.pojo.MessageBody;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
 import gr.aegean.palaemon.conductor.service.KafkaService;
+import gr.aegean.palaemon.conductor.service.MessagingServiceCaller;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
@@ -26,7 +29,7 @@ public class MakePassengerIssueTask implements Worker {
      */
     private final Logger logger =
             LoggerFactory.getLogger(MakePassengerIssueTask.class);
-
+    private MessagingServiceCaller messagingServiceCaller;
 
     /**
      * The task definition name, present in the Workflow Definition.
@@ -41,10 +44,11 @@ public class MakePassengerIssueTask implements Worker {
      *
      * @param taskDefName the task def name
      */
-    public MakePassengerIssueTask(String taskDefName, DBProxyService dbProxyService, KafkaService kafkaService) {
+    public MakePassengerIssueTask(String taskDefName, DBProxyService dbProxyService, KafkaService kafkaService,MessagingServiceCaller messagingServiceCaller) {
         this.taskDefName = taskDefName;
         this.dbProxyService = dbProxyService;
         this.kafkaService= kafkaService;
+        this.messagingServiceCaller= messagingServiceCaller;
     }
 
     /* (non-Javadoc)
@@ -145,5 +149,15 @@ public class MakePassengerIssueTask implements Worker {
 
 
         kafkaService.writeToPameasNotification(pameasNotificationTO);
+
+
+        String messageToPassenger = "Please stay where you are and do not make any attempt to move. Assistance is on its way and will arrive shortly.";
+        ArrayList<MessageBody> bodies = new ArrayList<>();
+        MessageBody body = new MessageBody();
+        body.setContent(messageToPassenger);
+        body.setHashedMacAddress(hashedMacAddress);
+        bodies.add(body);
+        this.messagingServiceCaller.callSendMessages(bodies);
+
     }
 }

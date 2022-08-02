@@ -11,7 +11,7 @@ import java.util.Properties;
 
 @Configuration
 public class KafkaConfig {
-    //TODO read these from .env
+
     private final Properties producerProperties = new Properties();
 
     private final Properties consumerProperties = new Properties();

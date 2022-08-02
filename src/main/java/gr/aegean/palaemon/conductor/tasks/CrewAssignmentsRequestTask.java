@@ -122,7 +122,8 @@ public class CrewAssignmentsRequestTask implements Worker {
                 ArrayList<MessageBody> bodies = new ArrayList<>();
                 MessageBody body = new MessageBody();
                 StringBuilder builder = new StringBuilder();
-                builder.append("ASSIGNMETN REQUEST")
+                //Passenger needs help! Passenger speaking Italian, is stranded.
+                builder.append("ASSIGNMENT REQUEST")
                         .append("PROCEED To DECK ")
                         .append(finalIncidentDeck)
                         .append("On geofence ")
@@ -131,14 +132,19 @@ public class CrewAssignmentsRequestTask implements Worker {
                         .append(notificationTO.getHealthIssues())
                         .append("Passenger mobility status")
                         .append(notificationTO.getMobilityIssues())
-                        .append("Passenger pregnency status")
+                        .append("Passenger pregnancy status")
                         .append(notificationTO.getPregnancyStatus())
-                        .append("Passenger Name").append(notificationTO.getPassengerName()).append(notificationTO.getPassengerSurname())
+                        .append("Passenger Name").append(notificationTO.getPassengerName())
+                        .append(notificationTO.getPassengerSurname())
+                        .append("Passenger needs help! Passenger speaking ")
+                        .append(notificationTO.getPreferredLanguage()[0]).append(", is stranded.")
                         .append("Incident Id:").append(notificationTO.getIncident().getId());
                 body.setContent(builder.toString());
                 body.setHashedMacAddress(dbCrewMember.get().getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress());
                 bodies.add(body);
                 messagingServiceCaller.callSendMessages(bodies);
+
+
 
 
             }

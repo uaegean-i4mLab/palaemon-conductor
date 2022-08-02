@@ -44,7 +44,7 @@ public class DBProxyServiceImpl implements DBProxyService {
         HttpEntity<Geofence> request = new HttpEntity<>(geofence, headers);
 
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info(response);
+        log.info("update geofence status {}",response);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class DBProxyServiceImpl implements DBProxyService {
 
         HttpEntity<UpdatePersonStatusTO> request = new HttpEntity<>(updatePersonRequest, headers);
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info(response);
+        log.info("update passenger assigned ms {}",response);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class DBProxyServiceImpl implements DBProxyService {
         updatePersonRequest.setInPosition(inPosition);
         HttpEntity<UpdatePersonStatusTO> request = new HttpEntity<>(updatePersonRequest, headers);
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info(response);
+        log.info("update crew in position {}",response);
     }
 
     @Override
@@ -214,7 +214,7 @@ public class DBProxyServiceImpl implements DBProxyService {
 
         HttpEntity<IncidentTO> request = new HttpEntity<>(incidentTO, headers);
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info(response);
+        log.info("Declare passenger incident response {}",response);
     }
 
     @Override
@@ -232,7 +232,7 @@ public class DBProxyServiceImpl implements DBProxyService {
 
         HttpEntity<UpdatePersonStatusTO> request = new HttpEntity<>(personStatusTO, headers);
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info(response);
+        log.info("update crew member {}" ,response);
     }
 
     @Override
@@ -244,7 +244,7 @@ public class DBProxyServiceImpl implements DBProxyService {
         headers.set("Authorization", bearer);
         HttpEntity<IncidentTO> request = new HttpEntity<>(incidentTO, headers);
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info(response);
+        log.info("save passenger incident {}",response);
     }
 
     @Override
@@ -256,7 +256,7 @@ public class DBProxyServiceImpl implements DBProxyService {
         headers.set("Authorization", bearer);
         HttpEntity<IncidentTO> request = new HttpEntity<>(incidentTO, headers);
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info(response);
+        log.info("update passenger incident {}",response);
     }
 
     @Override

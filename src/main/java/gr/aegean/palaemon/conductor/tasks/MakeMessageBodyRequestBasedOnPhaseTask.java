@@ -98,11 +98,13 @@ public class MakeMessageBodyRequestBasedOnPhaseTask implements Worker {
         Map<String, String> pathIds = new LinkedHashMap<>();   // LinkedHashMap<String, String>) task.getInputData().get("pathIds");
         Map<String, String> assignedMSs = new LinkedHashMap<>(); //(LinkedHashMap<String, String>) task.getInputData().get("assignedMSs");
         Map<String, String> actions = new LinkedHashMap<>();
+        Map<String, String> geofences = new LinkedHashMap<>();
         if (passengerAssignments != null) {
             passengerAssignments.forEach(passengerAssignmentResponse -> {
                 pathIds.put(passengerAssignmentResponse.get("hashedMacAddress"), passengerAssignmentResponse.get("pathId"));
                 actions.put(passengerAssignmentResponse.get("hashedMacAddress"), passengerAssignmentResponse.get("action"));
                 assignedMSs.put(passengerAssignmentResponse.get("hashedMacAddress"), passengerAssignmentResponse.get("musterStation"));
+                geofences.put(passengerAssignmentResponse.get("hashedMacAddress"), passengerAssignmentResponse.get("geofence"));
             });
         }
 
@@ -114,6 +116,7 @@ public class MakeMessageBodyRequestBasedOnPhaseTask implements Worker {
         passengerMessageBodyRequests.setActions(actions);
         passengerMessageBodyRequests.setAssignedPathIDs(pathIds);
         passengerMessageBodyRequests.setMusterStation(assignedMSs);
+        passengerMessageBodyRequests.setCurrentGeofences(geofences);
 
         Map<String, String> messageCodes = new HashMap<>();
         if (audience.toLowerCase().equals("crew")) {

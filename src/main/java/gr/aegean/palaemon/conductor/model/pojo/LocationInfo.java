@@ -13,4 +13,5 @@ import java.util.List;
 public class LocationInfo implements Serializable {
     private List<UserGeofenceUnit> geofenceHistory;
     private List<UserLocationUnit> locationHistory;
+    private String speed;
 }

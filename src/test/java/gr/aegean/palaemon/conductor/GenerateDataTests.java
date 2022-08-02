@@ -2,15 +2,28 @@ package gr.aegean.palaemon.conductor;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gr.aegean.palaemon.conductor.model.TO.EvacuationStatusTO;
+import gr.aegean.palaemon.conductor.model.TO.PersonFullTO;
+import gr.aegean.palaemon.conductor.model.TO.UpdatePersonStatusTO;
+import gr.aegean.palaemon.conductor.model.pojo.DeviceInfo;
 import gr.aegean.palaemon.conductor.model.pojo.KeycloakAccessTokenResponse;
+import gr.aegean.palaemon.conductor.model.pojo.Personalinfo;
+import gr.aegean.palaemon.conductor.service.DBProxyService;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +32,9 @@ import java.util.concurrent.atomic.AtomicReference;
 @SpringBootTest
 public class GenerateDataTests {
 
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Test
     public void addGeofence() throws IOException, InterruptedException {
@@ -278,7 +294,7 @@ public class GenerateDataTests {
                 .uri(URI.create("http://dss.aegean.gr:8090/addPerson/"))
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
-                .method("POST", HttpRequest.BodyPublishers.ofString(" {\n      \"name\": \"NikosCrew\",\n      \"surname\": \"TestCrew\",\n      \"identifier\": \"2\",\n      \"gender\": \"Male\",\n      \"age\": \"1965-01-01\",\n      \"connectedPassengers\": [\n      ],\n      \"embarkation_port\": \"\",\n      \"disembarkation_port\": \"\",\n      \"ticketNumber\": \"\",\n      \"email\": \"triantafyllou.ni@gmail.com\",\n      \"postal_address\": \"Kallistratous 50\",\n      \"emergency_contact_details\": \"6943808730\",\n      \"country_of_residence\": \"GR\",\n      \"medical_condnitions\": \"\",\n      \"mobility_issues\": \"\",\n      \"pregnency_data\": \"\",\n      \"is_crew\": true,\n      \"role\": \"engineer\",\n      \"emergency_duty\": \"medical_unit\",\n      \"preferred_language\": [ \"IE\" ],\n      \"in_position\": false,\n      \"assignment_status\": \"UNASSIGNED\",\n      \"assigned_muster_station\": null\n}\n"))
+                .method("POST", HttpRequest.BodyPublishers.ofString(" {\n   \"saturation\": \"99\",  \"heartBeat\": \"102\",  \"name\": \"NikosCrew\",\n      \"surname\": \"TestCrew\",\n      \"identifier\": \"2\",\n      \"gender\": \"Male\",\n      \"age\": \"1965-01-01\",\n      \"connectedPassengers\": [\n      ],\n      \"embarkation_port\": \"\",\n      \"disembarkation_port\": \"\",\n      \"ticketNumber\": \"\",\n      \"email\": \"triantafyllou.ni@gmail.com\",\n      \"postal_address\": \"Kallistratous 50\",\n      \"emergency_contact_details\": \"6943808730\",\n      \"country_of_residence\": \"GR\",\n      \"medical_condnitions\": \"\",\n      \"mobility_issues\": \"\",\n      \"pregnency_data\": \"\",\n      \"is_crew\": true,\n      \"role\": \"engineer\",\n      \"emergency_duty\": \"medical_unit\",\n      \"preferred_language\": [ \"IE\" ],\n      \"in_position\": false,\n      \"assignment_status\": \"UNASSIGNED\",\n      \"assigned_muster_station\": null\n}\n"))
                 .build();
         response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         System.out.println(response.body());
@@ -308,6 +324,76 @@ public class GenerateDataTests {
 
 
     @Test
+    public void testAddPassengerFullData() throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://dss1.aegean.gr/auth/realms/palaemon/protocol/openid-connect/token"))
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .method("POST", HttpRequest.BodyPublishers.ofString("client_id=palaemonRegistration&client_secret=bdbbb8d5-3ee7-4907-b95c-2baae17bd10f&grant_type=client_credentials&scope=openid"))
+                .build();
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        KeycloakAccessTokenResponse accessTokenResponse = mapper.readValue(response.body(), KeycloakAccessTokenResponse.class);
+
+        //add Person
+        PersonFullTO personFullTO = new PersonFullTO();
+        personFullTO.setAge("21");
+        personFullTO.setConnectedPassengers(new ArrayList<>());
+        personFullTO.setCrew(false);
+        personFullTO.setAssignmentStatus(Personalinfo.AssignmentStatus.ASSIGNED);
+        personFullTO.setAssignedMusteringStation(null);
+        personFullTO.setCountryOfResidence("GR");
+
+
+        personFullTO.setEmail("test@test2.gr");
+        personFullTO.setDisembarkationPort("Chania");
+        personFullTO.setEmbarkationPort("Pireaus");
+        personFullTO.setPrengencyData("none");
+        personFullTO.setGender("Male");
+        personFullTO.setDutySchedule(new ArrayList<>());
+        personFullTO.setEmergencyDuty("");
+        personFullTO.setIdentifier("el/el/123456789");
+        personFullTO.setEmergencyContact("69438087xx");
+        personFullTO.setInPosition(false);
+        personFullTO.setName("Test3");
+        personFullTO.setSurname("TestSurname3");
+        personFullTO.setRole("passenger");
+
+        personFullTO.setMedicalCondition("none");
+        personFullTO.setPostalAddress("Address 1");
+        personFullTO.setMobilityIssues("none");
+        personFullTO.setTicketNumber("12345");
+        personFullTO.setPreferredLanguage(new String[]{"en"});
+
+
+        ArrayList<DeviceInfo> deviceInfos = new ArrayList<>();
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.setImsi("502130123456789");
+        deviceInfo.setImei("49-015420-323751-8");
+        deviceInfo.setMsisdn("919825098250");
+        deviceInfo.setMacAddress("58:37:8B:DE:42:F9");
+        deviceInfo.setHashedMacAddress("18a4f641457adea15e4ff9f8d203802ba749714f87e22aedffd2a4dcb33b4f65");
+        deviceInfos.add(deviceInfo);
+        personFullTO.setDeviceInfoList(deviceInfos);
+        personFullTO.setMessagingAppClientId("18a4f641457adea15e4ff9f8d203802ba749714f87e22aedffd2a4dcb33b4f65");
+        personFullTO.setGeofenceHistory(new ArrayList<>());
+        personFullTO.setLocationHistory(new ArrayList<>());
+
+        String uri
+                = "http://dss.aegean.gr:8090/addPerson2ES";
+
+        HttpHeaders headers = new HttpHeaders();
+        String bearer = "Bearer " + accessTokenResponse.getAccessToken();
+        headers.set("Authorization", bearer);
+
+        HttpEntity<PersonFullTO> req = new HttpEntity<>(personFullTO, headers);
+        String resp = restTemplate.postForObject(uri, req, String.class);
+        System.out.println(resp);
+
+    }
+
+
+    @Test
     public void setEvacuationStatus() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://dss1.aegean.gr/auth/realms/palaemon/protocol/openid-connect/token"))
@@ -329,4 +415,37 @@ public class GenerateDataTests {
         response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         System.out.println(response.body());
     }
+
+
+    @Test
+    public void testCallingDBProxyLocation(){
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://dss1.aegean.gr/auth/realms/palaemon/protocol/openid-connect/token"))
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .method("POST", HttpRequest.BodyPublishers.ofString("client_id=palaemonRegistration&client_secret=bdbbb8d5-3ee7-4907-b95c-2baae17bd10f&grant_type=client_credentials&scope=openid"))
+                .build();
+        HttpResponse<String> response = null;
+        try {
+            response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println(response.body());
+            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            KeycloakAccessTokenResponse accessTokenResponse = mapper.readValue(response.body(), KeycloakAccessTokenResponse.class);
+
+            String DBPROXY_URL = "http://dss.aegean.gr:8090";
+            ObjectMapper ow = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+            String json = ow.writeValueAsString("{}");
+            request = HttpRequest.newBuilder()
+                    .uri(URI.create(DBPROXY_URL + "/addLocation"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
+                    .method("POST", HttpRequest.BodyPublishers.ofString(json))
+                    .build();
+            HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

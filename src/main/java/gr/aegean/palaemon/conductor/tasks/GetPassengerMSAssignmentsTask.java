@@ -108,30 +108,33 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         //Prepare the request for the messageBody call
         PassengerMessageBodyRequests passengerMessageBodyRequests = new PassengerMessageBodyRequests();
         LinkedHashMap<String, String> languages = new LinkedHashMap<>();
-        passengers.stream().map(Wrappers::hashMap2PameasPerson).forEach(passenger -> {
-            String hashedMac = passenger.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress();
-            String language = passenger.getPersonalInfo().getPreferredLanguage().get(0);
-            languages.put(hashedMac, language);
-        });
-
         LinkedHashMap<String, String> messageCodes = new LinkedHashMap<>();
+        LinkedHashMap<String, String> currentGeofenceList = new LinkedHashMap<>();
         passengers.stream().map(Wrappers::hashMap2PameasPerson).forEach(passenger -> {
-            String hashedMac = passenger.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress();
-            messageCodes.put(hashedMac, messageCode);
+            if (passenger.getLocationInfo().getGeofenceHistory() != null && passenger.getLocationInfo().getGeofenceHistory().size() > 0) {
+                String hashedMac = passenger.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress();
+                String language = passenger.getPersonalInfo().getPreferredLanguage().get(0);
+                languages.put(hashedMac, language);
+                messageCodes.put(hashedMac, messageCode);
+                currentGeofenceList.put(hashedMac, passenger.getLocationInfo().getGeofenceHistory().get(passenger.getLocationInfo().getGeofenceHistory().size() - 1).getGfName());
+            }
+
         });
 
 
         LinkedHashMap<String, String> actions = new LinkedHashMap<>();
         LinkedHashMap<String, String> pathIds = new LinkedHashMap<>();
         LinkedHashMap<String, String> assignedMSs = new LinkedHashMap<>();
+
         assignmentResponses.stream().forEach(passengerAssignmentResponse -> {
             String action = passengerAssignmentResponse.getAction();
             String hashedMac = passengerAssignmentResponse.getHashedMacAddress();
-            actions.put(hashedMac,action);
+            actions.put(hashedMac, action);
             String pathId = passengerAssignmentResponse.getPathId();
-            pathIds.put(hashedMac,pathId);
+            pathIds.put(hashedMac, pathId);
             String ms = passengerAssignmentResponse.getMusterStation();
-            assignedMSs.put(hashedMac,ms);
+            assignedMSs.put(hashedMac, ms);
+
         });
 
         passengerMessageBodyRequests.setPassengerLanguages(languages);
@@ -140,15 +143,15 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         passengerMessageBodyRequests.setAssignedPathIDs(pathIds);
         passengerMessageBodyRequests.setBlockedGeofences(blocked);
         passengerMessageBodyRequests.setMusterStation(assignedMSs);
-
+        passengerMessageBodyRequests.setCurrentGeofences(currentGeofenceList);
 
 
         // Store original assignments
-        Map<String,String> originalAssignments = new HashMap<>();
-        Map<String,String> old2NewMSAssignments = new HashMap<>();
+        Map<String, String> originalAssignments = new HashMap<>();
+        Map<String, String> old2NewMSAssignments = new HashMap<>();
         //calculate original passenger MSs
         passengers.stream().map(Wrappers::hashMap2PameasPerson).forEach(pameasPerson -> {
-            if(!StringUtils.isEmpty(pameasPerson.getPersonalInfo().getAssignedMusteringStation() )){
+            if (!StringUtils.isEmpty(pameasPerson.getPersonalInfo().getAssignedMusteringStation())) {
                 originalAssignments.put(pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress(),
                         pameasPerson.getPersonalInfo().getAssignedMusteringStation());
             }
@@ -157,9 +160,9 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         assignmentResponses.forEach(passengerAssignmentResponse -> {
             String hashedMac = passengerAssignmentResponse.getHashedMacAddress();
             String ms = passengerAssignmentResponse.getMusterStation();
-            if(originalAssignments.get(hashedMac) != null && !originalAssignments.get(hashedMac).equals(ms)){
-                old2NewMSAssignments.put(originalAssignments.get(hashedMac),ms);
-                dbProxyService.updatePassengerAssignedMS(ms,hashedMac);
+            if (originalAssignments.get(hashedMac) != null && !originalAssignments.get(hashedMac).equals(ms)) {
+                old2NewMSAssignments.put(originalAssignments.get(hashedMac), ms);
+                dbProxyService.updatePassengerAssignedMS(ms, hashedMac);
             }
         });
 

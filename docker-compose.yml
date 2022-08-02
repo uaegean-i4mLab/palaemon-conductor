@@ -1,0 +1,27 @@
+
+version: '2'
+services:
+  palaemon-conductor:
+    image:  endimion13/palaemon-conductor:0.0.1a
+    environment:
+      - CLIENT_ID=palaemonRegistration
+      - CLIENT_SECRET=bdbbb8d5-3ee7-4907-b95c-2baae17bd10f
+      - CONDUCTOR_URI=http://pameasrtlsdb.aegean.gr:8090/api/
+      - CONSTRAINT_SOLVER_URI=http://dss.aegean.gr:8092/
+      - DB_PROXY_URI=http://dss.aegean.gr:8090/
+      - DISTANCE_CALCULATOR_URL=http://dss.aegean.gr:7011/
+      - MESSAGING_SERVICE_URI=http://dss1.aegean.gr:7030/
+      - OAUTH_URI=https://dss1.aegean.gr/auth/realms/palaemon/protocol/openid-connect/token
+      - RULES_ENGINE_URI=http://dss.aegean.gr:8082/
+      - KAFKA_URI_WITH_PORT=dfb.palaemon.itml.gr:30093
+      - KAFKA_TRUST_STORE_LOCATION=/store/truststore.jks
+      - KAFKA_TRUST_STORE_PASSWORD=teststore
+      - KAFKA_KEYSTORE_LOCATION=/store/keystore.jks
+      - KAFKA_KEY_STORE_PASSWORD=teststore
+      - PUBLIC_ENCRYPTION_KEY_PATH=/store/keys/public.key
+      - PRIVATE_ENCRYPTION_KEY_PATH=/store/keys/private.key
+    ports:
+      - 8092:8080
+    volumes:
+      - /home/ni/code/java/palaemon-db-proxy/:/store
+      - /home/ni/code/java/palaemon.conductor/:/store/keys
