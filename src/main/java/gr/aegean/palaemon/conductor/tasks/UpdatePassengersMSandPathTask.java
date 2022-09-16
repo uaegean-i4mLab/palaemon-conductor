@@ -3,8 +3,10 @@ package gr.aegean.palaemon.conductor.tasks;
 import com.netflix.conductor.client.worker.Worker;
 import com.netflix.conductor.common.metadata.tasks.Task;
 import com.netflix.conductor.common.metadata.tasks.TaskResult;
+import gr.aegean.palaemon.conductor.model.TO.PameasNotificationTO;
 import gr.aegean.palaemon.conductor.model.pojo.PassengerAssignmentResponse;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
+import gr.aegean.palaemon.conductor.service.KafkaService;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,14 +33,17 @@ public class UpdatePassengersMSandPathTask implements Worker {
 
     private DBProxyService dbProxyService;
 
+    private KafkaService kafkaService;
+
     /**
      * Instantiates a new worker.
      *
      * @param taskDefName the task def name
      */
-    public UpdatePassengersMSandPathTask(String taskDefName, DBProxyService dbProxyService) {
+    public UpdatePassengersMSandPathTask(String taskDefName, DBProxyService dbProxyService, KafkaService kafkaService) {
         this.taskDefName = taskDefName;
         this.dbProxyService = dbProxyService;
+        this.kafkaService = kafkaService;
     }
 
     /* (non-Javadoc)
@@ -63,7 +68,7 @@ public class UpdatePassengersMSandPathTask implements Worker {
         result.setStatus(TaskResult.Status.COMPLETED);
 
 
-        processUpdateGeofenceTask(task, result);
+        processUpdatePassengerMSandPath(task, result);
 
 
         return result;
@@ -76,18 +81,33 @@ public class UpdatePassengersMSandPathTask implements Worker {
      * @param task   the task called from Conductor
      * @param result the result to return to Conductor
      */
-    private void processUpdateGeofenceTask(Task task, TaskResult result) {
+    private void processUpdatePassengerMSandPath(Task task, TaskResult result) {
 
         logger.info("Running task: " + task.getTaskDefName());
-        List<HashMap<String, String>> passengerAssignements = (List<HashMap<String, String>>) task.getInputData().get("passenger_assignments");
+        List<HashMap<String, String>> passengerAssignments = (List<HashMap<String, String>>) task.getInputData().get("passenger_assignments");
         List<PassengerAssignmentResponse> passengerAssignmentResponses =
-                passengerAssignements.stream().map(Wrappers::hashmap2PassengerAssignmentResponse).collect(Collectors.toList());
-        passengerAssignmentResponses.forEach(passengerAssignmentResponse -> {
-            dbProxyService.updatePassengerAssignedMS(passengerAssignmentResponse.getMusterStation(), passengerAssignmentResponse.getHashedMacAddress());
+                passengerAssignments.stream().map(Wrappers::hashmap2PassengerAssignmentResponse).collect(Collectors.toList());
 
-            logger.info("Updated Passenger:   {}",
-                    passengerAssignmentResponse.getHashedMacAddress());
-        });
+        String[] hashedMacAddresses = new String[passengerAssignmentResponses.size()];
+        String[] mStations = new String[passengerAssignmentResponses.size()];
+
+        for (int i=0; i < passengerAssignmentResponses.size();i++){
+            hashedMacAddresses[i] = passengerAssignmentResponses.get(i).getHashedMacAddress();
+            mStations[i] = passengerAssignmentResponses.get(i).getMusterStation();
+        }
+        dbProxyService.updatePassengerAssignedMSBulk(mStations,hashedMacAddresses);
+
+//        passengerAssignmentResponses.forEach(passengerAssignmentResponse -> {
+//            dbProxyService.updatePassengerAssignedMS(passengerAssignmentResponse.getMusterStation(), passengerAssignmentResponse.getHashedMacAddress());
+//            logger.info("Updated Passenger:   {}",
+//                    passengerAssignmentResponse.getHashedMacAddress());
+//        });
+
+        PameasNotificationTO pameasNotificationTO = new PameasNotificationTO();
+        pameasNotificationTO.setType("PASSENGER_INSTRUCTION_COMPLETED");
+        kafkaService.writeToPameasNotification(pameasNotificationTO);
+
+
     }
 
 

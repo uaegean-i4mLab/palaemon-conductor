@@ -1,6 +1,7 @@
 package gr.aegean.palaemon.conductor.config;
 
 import gr.aegean.palaemon.conductor.utils.EnvUtils;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -37,6 +38,7 @@ public class KafkaConsumerConfig {
         properties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         properties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         properties.put("group.id", "uaeg-consumer-group");
+        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
 
 
         return new DefaultKafkaConsumerFactory<>(properties);

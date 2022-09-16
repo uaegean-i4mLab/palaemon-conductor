@@ -10,7 +10,7 @@ import gr.aegean.palaemon.conductor.model.TO.IncidentTO;
 import gr.aegean.palaemon.conductor.model.pojo.MessageBody;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
 import gr.aegean.palaemon.conductor.service.KafkaService;
-import gr.aegean.palaemon.conductor.service.MessagingServiceCaller;
+import gr.aegean.palaemon.conductor.service.PassengerMessagingService;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class MakePassengerIssueTask implements Worker {
      */
     private final Logger logger =
             LoggerFactory.getLogger(MakePassengerIssueTask.class);
-    private MessagingServiceCaller messagingServiceCaller;
+    private PassengerMessagingService passengerMessagingService;
 
     /**
      * The task definition name, present in the Workflow Definition.
@@ -44,11 +44,11 @@ public class MakePassengerIssueTask implements Worker {
      *
      * @param taskDefName the task def name
      */
-    public MakePassengerIssueTask(String taskDefName, DBProxyService dbProxyService, KafkaService kafkaService,MessagingServiceCaller messagingServiceCaller) {
+    public MakePassengerIssueTask(String taskDefName, DBProxyService dbProxyService, KafkaService kafkaService, PassengerMessagingService passengerMessagingService) {
         this.taskDefName = taskDefName;
         this.dbProxyService = dbProxyService;
         this.kafkaService= kafkaService;
-        this.messagingServiceCaller= messagingServiceCaller;
+        this.passengerMessagingService = passengerMessagingService;
     }
 
     /* (non-Javadoc)
@@ -73,7 +73,7 @@ public class MakePassengerIssueTask implements Worker {
         result.setStatus(TaskResult.Status.COMPLETED);
 
 
-        getPassengerDetailsTask(task, result);
+        makePassengerIssueTask(task, result);
 
 
         return result;
@@ -86,7 +86,7 @@ public class MakePassengerIssueTask implements Worker {
      * @param task   the task called from Conductor
      * @param result the result to return to Conductor
      */
-    private void getPassengerDetailsTask(Task task, TaskResult result) {
+    private void makePassengerIssueTask(Task task, TaskResult result) {
         String geofence = (String) task.getInputData().get("geofence");
         String healthIssues = (String) task.getInputData().get("healthIssues");
         String name = (String) task.getInputData().get("name");
@@ -157,7 +157,7 @@ public class MakePassengerIssueTask implements Worker {
         body.setContent(messageToPassenger);
         body.setHashedMacAddress(hashedMacAddress);
         bodies.add(body);
-        this.messagingServiceCaller.callSendMessages(bodies);
+        this.passengerMessagingService.callSendMessages(bodies);
 
     }
 }

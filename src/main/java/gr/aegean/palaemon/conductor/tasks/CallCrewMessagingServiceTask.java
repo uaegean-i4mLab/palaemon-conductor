@@ -4,7 +4,7 @@ import com.netflix.conductor.client.worker.Worker;
 import com.netflix.conductor.common.metadata.tasks.Task;
 import com.netflix.conductor.common.metadata.tasks.TaskResult;
 import gr.aegean.palaemon.conductor.model.pojo.MessageBody;
-import gr.aegean.palaemon.conductor.service.MessagingServiceCaller;
+import gr.aegean.palaemon.conductor.service.CrewMessagingService;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +16,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Configurable
-public class CallMessagingServiceTask implements Worker {
+public class CallCrewMessagingServiceTask implements Worker {
 
     /**
      * The logger.
      */
     private final Logger logger =
-            LoggerFactory.getLogger(CallMessagingServiceTask.class);
+            LoggerFactory.getLogger(CallCrewMessagingServiceTask.class);
 
 
     /**
@@ -30,16 +30,16 @@ public class CallMessagingServiceTask implements Worker {
      */
     private String taskDefName;
 
-    private MessagingServiceCaller messagingServiceCaller;
+    private final CrewMessagingService crewMessagingService;
 
     /**
      * Instantiates a new worker.
      *
      * @param taskDefName the task def name
      */
-    public CallMessagingServiceTask(String taskDefName, MessagingServiceCaller messagingServiceCaller) {
+    public CallCrewMessagingServiceTask(String taskDefName, CrewMessagingService crewMessagingService) {
         this.taskDefName = taskDefName;
-        this.messagingServiceCaller = messagingServiceCaller;
+        this.crewMessagingService = crewMessagingService;
     }
 
     /* (non-Javadoc)
@@ -57,14 +57,14 @@ public class CallMessagingServiceTask implements Worker {
     public TaskResult execute(Task task) {
 
         logger.info("-----");
-        logger.info("Executing7 {}.", taskDefName);
+        logger.info("Executing {}.", taskDefName);
 
         TaskResult result = new TaskResult(task);
 
         result.setStatus(TaskResult.Status.COMPLETED);
 
 
-        processGetPassengerAssignments(task, result);
+        callMessagingService(task, result);
 
 
         return result;
@@ -77,7 +77,7 @@ public class CallMessagingServiceTask implements Worker {
      * @param task   the task called from Conductor
      * @param result the result to return to Conductor
      */
-    private void processGetPassengerAssignments(Task task, TaskResult result) {
+    private void callMessagingService(Task task, TaskResult result) {
 
 
         logger.info("Running task: " + task.getTaskDefName());
@@ -87,7 +87,7 @@ public class CallMessagingServiceTask implements Worker {
         logger.info("Input: ");
         logger.info("Message Bodies:   {}", messageBodies);
         List<MessageBody> parsedBodies = messageBodies.stream().map(Wrappers::hashmap2MessageBody).collect(Collectors.toList());
-        messagingServiceCaller.callSendMessages(parsedBodies);
+        crewMessagingService.callSendMessages(parsedBodies);
 
         logger.info("Output: ");
 

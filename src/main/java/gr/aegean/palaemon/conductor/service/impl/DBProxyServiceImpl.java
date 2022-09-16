@@ -44,7 +44,7 @@ public class DBProxyServiceImpl implements DBProxyService {
         HttpEntity<Geofence> request = new HttpEntity<>(geofence, headers);
 
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info("update geofence status {}",response);
+        log.info("update geofence status {}", response);
     }
 
     @Override
@@ -62,8 +62,39 @@ public class DBProxyServiceImpl implements DBProxyService {
 
         HttpEntity<UpdatePersonStatusTO> request = new HttpEntity<>(updatePersonRequest, headers);
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info("update passenger assigned ms {}",response);
+        log.info("update passenger {} assigned ms {}, result {}", updatePersonRequest.getMusteringStation(),
+                updatePersonRequest.getHashedMacAddress(),
+                response);
     }
+
+
+    @Override
+    public void updatePassengerAssignedMSBulk(String[] musteringStation, String[] hashedMacAddress) {
+        String url
+                = System.getenv("DB_PROXY_URI") + "updatePassengerMSBulk";
+
+        HttpHeaders headers = new HttpHeaders();
+        String bearer = "Bearer " + accessTokenService.getAccessToken().get();
+        headers.set("Authorization", bearer);
+        UpdatePersonStatusTO[] bulkRequest = new UpdatePersonStatusTO[musteringStation.length];
+        if (bulkRequest.length > 0) {
+            for (int i = 0; i < musteringStation.length; i++) {
+                UpdatePersonStatusTO updatePersonRequest = new UpdatePersonStatusTO();
+                updatePersonRequest.setHashedMacAddress(hashedMacAddress[i]);
+                updatePersonRequest.setMusteringStation(musteringStation[i]);
+                bulkRequest[i] = updatePersonRequest;
+            }
+            HttpEntity<UpdatePersonStatusTO[]> request = new HttpEntity<>(bulkRequest, headers);
+            String response = restTemplate.postForObject(url, request, String.class);
+            log.info("update {} passengers  assigned ms ", bulkRequest.length);
+
+        } else {
+            log.info("0 passengers updated their MS assignments");
+        }
+
+
+    }
+
 
     @Override
     public void updateCrewInPosition(String hashedMacAddress, boolean inPosition) {
@@ -77,7 +108,7 @@ public class DBProxyServiceImpl implements DBProxyService {
         updatePersonRequest.setInPosition(inPosition);
         HttpEntity<UpdatePersonStatusTO> request = new HttpEntity<>(updatePersonRequest, headers);
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info("update crew in position {}",response);
+        log.info("update crew in position {}", response);
     }
 
     @Override
@@ -119,6 +150,23 @@ public class DBProxyServiceImpl implements DBProxyService {
         ResponseEntity<EvacuationStatusTO> response = restTemplate.exchange(
                 uri, HttpMethod.GET, requestEntity, EvacuationStatusTO.class);
         return response.getBody().getStatus();
+    }
+
+    @Override
+    public void setEvacuationStatus(String status) {
+        String uri
+                = System.getenv("DB_PROXY_URI") + "setEvacuationStatus";
+
+        HttpHeaders headers = new HttpHeaders();
+        String bearer = "Bearer " + accessTokenService.getAccessToken().get();
+        headers.set("Authorization", bearer);
+
+        EvacuationStatusTO statusTO = new EvacuationStatusTO();
+        statusTO.setStatus(status);
+
+        HttpEntity<EvacuationStatusTO> request = new HttpEntity<>(statusTO, headers);
+        String response = restTemplate.postForObject(uri, request, String.class);
+        log.info(response);
     }
 
     @Override
@@ -214,7 +262,7 @@ public class DBProxyServiceImpl implements DBProxyService {
 
         HttpEntity<IncidentTO> request = new HttpEntity<>(incidentTO, headers);
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info("Declare passenger incident response {}",response);
+        log.info("Declare passenger incident response {}", response);
     }
 
     @Override
@@ -232,7 +280,7 @@ public class DBProxyServiceImpl implements DBProxyService {
 
         HttpEntity<UpdatePersonStatusTO> request = new HttpEntity<>(personStatusTO, headers);
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info("update crew member {}" ,response);
+        log.info("update crew member {}", response);
     }
 
     @Override
@@ -244,7 +292,7 @@ public class DBProxyServiceImpl implements DBProxyService {
         headers.set("Authorization", bearer);
         HttpEntity<IncidentTO> request = new HttpEntity<>(incidentTO, headers);
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info("save passenger incident {}",response);
+        log.info("save passenger incident {}", response);
     }
 
     @Override
@@ -256,7 +304,7 @@ public class DBProxyServiceImpl implements DBProxyService {
         headers.set("Authorization", bearer);
         HttpEntity<IncidentTO> request = new HttpEntity<>(incidentTO, headers);
         String response = restTemplate.postForObject(url, request, String.class);
-        log.info("update passenger incident {}",response);
+        log.info("update passenger incident {}", response);
     }
 
     @Override

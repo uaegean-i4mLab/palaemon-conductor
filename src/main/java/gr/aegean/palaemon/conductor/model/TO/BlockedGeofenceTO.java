@@ -16,5 +16,5 @@ public class BlockedGeofenceTO {
 }
      */
     private String geofence;
-    private String blocked;
+    private String status;
 }

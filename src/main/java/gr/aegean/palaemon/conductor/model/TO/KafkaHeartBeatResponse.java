@@ -12,6 +12,6 @@ public class KafkaHeartBeatResponse {
 
     private String originator;
     @JsonProperty("operation_mode")
-    private String operationMode;
+    private int operationMode;
     private String timestamp;
 }

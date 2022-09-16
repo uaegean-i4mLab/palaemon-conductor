@@ -4,7 +4,7 @@ import gr.aegean.palaemon.conductor.model.pojo.MessageBody;
 
 import java.util.List;
 
-public interface MessagingServiceCaller {
+public interface CrewMessagingService {
 
     public void callSendMessages(List<MessageBody> bodies);
 }

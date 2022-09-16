@@ -5,8 +5,9 @@ import com.netflix.conductor.common.metadata.tasks.Task;
 import com.netflix.conductor.common.metadata.tasks.TaskResult;
 import gr.aegean.palaemon.conductor.model.TO.PameasNotificationTO;
 import gr.aegean.palaemon.conductor.model.pojo.*;
+import gr.aegean.palaemon.conductor.service.CrewMessagingService;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
-import gr.aegean.palaemon.conductor.service.MessagingServiceCaller;
+import gr.aegean.palaemon.conductor.service.PassengerMessagingService;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,17 +32,17 @@ public class CrewAssignmentsRequestTask implements Worker {
 
     private DBProxyService dbProxyService;
 
-    private MessagingServiceCaller messagingServiceCaller;
+    private CrewMessagingService crewMessagingService;
 
     /**
      * Instantiates a new worker.
      *
      * @param taskDefName the task def name
      */
-    public CrewAssignmentsRequestTask(String taskDefName, DBProxyService dbProxyService, MessagingServiceCaller messagingServiceCaller) {
+    public CrewAssignmentsRequestTask(String taskDefName, DBProxyService dbProxyService, CrewMessagingService crewMessagingService) {
         this.taskDefName = taskDefName;
         this.dbProxyService = dbProxyService;
-        this.messagingServiceCaller = messagingServiceCaller;
+        this.crewMessagingService = crewMessagingService;
     }
 
     /* (non-Javadoc)
@@ -113,48 +114,57 @@ public class CrewAssignmentsRequestTask implements Worker {
                 //GET Crew Member details
                 Optional<PameasPerson> dbCrewMember = this.dbProxyService.getCrewMembers().stream().filter(person -> {
 
-                        person.getId();
-                return person.getId().equals(crew.getId());
-            }).findFirst();
-            if (dbCrewMember.isPresent()) {
-                //get hashedMacAddress
-                //send notification to CrewMemeber
-                ArrayList<MessageBody> bodies = new ArrayList<>();
-                MessageBody body = new MessageBody();
-                StringBuilder builder = new StringBuilder();
-                //Passenger needs help! Passenger speaking Italian, is stranded.
-                builder.append("ASSIGNMENT REQUEST")
-                        .append("PROCEED To DECK ")
-                        .append(finalIncidentDeck)
-                        .append("On geofence ")
-                        .append(notificationTO.getGeofence())
-                        .append("Passenger with health condition ")
-                        .append(notificationTO.getHealthIssues())
-                        .append("Passenger mobility status")
-                        .append(notificationTO.getMobilityIssues())
-                        .append("Passenger pregnancy status")
-                        .append(notificationTO.getPregnancyStatus())
-                        .append("Passenger Name").append(notificationTO.getPassengerName())
-                        .append(notificationTO.getPassengerSurname())
-                        .append("Passenger needs help! Passenger speaking ")
-                        .append(notificationTO.getPreferredLanguage()[0]).append(", is stranded.")
-                        .append("Incident Id:").append(notificationTO.getIncident().getId());
-                body.setContent(builder.toString());
-                body.setHashedMacAddress(dbCrewMember.get().getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress());
-                bodies.add(body);
-                messagingServiceCaller.callSendMessages(bodies);
+                    person.getId();
+                    return person.getId().equals(crew.getId());
+                }).findFirst();
+                if (dbCrewMember.isPresent()) {
+                    //get hashedMacAddress
+                    //send notification to CrewMemeber
+                    ArrayList<MessageBody> bodies = new ArrayList<>();
+                    MessageBody body = new MessageBody();
+                    StringBuilder builder = new StringBuilder();
+                    //Passenger needs help! Passenger speaking Italian, is stranded.
+                    builder.append("ASSIGNMENT REQUEST. \n")
+                            .append("PROCEED To DECK ").append(finalIncidentDeck)
+                            .append(" \n")
+                            .append("Location: ")
+                            .append(notificationTO.getGeofence())
+                            .append(" \n");
+
+                    if (notificationTO.getHealthIssues() != null || notificationTO.getMobilityIssues() != null
+                            || notificationTO.getPregnancyStatus() != null) {
+                        builder.append("Passenger health issues: \n");
+                        if (notificationTO.getHealthIssues() != null) {
+                            builder.append(notificationTO.getHealthIssues()).append(", \n");
+                        }
+                        if (notificationTO.getMobilityIssues() != null) {
+                            builder.append(notificationTO.getMobilityIssues()).append(", \n");
+                        }
+                        if (notificationTO.getPregnancyStatus() != null) {
+                            builder.append(notificationTO.getPregnancyStatus()).append(", \n");
+                        }
+                    }
+
+                    builder.append("Passenger Name: ").append(notificationTO.getPassengerName())
+                            .append(", ")
+                            .append(notificationTO.getPassengerSurname())
+                            .append(". \n")
+                            .append("Passenger speaks ")
+                            .append(notificationTO.getPreferredLanguage()[0]);
+                    body.setContent(builder.toString());
+                    body.setHashedMacAddress(dbCrewMember.get().getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress());
+                    bodies.add(body);
+                    crewMessagingService.callSendMessages(bodies);
 
 
+                }
+            });
 
-
-            }
         });
-
-    });
 
 
         logger.info("-----\n");
-}
+    }
 
 
 }

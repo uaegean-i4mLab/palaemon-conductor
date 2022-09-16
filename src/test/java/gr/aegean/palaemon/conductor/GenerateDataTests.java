@@ -375,7 +375,7 @@ public class GenerateDataTests {
         deviceInfo.setHashedMacAddress("18a4f641457adea15e4ff9f8d203802ba749714f87e22aedffd2a4dcb33b4f65");
         deviceInfos.add(deviceInfo);
         personFullTO.setDeviceInfoList(deviceInfos);
-        personFullTO.setMessagingAppClientId("18a4f641457adea15e4ff9f8d203802ba749714f87e22aedffd2a4dcb33b4f65");
+        personFullTO.setMessagingAppClientId("Nikos-Admin");
         personFullTO.setGeofenceHistory(new ArrayList<>());
         personFullTO.setLocationHistory(new ArrayList<>());
 
@@ -391,6 +391,85 @@ public class GenerateDataTests {
         System.out.println(resp);
 
     }
+
+
+    @Test
+    public void testAddPCrewFullData() throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://dss1.aegean.gr/auth/realms/palaemon/protocol/openid-connect/token"))
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .method("POST", HttpRequest.BodyPublishers.ofString("client_id=palaemonRegistration&client_secret=bdbbb8d5-3ee7-4907-b95c-2baae17bd10f&grant_type=client_credentials&scope=openid"))
+                .build();
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        KeycloakAccessTokenResponse accessTokenResponse = mapper.readValue(response.body(), KeycloakAccessTokenResponse.class);
+
+        //add Person
+        PersonFullTO personFullTO = new PersonFullTO();
+        personFullTO.setAge("41");
+        personFullTO.setConnectedPassengers(new ArrayList<>());
+        personFullTO.setCrew(true);
+        personFullTO.setAssignmentStatus(Personalinfo.AssignmentStatus.ASSIGNED);
+        personFullTO.setAssignedMusteringStation(null);
+        personFullTO.setCountryOfResidence("GR");
+
+
+        personFullTO.setEmail("crew@test2.gr");
+        personFullTO.setDisembarkationPort("Chania");
+        personFullTO.setEmbarkationPort("Pireaus");
+        personFullTO.setPrengencyData("none");
+        personFullTO.setGender("Male");
+        personFullTO.setDutySchedule(new ArrayList<>());
+        personFullTO.setEmergencyDuty("fire-fighting team");
+        personFullTO.setIdentifier("el/el/987654321");
+        personFullTO.setEmergencyContact("69438087xx");
+        personFullTO.setInPosition(true);
+        personFullTO.setName("CrewTestName");
+        personFullTO.setSurname("CrewTestSurname");
+        personFullTO.setRole("crew");
+
+        personFullTO.setMedicalCondition("none");
+        personFullTO.setPostalAddress("Address 1");
+        personFullTO.setMobilityIssues("none");
+        personFullTO.setPreferredLanguage(new String[]{"en"});
+
+
+        ArrayList<DeviceInfo> deviceInfos = new ArrayList<>();
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.setImsi("502130123456789");
+        deviceInfo.setImei("49-015420-323751-8");
+        deviceInfo.setMsisdn("919825098250");
+        deviceInfo.setMacAddress("58:37:8B:DE:42:F9");
+        deviceInfo.setHashedMacAddress("18a4f641457adea15e4ff9f8d203802ba749714f87e22aedffd2a4dcb33b4f66");
+        deviceInfos.add(deviceInfo);
+        personFullTO.setDeviceInfoList(deviceInfos);
+        personFullTO.setMessagingAppClientId("Tactilon-ID-1");
+        personFullTO.setGeofenceHistory(new ArrayList<>());
+        personFullTO.setLocationHistory(new ArrayList<>());
+
+        String uri
+                = "http://dss.aegean.gr:8090/addPerson2ES";
+
+        HttpHeaders headers = new HttpHeaders();
+        String bearer = "Bearer " + accessTokenResponse.getAccessToken();
+        headers.set("Authorization", bearer);
+
+        HttpEntity<PersonFullTO> req = new HttpEntity<>(personFullTO, headers);
+        String resp = restTemplate.postForObject(uri, req, String.class);
+        System.out.println(resp);
+
+    }
+
+
+
+
+
+
+
+
+
+
 
 
     @Test

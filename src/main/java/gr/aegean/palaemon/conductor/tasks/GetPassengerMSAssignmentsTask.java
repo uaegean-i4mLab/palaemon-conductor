@@ -7,6 +7,7 @@ import gr.aegean.palaemon.conductor.model.pojo.*;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
 import gr.aegean.palaemon.conductor.service.RulesEngineService;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -16,6 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Configurable
+@Slf4j
 public class GetPassengerMSAssignmentsTask implements Worker {
 
     /**
@@ -89,9 +91,9 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         List<LinkedHashMap> passengers = (List<LinkedHashMap>) task.getInputData().get("passenger_details");
         String messageCode = (String) task.getInputData().get("message_code");
 
-        logger.info("Input: ");
+//        logger.info("Input: ");
 //        logger.info("Geofence(s) Param:   {}", geofences);
-        logger.info("Passenger Details Param:   {}", passengers);
+//        logger.info("Passenger Details Param:   {}", passengers);
 
         List<Passenger> passengerList = passengers.stream().map(Wrappers::hashMap2PameasPerson).map(Wrappers::paemasPerson2Passenger).
                 collect(Collectors.toList());
@@ -127,14 +129,20 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         LinkedHashMap<String, String> assignedMSs = new LinkedHashMap<>();
 
         assignmentResponses.stream().forEach(passengerAssignmentResponse -> {
-            String action = passengerAssignmentResponse.getAction();
-            String hashedMac = passengerAssignmentResponse.getHashedMacAddress();
-            actions.put(hashedMac, action);
-            String pathId = passengerAssignmentResponse.getPathId();
-            pathIds.put(hashedMac, pathId);
-            String ms = passengerAssignmentResponse.getMusterStation();
-            assignedMSs.put(hashedMac, ms);
-
+            if (passengerAssignmentResponse.getHashedMacAddress() != null) {
+                if (passengerAssignmentResponse.getAction() == null || passengerAssignmentResponse.getPathId() == null
+                        || passengerAssignmentResponse.getMusterStation() == null) {
+                    log.error("error getting muster station assignment for passenger {}", passengerAssignmentResponse.getHashedMacAddress());
+                } else {
+                    String action = passengerAssignmentResponse.getAction();
+                    String hashedMac = passengerAssignmentResponse.getHashedMacAddress();
+                    actions.put(hashedMac, action);
+                    String pathId = passengerAssignmentResponse.getPathId();
+                    pathIds.put(hashedMac, pathId);
+                    String ms = passengerAssignmentResponse.getMusterStation();
+                    assignedMSs.put(hashedMac, ms);
+                }
+            }
         });
 
         passengerMessageBodyRequests.setPassengerLanguages(languages);
@@ -156,15 +164,31 @@ public class GetPassengerMSAssignmentsTask implements Worker {
                         pameasPerson.getPersonalInfo().getAssignedMusteringStation());
             }
         });
+        //
+
+
+        List<String> hashedMacAddresses = new ArrayList<>();
+        List<String> mStations = new ArrayList<>();
         //check updated assignments and //compare and propagate results // and store them in the DB
         assignmentResponses.forEach(passengerAssignmentResponse -> {
             String hashedMac = passengerAssignmentResponse.getHashedMacAddress();
             String ms = passengerAssignmentResponse.getMusterStation();
+
+
+
             if (originalAssignments.get(hashedMac) != null && !originalAssignments.get(hashedMac).equals(ms)) {
                 old2NewMSAssignments.put(originalAssignments.get(hashedMac), ms);
-                dbProxyService.updatePassengerAssignedMS(ms, hashedMac);
+                //dbProxyService.updatePassengerAssignedMS(ms, hashedMac);
+                hashedMacAddresses.add(hashedMac);
+                mStations.add(ms);
             }
         });
+        if(mStations.size() > 0){
+            String[] mStationsArr = new String[mStations.size()];
+            String[] hashedMacAddressesArr = new String[hashedMacAddresses.size()];
+            dbProxyService.updatePassengerAssignedMSBulk(mStations.toArray(mStationsArr),hashedMacAddresses.toArray(hashedMacAddressesArr));
+        }
+
 
         logger.info("Output: ");
         logger.info("Passenger Assigments: {}", assignmentResponses);

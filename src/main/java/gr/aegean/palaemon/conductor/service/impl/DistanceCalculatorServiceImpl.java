@@ -27,7 +27,7 @@ public class DistanceCalculatorServiceImpl implements DistanceCalculatorService 
 
     @Override
     public Integer calculateDistance(CalculateDistanceRequest calculateDistanceRequest) {
-        String url = System.getenv("DISTANCE_CALCULATOR_URL") + "getDistance";
+        String url = System.getenv("SIMULATOR_URL") + "getDistance";
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<CalculateDistanceRequest> request = new HttpEntity<>(calculateDistanceRequest, headers);
         try {
@@ -49,6 +49,7 @@ public class DistanceCalculatorServiceImpl implements DistanceCalculatorService 
         HttpEntity<GetGeofenceRequestTO> request = new HttpEntity<>(getGeofenceRequestTO, headers);
         try {
             String response = restTemplate.postForObject(url, request, String.class);
+            log.info("The Simulator-DISTANCE_CALCUATOR replied with the geofence " + response);
             return Optional.ofNullable(response);
         } catch (Exception e) {
             log.error(e.getMessage());

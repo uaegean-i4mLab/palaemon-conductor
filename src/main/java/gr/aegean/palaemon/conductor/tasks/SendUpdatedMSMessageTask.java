@@ -5,7 +5,8 @@ import com.netflix.conductor.common.metadata.tasks.Task;
 import com.netflix.conductor.common.metadata.tasks.TaskResult;
 import gr.aegean.palaemon.conductor.model.pojo.MessageBody;
 import gr.aegean.palaemon.conductor.model.pojo.Passenger;
-import gr.aegean.palaemon.conductor.service.MessagingServiceCaller;
+import gr.aegean.palaemon.conductor.service.CrewMessagingService;
+import gr.aegean.palaemon.conductor.service.PassengerMessagingService;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,16 +32,16 @@ public class SendUpdatedMSMessageTask implements Worker {
      */
     private String taskDefName;
 
-    private MessagingServiceCaller messagingServiceCaller;
+    private CrewMessagingService crewMessagingService;
 
     /**
      * Instantiates a new worker.
      *
      * @param taskDefName the task def name
      */
-    public SendUpdatedMSMessageTask(String taskDefName, MessagingServiceCaller messagingServiceCaller) {
+    public SendUpdatedMSMessageTask(String taskDefName, CrewMessagingService crewMessagingService) {
         this.taskDefName = taskDefName;
-        this.messagingServiceCaller = messagingServiceCaller;
+        this.crewMessagingService = crewMessagingService;
     }
 
     /* (non-Javadoc)
@@ -109,7 +110,7 @@ public class SendUpdatedMSMessageTask implements Worker {
                 mb.setHashedMacAddress(crewMember.getHashedMacAddress());
                 messageBodies.add(mb);
             });
-            messagingServiceCaller.callSendMessages(messageBodies);
+            crewMessagingService.callSendMessages(messageBodies);
         }
 
 

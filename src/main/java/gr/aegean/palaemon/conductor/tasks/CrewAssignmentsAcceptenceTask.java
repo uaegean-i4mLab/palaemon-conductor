@@ -8,7 +8,7 @@ import gr.aegean.palaemon.conductor.model.TO.NotificationIncidentCrewTO;
 import gr.aegean.palaemon.conductor.model.TO.PameasNotificationTO;
 import gr.aegean.palaemon.conductor.model.pojo.*;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
-import gr.aegean.palaemon.conductor.service.MessagingServiceCaller;
+import gr.aegean.palaemon.conductor.service.PassengerMessagingService;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,17 +34,17 @@ public class CrewAssignmentsAcceptenceTask implements Worker {
 
     private DBProxyService dbProxyService;
 
-    private MessagingServiceCaller messagingServiceCaller;
+    private PassengerMessagingService passengerMessagingService;
 
     /**
      * Instantiates a new worker.
      *
      * @param taskDefName the task def name
      */
-    public CrewAssignmentsAcceptenceTask(String taskDefName, DBProxyService dbProxyService, MessagingServiceCaller messagingServiceCaller) {
+    public CrewAssignmentsAcceptenceTask(String taskDefName, DBProxyService dbProxyService, PassengerMessagingService passengerMessagingService) {
         this.taskDefName = taskDefName;
         this.dbProxyService = dbProxyService;
-        this.messagingServiceCaller = messagingServiceCaller;
+        this.passengerMessagingService = passengerMessagingService;
     }
 
     /* (non-Javadoc)

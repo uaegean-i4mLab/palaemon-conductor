@@ -3,6 +3,7 @@ package gr.aegean.palaemon.conductor;
 import com.netflix.conductor.client.automator.TaskRunnerConfigurer;
 import com.netflix.conductor.client.http.TaskClient;
 import com.netflix.conductor.client.worker.Worker;
+import gr.aegean.palaemon.conductor.model.TO.EvacuationStatusTO;
 import gr.aegean.palaemon.conductor.service.*;
 import gr.aegean.palaemon.conductor.tasks.*;
 import org.slf4j.Logger;
@@ -33,13 +34,19 @@ public class Application extends SpringBootServletInitializer {
     private RulesEngineService rulesEngineService;
 
     @Autowired
-    private MessagingServiceCaller messagingServiceCaller;
+    private PassengerMessagingService passengerMessagingService;
+
+    @Autowired
+    private CrewMessagingService crewMessagingService;
 
     @Autowired
     private KafkaService kafkaService;
 
     @Autowired
-    private  ConstraintSolverService constraintSolverService;
+    private ConstraintSolverService constraintSolverService;
+
+    @Autowired
+    private EvacuationStatusTO evacuationStatusTO;
 
 
     public static void main(String[] args) {
@@ -80,14 +87,12 @@ public class Application extends SpringBootServletInitializer {
         Worker getMessageBodyRequest =
                 new GetMessageBodyTask("get_message_body", rulesEngineService);
 
-        Worker callMessagingService =
-                new CallMessagingServiceTask("call_messaging_service", messagingServiceCaller);
 
         Worker getCrewMembers =
                 new GetCrewMembersDetailsTask("get_crew_members", dbProxyService);
 
         Worker updatedMSMessageTask =
-                new SendUpdatedMSMessageTask("send_updated_MS_to_crew", messagingServiceCaller);
+                new SendUpdatedMSMessageTask("send_updated_MS_to_crew", crewMessagingService);
 
         Worker getMessageObjectTask =
                 new GetMessageObjectTask("get_message_object", rulesEngineService);
@@ -105,21 +110,28 @@ public class Application extends SpringBootServletInitializer {
                 new SendPassengerNotificationCompletedTask("passenger_notification_completed", kafkaService);
 
         Worker updatePassengerMSandPath =
-                new UpdatePassengersMSandPathTask("update_passenger_ms_and_path", dbProxyService);
+                new UpdatePassengersMSandPathTask("update_passenger_ms_and_path", dbProxyService,kafkaService);
 
         Worker getSinglePassengerDetailsTask =
                 new GetSinglePassengerLocationHealthTask("get_single_passenger_location_health", dbProxyService);
         Worker makePassengerIssueTask =
-                new MakePassengerIssueTask("make_passenger_issue", dbProxyService, kafkaService,messagingServiceCaller);
+                new MakePassengerIssueTask("make_passenger_issue", dbProxyService, kafkaService, passengerMessagingService);
 
         Worker callConstraintSolverTask =
-                new CallConstraintSolverTask("call_constraint_solver", constraintSolverService,kafkaService);
+                new CallConstraintSolverTask("call_constraint_solver", constraintSolverService, kafkaService);
 
         Worker crewAssignmentsRequestTask =
-                new CrewAssignmentsRequestTask("crew_assignment_request", dbProxyService,messagingServiceCaller);
+                new CrewAssignmentsRequestTask("crew_assignment_request", dbProxyService, crewMessagingService);
 
         Worker crewAssignmentsAcceptTask =
-                new CrewAssignmentsAcceptenceTask("crew_assignment_accept", dbProxyService,messagingServiceCaller);
+                new CrewAssignmentsAcceptenceTask("crew_assignment_accept", dbProxyService, passengerMessagingService);
+
+        Worker callCrewMessagingTask =
+                new CallCrewMessagingServiceTask("call_crew_messaging_service", crewMessagingService);
+
+        Worker callPassengerMessagingService =
+                new CallPassengerMessagingServiceTask("call_messaging_service", passengerMessagingService);
+
 
         // Create TaskRunnerConfigurer
         TaskRunnerConfigurer configurer = new TaskRunnerConfigurer.Builder(taskClient,
@@ -129,7 +141,6 @@ public class Application extends SpringBootServletInitializer {
                         getGeofencesStatus,
                         getPassengerMSAssignments,
                         getMessageBodyRequest,
-                        callMessagingService,
                         getCrewMembers,
                         updatedMSMessageTask,
                         getMessageObjectTask,
@@ -142,7 +153,9 @@ public class Application extends SpringBootServletInitializer {
                         makePassengerIssueTask,
                         callConstraintSolverTask,
                         crewAssignmentsRequestTask,
-                        crewAssignmentsAcceptTask))
+                        crewAssignmentsAcceptTask,
+                        callCrewMessagingTask,
+                        callPassengerMessagingService))
                 .withThreadCount(threadCount)
                 .build();
 
@@ -150,6 +163,11 @@ public class Application extends SpringBootServletInitializer {
         logger.info("Initiating Worker Manager...");
         // Start the polling and execution of tasks
         configurer.init();
+
+        //initialize the evacuation status
+        if (this.evacuationStatusTO == null) {
+            this.evacuationStatusTO = new EvacuationStatusTO("1", "0");
+        }
     }
 
 }

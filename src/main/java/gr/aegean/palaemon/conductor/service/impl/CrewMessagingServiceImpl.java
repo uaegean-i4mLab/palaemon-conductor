@@ -2,8 +2,10 @@ package gr.aegean.palaemon.conductor.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gr.aegean.palaemon.conductor.model.pojo.*;
-import gr.aegean.palaemon.conductor.service.MessagingServiceCaller;
+import gr.aegean.palaemon.conductor.model.pojo.MessageBody;
+import gr.aegean.palaemon.conductor.model.pojo.MessagingServiceRequest;
+import gr.aegean.palaemon.conductor.service.CrewMessagingService;
+import gr.aegean.palaemon.conductor.service.PassengerMessagingService;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +19,13 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class MessagingServiceCallerImpl implements MessagingServiceCaller {
+public class CrewMessagingServiceImpl implements CrewMessagingService {
     @Autowired
     private RestTemplate restTemplate;
 
     @Override
     public void callSendMessages(List<MessageBody> bodies) {
-        String url = System.getenv("MESSAGING_SERVICE_URI") + "sendMessages";
+        String url = System.getenv("MESSAGING_SERVICE_URI") + "sendMessageTactilonBulk";
         MessagingServiceRequest serviceRequest = new MessagingServiceRequest();
         serviceRequest.setType("NOTIFICATION");
         serviceRequest.setReceivers(bodies.stream().map(Wrappers::messageBody2Receiver).collect(Collectors.toList()));

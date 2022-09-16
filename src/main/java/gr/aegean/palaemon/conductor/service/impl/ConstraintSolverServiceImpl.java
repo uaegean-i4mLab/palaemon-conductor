@@ -50,16 +50,21 @@ public class ConstraintSolverServiceImpl implements ConstraintSolverService {
             log.error(e.getMessage());
         }
 
-//        PassengerAssignmentResponse[] response = restTemplate.postForObject(url, request, PassengerAssignmentResponse[].class);
-        String response = restTemplate.postForObject(url, request, String.class);
-        log.info(response);
-        mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
-        try {
-            return mapper.readValue(response, PassengerIncidentSolutionTO.class);
-        } catch (JsonProcessingException e) {
-          log.error(e.getMessage());
+        if(assignmentRequest.getCrewMembers().size() > 0){
+            String response = restTemplate.postForObject(url, request, String.class);
+            log.info(response);
+            mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+            try {
+                return mapper.readValue(response, PassengerIncidentSolutionTO.class);
+            } catch (JsonProcessingException e) {
+                log.error(e.getMessage());
 
+            }
+        }else{
+            log.info("No Crew Members are available");
         }
+//        PassengerAssignmentResponse[] response = restTemplate.postForObject(url, request, PassengerAssignmentResponse[].class);
+
         return null;
     }
 }

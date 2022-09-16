@@ -36,11 +36,11 @@ public class RulesEngineServiceImpl implements RulesEngineService {
         HttpEntity<PassengerAssignmentRequest> request = new HttpEntity<>(passengerAssignmentRequest, headers);
 
         ObjectMapper mapper = new ObjectMapper();
-        try {
-            log.info(mapper.writeValueAsString(passengerAssignmentRequest));
-        } catch (JsonProcessingException e) {
-            log.error(e.getMessage());
-        }
+//        try {
+//            log.info(mapper.writeValueAsString(passengerAssignmentRequest));
+//        } catch (JsonProcessingException e) {
+//            log.error(e.getMessage());
+//        }
 
         PassengerAssignmentResponse[] response = restTemplate.postForObject(url, request, PassengerAssignmentResponse[].class);
         //log.info(response);

@@ -13,11 +13,15 @@ public interface DBProxyService {
 
     public void updatePassengerAssignedMS(String musteringStation, String hashedMacAddress);
 
+    public void updatePassengerAssignedMSBulk(String[] musteringStation, String[] hashedMacAddress);
+
     public void updateCrewInPosition(String hashedMacAddress, boolean inPosition);
 
     public ShipsGeofences getAllGeofences();
 
     public String getEvacuationStatus();
+
+    public void setEvacuationStatus(String status);
 
     public List<PameasPerson> getPassengerDetails();
     public List<PameasPerson> getCrewMembers();

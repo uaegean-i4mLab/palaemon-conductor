@@ -1,5 +1,6 @@
 package gr.aegean.palaemon.conductor.model.TO;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -21,7 +22,8 @@ public class EvacuationCoordinatorEventTO {
 
     private String originator;
     @JsonProperty("evacuation-status")
-    private String evacuationStatus;
+    @JsonAlias("current")
+    private int  evacuationStatus;
     private String timestamp;
 
 }

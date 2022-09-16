@@ -17,6 +17,8 @@ public class ConstraintSolverIncident {
     private  String surname;
     private  String passengerLanguage;
     private  String healthCondition;
+    private String mobilityCondition;
+    private String pregnancyCondition;
     private  String deck;
     private  String geofence;
     @JsonProperty("x_loc")

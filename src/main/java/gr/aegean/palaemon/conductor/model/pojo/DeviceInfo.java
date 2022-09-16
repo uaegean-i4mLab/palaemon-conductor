@@ -17,6 +17,7 @@ public class DeviceInfo implements Serializable {
     private String imsi;
     private String msisdn;
     private String imei;
+    private String braceletId;
 
 
 }

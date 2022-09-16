@@ -370,15 +370,20 @@ public class Wrappers {
             languageArray[0] = (String) map.get("passengerLanguage");
             result.setPreferredLanguage(languageArray);
         }
-
-        result.setMobilityIssues((String) map.get("mobilityIssues"));
-        result.setPregnancyStatus((String) map.get("pregnancyStatus"));
-        if (map.get("healthCondition") != null) {
-            result.setHealthIssues((String) map.get("healthCondition"));
-        } else {
-            result.setHealthIssues((String) map.get("healthIssues"));
+        if(map.get("incident") != null){
+            HashMap<String,String> incident = ((HashMap) map.get("incident"));
+            result.setMobilityIssues(incident.get("mobility_issues"));
+            result.setPregnancyStatus(incident.get("pregnancy_status"));
+            result.setHealthIssues(incident.get("health_issues"));
+        }else{
+            result.setMobilityIssues((String)map.get("mobilityCondition"));
+            result.setPregnancyStatus((String)map.get("pregnancyCondition"));
+            result.setHealthIssues((String)map.get("healthCondition"));
 
         }
+
+
+
 
 
         if (map.get("assignedCrewMemberId") != null) {
@@ -386,7 +391,7 @@ public class Wrappers {
             result.setAssignedCrewMemberId(((ArrayList<String>) map.get("assignedCrewMemberId")).toArray(assignedCrewMembers));
             result.setIncident(map2NotificationIncidentTO((Map) map.get("incident")));
         }
-        //TODO
+
 
 //        result.setCrew(map2NotificationIncidentCrewTO((Map) map.get("id")));
         if (map.get("crew") != null) {
@@ -483,6 +488,8 @@ public class Wrappers {
         ConstraintSolverIncident incident = new ConstraintSolverIncident();
         incident.setIncidentId(notification.getId());
         incident.setHealthCondition(notification.getHealthIssues());
+        incident.setMobilityCondition(notification.getMobilityIssues());
+        incident.setPregnancyCondition(notification.getPregnancyStatus());
         incident.setPassengerLanguage(notification.getPreferredLanguage()[0]);
         if (notification.getIncident() != null)
             incident.setDeck(notification.getIncident().getDeck());
@@ -510,7 +517,7 @@ public class Wrappers {
 
         result.setName(p.getPersonalInfo().getName());
         result.setSurname(p.getPersonalInfo().getSurname());
-        //TODO
+
         HashMap<String, Integer> map = new HashMap();
         incidents.forEach(incident -> {
             String xLoc = incident.getXLoc();
@@ -556,9 +563,39 @@ public class Wrappers {
         notificationTO.setXloc(solution.getXLoc());
         notificationTO.setYloc(solution.getYLoc());
         notificationTO.setGeofence(solution.getGeofence());
-        notificationTO.setPregnancyStatus("");
-        notificationTO.setMobilityIssues("");
-        notificationTO.setHealthIssues("");
+        switch(solution.getHealthCondition()) {
+            case NO_CONDITION:
+            case NONE:
+                notificationTO.setPregnancyStatus("");
+                notificationTO.setMobilityIssues("");
+                notificationTO.setHealthIssues("");
+                break;
+
+            case COGNITIVE_IMPAIRED:
+            case HEARING_IMPAIRED:
+            case HEAVE_DOSES:
+            case MEDICAL_EQUIP_NEEDED:
+                notificationTO.setPregnancyStatus("");
+                notificationTO.setMobilityIssues("");
+                notificationTO.setHealthIssues(solution.getHealthCondition().getCondition());
+                break;
+            case GAIT:
+            case SEVER_WALKING_DISABILITY:
+            case UNABLE_TO_WALT:
+            case STRETCHER:
+            case VISUALLY_IMPAIRED:
+            case WALKING_DISABILITY:
+                notificationTO.setPregnancyStatus("");
+                notificationTO.setMobilityIssues(solution.getHealthCondition().getCondition());
+                notificationTO.setHealthIssues("");
+            case COMPLICATED_PREGNANCY:
+            case NORMAL_PREGNANCY:
+                notificationTO.setPregnancyStatus(solution.getHealthCondition().getCondition());
+                notificationTO.setMobilityIssues("");
+                notificationTO.setHealthIssues("");
+        }
+
+
         notificationTO.setType("PASSENGER_INCIDENT_ASSIGNMENT_AUTHORIZATION");
 
         return notificationTO;

@@ -9,7 +9,6 @@ import gr.aegean.palaemon.conductor.model.pojo.ConstraintSolverIncident;
 import gr.aegean.palaemon.conductor.model.pojo.PameasPerson;
 import gr.aegean.palaemon.conductor.service.ConstraintSolverService;
 import gr.aegean.palaemon.conductor.service.KafkaService;
-import gr.aegean.palaemon.conductor.service.MessagingServiceCaller;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +17,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Configurable
 public class CallConstraintSolverTask implements Worker {
@@ -109,13 +109,38 @@ public class CallConstraintSolverTask implements Worker {
         });
 
         PassengerIncidentSolutionTO solution = constraintSolverService.makeAssignment(constraintSolverIncidents, crewMembers);
-        solution.getPassengerIncidentList().forEach(incidentAssignmentTO -> {
-            PameasNotificationTO notification = Wrappers.incidentAssignmentTO2PameasNotificationTO(incidentAssignmentTO);
-            this.kafkaService.writeToPameasNotification(notification);
-        });
-        logger.info(solution.toString());
-        logger.info("-----\n");
-        result.getOutputData().put("assignments", solution);
+        if(solution != null){
+            AtomicInteger i = new AtomicInteger();
+            solution.getPassengerIncidentList().forEach(incidentAssignmentTO -> {
+                PameasNotificationTO notification = Wrappers.incidentAssignmentTO2PameasNotificationTO(incidentAssignmentTO);
+                notification.setHealthIssues(constraintSolverIncidents.get(i.get()).getHealthCondition());
+                notification.setMobilityIssues(constraintSolverIncidents.get(i.get()).getMobilityCondition());
+                notification.setPregnancyStatus(constraintSolverIncidents.get(i.get()).getPregnancyCondition());
+                notification.getIncident().setHealthIssues(constraintSolverIncidents.get(i.get()).getHealthCondition());
+                notification.getIncident().setMobilityIssues(constraintSolverIncidents.get(i.get()).getMobilityCondition());
+                notification.getIncident().setPregnancyStatus(constraintSolverIncidents.get(i.get()).getPregnancyCondition());
+
+
+                i.getAndIncrement();
+                logger.info("-----\n");
+                this.kafkaService.writeToPameasNotification(notification);
+                logger.info("-----\n");
+            });
+
+
+
+            logger.info(solution.toString());
+
+            result.getOutputData().put("assignments", solution);
+        }else{
+            logger.info("NO SOLUTION COULD BE BUILT");
+            //TODO maybe here the incident should be visible
+            PassengerIncidentSolutionTO errSolution = new PassengerIncidentSolutionTO();
+            errSolution.setCrewMemberList(new ArrayList<>());
+            errSolution.setPassengerIncidentList(new ArrayList<>());
+            result.getOutputData().put("assignments", errSolution);
+        }
+
 
     }
 
