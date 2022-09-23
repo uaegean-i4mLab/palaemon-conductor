@@ -1,6 +1,8 @@
 package gr.aegean.palaemon.conductor.utils;
 
 import gr.aegean.palaemon.conductor.model.TO.*;
+import gr.aegean.palaemon.conductor.model.location.UserGeofenceUnit;
+import gr.aegean.palaemon.conductor.model.location.UserLocationUnit;
 import gr.aegean.palaemon.conductor.model.pojo.*;
 import gr.aegean.palaemon.conductor.service.DistanceCalculatorService;
 import org.springframework.util.StringUtils;

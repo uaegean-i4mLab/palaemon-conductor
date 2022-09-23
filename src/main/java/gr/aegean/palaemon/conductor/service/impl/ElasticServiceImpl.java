@@ -9,6 +9,8 @@ import gr.aegean.palaemon.conductor.utils.CryptoUtils;
 import gr.aegean.palaemon.conductor.utils.PameasPersonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -60,7 +62,8 @@ public class ElasticServiceImpl implements ElasticService {
                         .stream().filter(result -> {
                             try {
                                 return cryptoUtils.decryptBase64Message(result.getContent().getPersonalInfo().getPersonalId()).equals(personalIdentifier);
-                            } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                            } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException |
+                                     IllegalBlockSizeException | BadPaddingException e) {
                                 log.error(e.getMessage());
                                 return false;
                             }
@@ -101,17 +104,36 @@ public class ElasticServiceImpl implements ElasticService {
 
     @Override
     public Optional<PameasPerson> getPersonByBraceletId(String braceletId) {
+//        String date = DateTimeFormatter.ofPattern("yyyy.MM.dd").format(LocalDate.now());
+////        Query searchQuery = new NativeSearchQueryBuilder()
+////                .withQuery(matchQuery("networkInfo.braceletId", braceletId).minimumShouldMatch("100%"))
+////                .withQuery(matchQuery("personalInfo.mobilityIssues", "walking_disability").minimumShouldMatch("100%"))
+////                .build();
+//        log.info("will search for a passenger with bracelet id {} on subject {}", braceletId, "pameas-person-" + date);
+////        SearchHits<PameasPerson> matchingPersons =
+////                this.elasticsearchTemplate.search(searchQuery, PameasPerson.class, IndexCoordinates.of("pameas-person-2022.09.23"));
+//        Query searchQuery = new NativeSearchQueryBuilder()
+//                .build();
+//        List<SearchHit<PameasPerson>> matchingPersons =
+//                this.elasticsearchTemplate.search(searchQuery, PameasPerson.class, IndexCoordinates.of("pameas-person-" + date)).stream()
+//                        .collect(Collectors.toList());
+//        //        if (matchingPersons.getTotalHits() > 0) {
+////            return Optional.of(matchingPersons.getSearchHit(0).getContent());
+////        }
+//        return Optional.empty();
         String date = DateTimeFormatter.ofPattern("yyyy.MM.dd").format(LocalDate.now());
+
         Query searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(matchQuery("networkInfo.deviceInfoList.braceletId", braceletId).minimumShouldMatch("100%"))
-//                .withQuery(matchQuery("networkInfo.braceletId", braceletId).minimumShouldMatch("100%"))
+                .withQuery(matchQuery("networkInfo.braceletId",braceletId).minimumShouldMatch("100%"))
                 .build();
-        log.info("will search for a passenger with bracelet id {} on subject {}", braceletId, "pameas-person-" + date);
-//        SearchHits<PameasPerson> matchingPersons =
-//                this.elasticsearchTemplate.search(searchQuery, PameasPerson.class, IndexCoordinates.of("pameas-person-" + date));
-//        if (matchingPersons.getTotalHits() > 0) {
-//            return Optional.of(matchingPersons.getSearchHit(0).getContent());
-//        }
+        List<SearchHit<PameasPerson>> matchingPersons =
+                this.elasticsearchTemplate.search(searchQuery, PameasPerson.class, IndexCoordinates.of("pameas-person-" + date))
+                        .stream().collect(Collectors.toList());
+
+        if(matchingPersons.size() >0){
+            return  Optional.of(matchingPersons.get(0).getContent());
+        }
+
         return Optional.empty();
     }
 
@@ -135,12 +157,14 @@ public class ElasticServiceImpl implements ElasticService {
                                     try {
                                         ticketInfo.setSurname(cryptoUtils.decryptBase64Message(ticketInfo.getSurname()));
                                         ticketInfo.setName(cryptoUtils.decryptBase64Message(ticketInfo.getName()));
-                                    } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                                    } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException |
+                                             IllegalBlockSizeException | BadPaddingException e) {
                                         log.error(e.getMessage());
                                     }
                                 });
 
-                            } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                            } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException |
+                                     IllegalBlockSizeException | BadPaddingException e) {
                                 log.error(e.getMessage());
                             }
                             return pameasPerson;
@@ -155,7 +179,7 @@ public class ElasticServiceImpl implements ElasticService {
         String date = DateTimeFormatter.ofPattern("yyyy.MM.dd").format(LocalDate.now());
 
         Query searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(matchQuery("personalInfo.role","passenger").minimumShouldMatch("100%"))
+                .withQuery(matchQuery("personalInfo.role", "passenger").minimumShouldMatch("100%"))
                 .build();
         return
                 this.elasticsearchTemplate.search(searchQuery, PameasPerson.class, IndexCoordinates.of("pameas-person-" + date))
@@ -168,12 +192,14 @@ public class ElasticServiceImpl implements ElasticService {
                                     try {
                                         ticketInfo.setSurname(cryptoUtils.decryptBase64Message(ticketInfo.getSurname()));
                                         ticketInfo.setName(cryptoUtils.decryptBase64Message(ticketInfo.getName()));
-                                    } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                                    } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException |
+                                             IllegalBlockSizeException | BadPaddingException e) {
                                         log.error(e.getMessage());
                                     }
                                 });
 
-                            } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                            } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException |
+                                     IllegalBlockSizeException | BadPaddingException e) {
                                 log.error(e.getMessage());
                             }
                             return pameasPerson;
@@ -181,7 +207,6 @@ public class ElasticServiceImpl implements ElasticService {
 
 
     }
-
 
 
     @Override
@@ -206,7 +231,7 @@ public class ElasticServiceImpl implements ElasticService {
 
     @Override
     public void saveEvacuationStatus(EvacuationStatus evacuationStatus) {
-        try{
+        try {
             Optional<EvacuationStatus> existingStatus = evacuationStatusRepository.findStatus().stream().findFirst();
             if (existingStatus.isPresent()) {
                 existingStatus.get().setStatus(evacuationStatus.getStatus());
@@ -214,7 +239,7 @@ public class ElasticServiceImpl implements ElasticService {
             } else {
                 evacuationStatusRepository.save(evacuationStatus);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             evacuationStatusRepository.save(evacuationStatus);
         }

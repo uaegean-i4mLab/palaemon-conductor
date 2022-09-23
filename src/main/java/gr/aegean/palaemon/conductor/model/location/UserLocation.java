@@ -1,6 +1,5 @@
-package gr.aegean.palaemon.conductor.model.pojo;
+package gr.aegean.palaemon.conductor.model.location;
 
-import gr.aegean.palaemon.conductor.model.location.UserLocationUnit;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

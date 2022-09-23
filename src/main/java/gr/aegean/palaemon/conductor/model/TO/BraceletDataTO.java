@@ -31,7 +31,7 @@ public class BraceletDataTO {
     private String id;
     @JsonProperty("HR")
     private String hr;
-    @JsonProperty("Sp02")
+    @JsonProperty("O2")
     private String sp02;
     @JsonProperty("Temp")
     private String temp;

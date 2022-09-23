@@ -600,6 +600,39 @@ public class KafkaServiceImpl implements KafkaService {
         }
     }
 
+
+    @Override
+    @KafkaListener(topics = "legacy", groupId = "uaeg-consumer-group")
+    public void monitorLegacy(String message) {
+        log.info("message from /legacy ${}", message);
+
+    }
+
+    @Override
+    @KafkaListener(topics = "shm-alarm", groupId = "uaeg-consumer-group")
+    public void monitorShmAlarmLegacy(String message) {
+        log.info("message from /shm-alarm ${}", message);
+
+    }
+
+
+    @Override
+    @KafkaListener(topics = "stability-toolkit", groupId = "uaeg-consumer-group")
+    public void monitorStabilityToolkit(String message){
+        log.info("message from /stability-toolkit ${}", message);
+    }
+
+    @Override
+    @KafkaListener(topics = "cameras", groupId = "uaeg-consumer-group")
+    public void monitorCameras(String message){
+        log.info("message from /cameras ${}", message);
+    }
+
+    @Override
+    @KafkaListener(topics = "weather", groupId = "uaeg-consumer-group")
+    public void monitorWeather(String message){
+        log.info("message from /weather ${}", message);
+    }
 }
 
 

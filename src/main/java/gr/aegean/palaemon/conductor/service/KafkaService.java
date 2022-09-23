@@ -42,4 +42,12 @@ public interface KafkaService {
 
     public void monitorSRAP(String message);
 
+    public void monitorLegacy(String message);
+    public void monitorShmAlarmLegacy(String message);
+
+
+    public void monitorStabilityToolkit(String message)  ;
+
+    public void monitorCameras(String message)  ;
+    public void monitorWeather(String message)  ;
 }

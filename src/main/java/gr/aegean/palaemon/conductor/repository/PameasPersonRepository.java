@@ -16,6 +16,11 @@ public interface PameasPersonRepository extends ElasticsearchRepository<PameasPe
     List<PameasPerson> findCrewMembers();
 
 
+//    @Query("{\"bool\": {\"must\": [{\"match\": {\"networkInfo.braceletId\": \"?0\"}}]}}")
+    @Query("{\"bool\": {\"must\": [{\"match\": {\"networkInfo.braceletId\": \"?0\"}}]}}")
+    Page<PameasPerson> findByBraceletId(String braceletId, Pageable pageable);
+
+
 //    @Query("{\"bool\": {\"must\": [{\"match\": {\"authors.name\": \"?0\"}}]}}")
 //    Page<Article> findByAuthorsNameUsingCustomQuery(String name, Pageable pageable);
 }

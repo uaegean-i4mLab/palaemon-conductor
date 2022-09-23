@@ -2,6 +2,8 @@ package gr.aegean.palaemon.conductor.model.TO;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import gr.aegean.palaemon.conductor.model.location.UserGeofenceUnit;
+import gr.aegean.palaemon.conductor.model.location.UserLocationUnit;
 import gr.aegean.palaemon.conductor.model.pojo.*;
 import lombok.*;
 
