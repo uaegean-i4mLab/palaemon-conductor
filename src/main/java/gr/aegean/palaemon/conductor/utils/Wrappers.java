@@ -35,7 +35,16 @@ public class Wrappers {
 
         passenger.setDistances(new ArrayList<>());
         List<String> medicalConditions = new ArrayList<>();
-        medicalConditions.add(pameasPerson.getPersonalInfo().getMedicalCondition());
+        if(StringUtils.isEmpty(pameasPerson.getPersonalInfo().getMedicalCondition())){
+            if(StringUtils.isEmpty(pameasPerson.getPersonalInfo().getMobilityIssues())){
+                medicalConditions.add(pameasPerson.getPersonalInfo().getPrengencyData());
+            }else{
+                medicalConditions.add(pameasPerson.getPersonalInfo().getMobilityIssues());
+            }
+        }else{
+            medicalConditions.add(pameasPerson.getPersonalInfo().getMedicalCondition());
+        }
+
         passenger.setHealthConditions(medicalConditions);
 
         return passenger;

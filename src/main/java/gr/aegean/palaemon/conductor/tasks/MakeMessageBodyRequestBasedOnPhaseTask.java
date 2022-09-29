@@ -64,7 +64,7 @@ public class MakeMessageBodyRequestBasedOnPhaseTask implements Worker {
         result.setStatus(TaskResult.Status.COMPLETED);
 
 
-        processGetPassengerAssignments(task, result);
+        makeMessageBodyRequest(task, result);
 
 
         return result;
@@ -77,7 +77,7 @@ public class MakeMessageBodyRequestBasedOnPhaseTask implements Worker {
      * @param task   the task called from Conductor
      * @param result the result to return to Conductor
      */
-    private void processGetPassengerAssignments(Task task, TaskResult result) {
+    private void makeMessageBodyRequest(Task task, TaskResult result) {
 
 
         logger.info("Running task: " + task.getTaskDefName());

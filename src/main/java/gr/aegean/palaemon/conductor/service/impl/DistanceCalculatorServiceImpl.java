@@ -43,7 +43,7 @@ public class DistanceCalculatorServiceImpl implements DistanceCalculatorService 
 
     @Override
     public Optional<String> getGeofenceFromCordsAndDeck(String deck, String xCoord, String yCoord) {
-        String url = System.getenv("DISTANCE_CALCULATOR_URL") + "getGeofence";
+        String url = System.getenv("SIMULATOR_URL") + "getGeofence";
         HttpHeaders headers = new HttpHeaders();
         GetGeofenceRequestTO getGeofenceRequestTO = new GetGeofenceRequestTO(deck, xCoord, yCoord);
         HttpEntity<GetGeofenceRequestTO> request = new HttpEntity<>(getGeofenceRequestTO, headers);

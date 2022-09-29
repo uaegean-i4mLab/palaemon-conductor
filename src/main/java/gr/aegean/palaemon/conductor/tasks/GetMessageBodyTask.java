@@ -64,7 +64,7 @@ public class GetMessageBodyTask implements Worker {
         result.setStatus(TaskResult.Status.COMPLETED);
 
 
-        processGetPassengerAssignments(task, result);
+        getMessageBody(task, result);
 
 
         return result;
@@ -77,7 +77,7 @@ public class GetMessageBodyTask implements Worker {
      * @param task   the task called from Conductor
      * @param result the result to return to Conductor
      */
-    private void processGetPassengerAssignments(Task task, TaskResult result) {
+    private void getMessageBody(Task task, TaskResult result) {
 
 
         logger.info("Running task: " + task.getTaskDefName());

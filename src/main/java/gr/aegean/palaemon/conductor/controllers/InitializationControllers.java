@@ -3,11 +3,11 @@ package gr.aegean.palaemon.conductor.controllers;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gr.aegean.palaemon.conductor.model.TO.*;
-import gr.aegean.palaemon.conductor.model.pojo.KeycloakAccessTokenResponse;
-import gr.aegean.palaemon.conductor.model.pojo.LegacySystemTO;
-import gr.aegean.palaemon.conductor.model.pojo.MessageObject;
-import gr.aegean.palaemon.conductor.model.pojo.SmokeDetectedTO;
+import gr.aegean.palaemon.conductor.model.location.UserGeofenceUnit;
+import gr.aegean.palaemon.conductor.model.location.UserLocationUnit;
+import gr.aegean.palaemon.conductor.model.pojo.*;
 import gr.aegean.palaemon.conductor.service.KafkaService;
+import gr.aegean.palaemon.conductor.utils.PameasPersonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -26,6 +26,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -220,7 +221,6 @@ public class InitializationControllers {
                     .build();
 
 
-
             response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 
             //add location
@@ -262,7 +262,7 @@ public class InitializationControllers {
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
                     .method("POST", HttpRequest.BodyPublishers.ofString(" {\n   \"saturation\": \"99\",  \"heartBeat\": \"102\", " +
-                            " \"name\": \"Jane\",\n      \"surname\": \"Doe\",\n      \"identifier\": \"4\",\n    " +
+                            " \"name\": \"Jane\",\n      \"surname\": \"Doe\",\n      \"identifier\": \"01\",\n    " +
                             "  \"gender\": \"Female\",\n      \"age\": \"1965-01-01\",\n      \"connectedPassengers\": [\n      ],\n    " +
                             "  \"embarkation_port\": \"\",\n      \"disembarkation_port\": \"\",\n      \"ticketNumber\": \"\",\n    " +
                             "  \"email\": \"triantafyllou.ni@gmail.com\",\n      \"postal_address\": \"Kallistratous 50\",\n  " +
@@ -281,13 +281,12 @@ public class InitializationControllers {
                     .uri(URI.create(this.DB_PROXY_URI + "addDevice/"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
-                    .method("POST", HttpRequest.BodyPublishers.ofString("{\n     \n    \"identifier\": \"4\",\n   " +
+                    .method("POST", HttpRequest.BodyPublishers.ofString("{\n     \n    \"identifier\": \"01\",\n   " +
                             " \"macAddress\": \"58:37:8B:DE:42:G8\",\n    \"imsi\": \"502130123456789\",\n  " +
                             "  \"msisdn\": \"919825098250\",\n  " +
                             "  \"imei\": \"49-015420-323751-8\",\n\t\t\"messagingAppClientId\": \"Nikos-Admin\", " +
                             " \"braceletId\": \"SB0005\" }"))
                     .build();
-
 
 
             response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
@@ -320,7 +319,6 @@ public class InitializationControllers {
     }
 
 
-
     @GetMapping("addTestPassengerOn7DG3")
     public @ResponseBody String addTestPassengerOn7DG3() {
         try {
@@ -331,7 +329,15 @@ public class InitializationControllers {
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
                     .method("POST", HttpRequest.BodyPublishers.ofString(" {\n   \"saturation\": \"99\", " +
-                            " \"heartBeat\": \"102\",  \"name\": \"p2\",\n      \"surname\": \"p2_surname\",\n      \"identifier\": \"4\",\n      \"gender\": \"Male\",\n      \"age\": \"1950-01-01\",\n      \"connectedPassengers\": [\n      ],\n      \"embarkation_port\": \"PIREAUS\",\n      \"disembarkation_port\": \"CHANIA\",\n      \"ticketNumber\": \"123\",\n      \"email\": \"p2@gmail.com\",\n      \"postal_address\": \"Kallistratous 50\",\n      \"emergency_contact_details\": \"6943808730\",\n      \"country_of_residence\": \"GR\",\n      \"medical_condnitions\": \"none\",\n      \"mobility_issues\": \"\",\n      \"pregnency_data\": \"\",\n      \"is_crew\": false,\n      \"role\": \"passenger\",\n      \"emergency_duty\": \"\",\n      \"preferred_language\": [ \"EN\" ],\n      \"in_position\": false,\n      \"assignment_status\": \"UNASSIGNED\",\n      \"assigned_muster_station\": null\n}\n"))
+                            " \"heartBeat\": \"102\",  \"name\": \"p2\",\n      \"surname\": \"p2_surname\",\n     " +
+                            " \"identifier\": \"02\",\n      \"gender\": \"Male\",\n      \"age\": \"1950-01-01\",\n  " +
+                            "    \"connectedPassengers\": [\n      ],\n      \"embarkation_port\": \"PIREAUS\",\n    " +
+                            "  \"disembarkation_port\": \"CHANIA\",\n      \"ticketNumber\": \"123\",\n      \"email\": \"p2@gmail.com\",\n   " +
+                            "   \"postal_address\": \"Kallistratous 50\",\n      \"emergency_contact_details\": \"6943808730\",\n   " +
+                            "   \"country_of_residence\": \"GR\",\n      \"medical_condnitions\": \"none\",\n      \"mobility_issues\": \"\",\n    " +
+                            "  \"pregnency_data\": \"\",\n      \"is_crew\": false,\n      \"role\": \"passenger\",\n      \"emergency_duty\": \"\",\n " +
+                            "     \"preferred_language\": [ \"EN\" ],\n      \"in_position\": false,\n      \"assignment_status\": \"UNASSIGNED\",\n  " +
+                            "    \"assigned_muster_station\": null\n}\n"))
                     .build();
             HttpResponse<String> response;
             response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
@@ -342,7 +348,7 @@ public class InitializationControllers {
                     .uri(URI.create(this.DB_PROXY_URI + "addDevice/"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
-                    .method("POST", HttpRequest.BodyPublishers.ofString("{\n     \n    \"identifier\": \"4\",\n   " +
+                    .method("POST", HttpRequest.BodyPublishers.ofString("{\n     \n    \"identifier\": \"02\",\n   " +
                             " \"macAddress\": \"58:37:8B:DE:42:F7\",\n    \"imsi\": \"502130123456789\",\n  " +
                             "  \"msisdn\": \"919825098250\",\n  " +
                             "  \"imei\": \"49-015420-323751-8\",\n\t\t\"messagingAppClientId\": \"Mumla_User\", " +
@@ -357,7 +363,8 @@ public class InitializationControllers {
                     .uri(URI.create(this.DB_PROXY_URI + "addLocation/"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
-                    .method("POST", HttpRequest.BodyPublishers.ofString("{\n    \"macAddress\":\"58:37:8B:DE:42:F7\",\n\t\"hashedMacAddress\":\"b356d0ea840b0550a2acb26acea468a80b895607d55db030f0b12abf5e8ce759\",\n\t\"geofence\":{\n\t\t\"gfEvent\":\"2132121\",\n\t\t\"gfId\":\"1\",\n\t\t\"gfName\":\"7DG3\",\n\t\t\"macAddress\":\"58:37:8B:DE:42:F8\",\n\t\t\"isAssociated\":\"false\",\n\t\t\"dwellTime\":\"1600807918\",\n\t\t\"hashedMacAddress\":\"b356d0ea840b0550a2acb26acea468a80b895607d55db030f0b12abf5e8ce759\",\n\t\t\"timestamp\":\"1600807918\",\n\t\t\"deck\":\"7\"\n\t},\n\t \"location\":{\n\t\t \"xLocation\":\"91.91315958190962\",\n\t\t \"yLocation\":\"27.497502709677637\",\n\t\t \"errorLevel\":\"0\",\n\t\t \"isAssociated\":\"false\",\n\t\t \"campusId\":\"7\",\n\t\t \"buildingId\":\"shipA\",\n\t\t \"floorId\":\"floor0\",\n\t\t \"hashedMacAddress\": \"b356d0ea840b0550a2acb26acea468a80b895607d55db030f0b12abf5e8ce759\",\n\t\t \"geofenceId\":\"1\",\n\t\t \"geofenceNames\":[\"geofence1\"],\n\t\t \"timestamp\":\"1600807918\"\n\t }\n  }"))
+                    .method("POST", HttpRequest.BodyPublishers.ofString("{\n    \"macAddress\":\"58:37:8B:DE:42:F7\"," +
+                            "\n\t\"hashedMacAddress\":\"b356d0ea840b0550a2acb26acea468a80b895607d55db030f0b12abf5e8ce759\",\n\t\"geofence\":{\n\t\t\"gfEvent\":\"2132121\",\n\t\t\"gfId\":\"1\",\n\t\t\"gfName\":\"7DG3\",\n\t\t\"macAddress\":\"58:37:8B:DE:42:F8\",\n\t\t\"isAssociated\":\"false\",\n\t\t\"dwellTime\":\"1600807918\",\n\t\t\"hashedMacAddress\":\"b356d0ea840b0550a2acb26acea468a80b895607d55db030f0b12abf5e8ce759\",\n\t\t\"timestamp\":\"1600807918\",\n\t\t\"deck\":\"7\"\n\t},\n\t \"location\":{\n\t\t \"xLocation\":\"91.91315958190962\",\n\t\t \"yLocation\":\"27.497502709677637\",\n\t\t \"errorLevel\":\"0\",\n\t\t \"isAssociated\":\"false\",\n\t\t \"campusId\":\"7\",\n\t\t \"buildingId\":\"shipA\",\n\t\t \"floorId\":\"floor0\",\n\t\t \"hashedMacAddress\": \"b356d0ea840b0550a2acb26acea468a80b895607d55db030f0b12abf5e8ce759\",\n\t\t \"geofenceId\":\"1\",\n\t\t \"geofenceNames\":[\"geofence1\"],\n\t\t \"timestamp\":\"1600807918\"\n\t }\n  }"))
                     .build();
             response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
@@ -365,6 +372,109 @@ public class InitializationControllers {
             return null;
         }
         return "OK";
+    }
+
+
+    @GetMapping("addTestPassengersOnD9")
+    public @ResponseBody String addTestPassengersOnD9() {
+        try {
+            addTestPerson("99", "102", "D9_test1",
+                    "D9_test1_sur", "D9_1", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "123", "test@test.gr", "Address 1", "306943808730",
+                    "GR", "none", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:F7",
+                    "502130123456789", "919825098250", "Mumla_User", "SB0001","9", "1600807918",
+                    "1", "event", "1231", "9CG3", "true", "9", "27.497502709677637",
+                    "91.91315958190962", "1", "0", List.of("9CG3"));
+
+            addTestPerson("99", "102", "D9_test2",
+                    "D9_test2_sur", "D9_2", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test2@test.gr", "Address 2", "306943808730",
+                    "GR", "none", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:F8",
+                    "502130123456789", "919825098250", "Plumble_User", "SB0002","9", "1600807918",
+                    "1", "event", "1231", "S9-8.3", "true", "9", "27.80",
+                    "92.50", "1", "0", List.of("S9-8.3"));
+
+            addTestPerson("99", "102", "D9_test3",
+                    "D9_test3_sur", "D9_3", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test3@test.gr", "Address 3", "306943808730",
+                    "GR", "", "unable_to_walk", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:F9",
+                    "502130123456789", "919825098250", "Nikos-Admin", "SB0003","9", "1600807918",
+                    "1", "event", "1231", "9CG0", "true", "9", "26.80",
+                    "93.50", "1", "0", List.of("9CG0"));
+
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+        return "OK";
+    }
+
+
+    private void addTestPerson(String saturation, String heartBeat, String name, String surname, String identifier,
+                               String gender, String age, ArrayList<ConnectedPersonTO> connectedPassengers, String embarkation,
+                               String disembarkation, String ticketNumber, String email, String postalAddress,
+                               String emergencyContact, String countryOfResidence, String medicalCondition,
+                               String mobilityIssues, String pregnencyData, boolean isCrew, Personalinfo.AssignmentStatus assigmentStatus,
+                               String[] prefLanguage, String role, String musterStation,
+                               String macAddress, String imsi, String imei,
+                               String messagingAppClientId, String braceletId,
+                               String deck, String timestamp, String gfId,
+                               String gfEvent, String dwellTime, String gfName, String isAsosciated,
+                               String floorId, String yLocation, String xLocation, String campusId,
+                               String errorLevel, List<String> geofenceNames) {
+        try {
+            KeycloakAccessTokenResponse accessTokenResponse = getOAuthAccessToken();
+            ObjectMapper mapper = new ObjectMapper();
+
+            //add Person
+            PersonTO p = PameasPersonUtils.buildPersonTO(saturation, heartBeat, name,
+                    surname, identifier, gender, age, connectedPassengers, embarkation,
+                    disembarkation, ticketNumber, email, postalAddress, emergencyContact,
+                    countryOfResidence, medicalCondition, mobilityIssues, pregnencyData, isCrew, assigmentStatus,
+                    prefLanguage, role, musterStation);
+
+            HttpRequest request = null;
+            if (accessTokenResponse != null) {
+                request = HttpRequest.newBuilder()
+                        .uri(URI.create(this.DB_PROXY_URI + "addPerson/"))
+                        .header("Content-Type", "application/json")
+                        .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
+                        .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(p)))
+                        .build();
+            }else{
+                log.error("accessTokenResponse form Keycloak null");
+            }
+            HttpResponse<String> response;
+            response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            //add device
+            AddDevicePersonTO devicePersonTO = PameasPersonUtils.addDevicePersonTO(identifier, macAddress,
+                    imsi, imei, messagingAppClientId, braceletId);
+            TimeUnit.SECONDS.sleep(2);
+            request = HttpRequest.newBuilder()
+                    .uri(URI.create(this.DB_PROXY_URI + "addDevice/"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
+                    .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(devicePersonTO)))
+                    .build();
+            response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            //add location
+            LocationTO location = PameasPersonUtils.addLocationTO(deck, timestamp, macAddress,
+                    gfId, gfEvent, dwellTime, gfName, isAsosciated, floorId, yLocation,
+                    xLocation, campusId, errorLevel, geofenceNames);
+            request = HttpRequest.newBuilder()
+                    .uri(URI.create(this.DB_PROXY_URI + "addLocation/"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
+                    .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(location)))
+                    .build();
+            response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
 
@@ -392,8 +502,6 @@ public class InitializationControllers {
     }
 
 
-
-
     @GetMapping("/allCrewInPosition")
     public @ResponseBody String allCrewInPosition() {
         PameasNotificationTO pameasNotification = new PameasNotificationTO();
@@ -402,6 +510,19 @@ public class InitializationControllers {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         pameasNotification.setTimestamp(timestamp.toString());
         pameasNotification.setType("all_crew_in_position");
+        kafkaService.writeToPameasNotification(pameasNotification);
+        return "OK";
+    }
+
+
+    @GetMapping("/sendPassengerInstructions")
+    public @ResponseBody String sendInstructionsToPassengers() {
+        PameasNotificationTO pameasNotification = new PameasNotificationTO();
+        pameasNotification.setStatus("");
+        pameasNotification.setId(UUID.randomUUID().toString());
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        pameasNotification.setTimestamp(timestamp.toString());
+        pameasNotification.setType("SEND_MUSTER_INSTRUCTIONS");
         kafkaService.writeToPameasNotification(pameasNotification);
         return "OK";
     }
@@ -464,7 +585,6 @@ public class InitializationControllers {
     }
 
 
-
     @PostMapping("/generateSmokeDetectorAlarm")
     public @ResponseBody String generateSmokeDetector(@RequestBody SmokeDetectedTO smokeDetectedTO) {
         LegacySystemTO legacySystemTO = new LegacySystemTO();
@@ -493,7 +613,6 @@ public class InitializationControllers {
 
         return "ok";
     }
-
 
 
     private KeycloakAccessTokenResponse getOAuthAccessToken() {

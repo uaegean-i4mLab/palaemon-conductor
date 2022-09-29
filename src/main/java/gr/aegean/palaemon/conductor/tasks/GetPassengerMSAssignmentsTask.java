@@ -106,6 +106,30 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         List<PassengerAssignmentResponse> assignmentResponses =
                 rulesEngineService.fetchPassengerMSAssignments(passengerList, blocked, musterStations);
 
+        LinkedHashMap<String, String> actions = new LinkedHashMap<>();
+        LinkedHashMap<String, String> pathIds = new LinkedHashMap<>();
+        LinkedHashMap<String, String> assignedMSs = new LinkedHashMap<>();
+
+        List<String> macAddressesToSkipMessagesTo = new ArrayList<>();
+
+        assignmentResponses.forEach(passengerAssignmentResponse -> {
+            if (passengerAssignmentResponse.getHashedMacAddress() != null) {
+                if (passengerAssignmentResponse.getAction() == null || passengerAssignmentResponse.getPathId() == null
+                        || passengerAssignmentResponse.getMusterStation() == null) {
+                    log.error("error getting muster station assignment for passenger {}", passengerAssignmentResponse.getHashedMacAddress());
+                } else {
+                    String action = passengerAssignmentResponse.getAction();
+                    String hashedMac = passengerAssignmentResponse.getHashedMacAddress();
+                    actions.put(hashedMac, action);
+                    String pathId = passengerAssignmentResponse.getPathId();
+                    pathIds.put(hashedMac, pathId);
+                    String ms = passengerAssignmentResponse.getMusterStation();
+                    assignedMSs.put(hashedMac, ms);
+                    if(action.equals("WAIT")) macAddressesToSkipMessagesTo.add(hashedMac);
+                }
+            }
+        });
+
 
         //Prepare the request for the messageBody call
         PassengerMessageBodyRequests passengerMessageBodyRequests = new PassengerMessageBodyRequests();
@@ -124,26 +148,9 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         });
 
 
-        LinkedHashMap<String, String> actions = new LinkedHashMap<>();
-        LinkedHashMap<String, String> pathIds = new LinkedHashMap<>();
-        LinkedHashMap<String, String> assignedMSs = new LinkedHashMap<>();
 
-        assignmentResponses.stream().forEach(passengerAssignmentResponse -> {
-            if (passengerAssignmentResponse.getHashedMacAddress() != null) {
-                if (passengerAssignmentResponse.getAction() == null || passengerAssignmentResponse.getPathId() == null
-                        || passengerAssignmentResponse.getMusterStation() == null) {
-                    log.error("error getting muster station assignment for passenger {}", passengerAssignmentResponse.getHashedMacAddress());
-                } else {
-                    String action = passengerAssignmentResponse.getAction();
-                    String hashedMac = passengerAssignmentResponse.getHashedMacAddress();
-                    actions.put(hashedMac, action);
-                    String pathId = passengerAssignmentResponse.getPathId();
-                    pathIds.put(hashedMac, pathId);
-                    String ms = passengerAssignmentResponse.getMusterStation();
-                    assignedMSs.put(hashedMac, ms);
-                }
-            }
-        });
+
+
 
         passengerMessageBodyRequests.setPassengerLanguages(languages);
         passengerMessageBodyRequests.setActions(actions);
@@ -152,6 +159,18 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         passengerMessageBodyRequests.setBlockedGeofences(blocked);
         passengerMessageBodyRequests.setMusterStation(assignedMSs);
         passengerMessageBodyRequests.setCurrentGeofences(currentGeofenceList);
+
+        //do not send message generations for passengers with mobility issues
+        macAddressesToSkipMessagesTo.forEach(hashedMAc ->{
+            passengerMessageBodyRequests.getPassengerLanguages().remove(hashedMAc);
+            passengerMessageBodyRequests.getActions().remove(hashedMAc);
+            passengerMessageBodyRequests.getMessageCodes().remove(hashedMAc);
+            passengerMessageBodyRequests.getAssignedPathIDs().remove(hashedMAc);
+            passengerMessageBodyRequests.getBlockedGeofences().remove(hashedMAc);
+            passengerMessageBodyRequests.getMusterStation().remove(hashedMAc);
+            passengerMessageBodyRequests.getCurrentGeofences().remove(hashedMAc);
+        });
+
 
 
         // Store original assignments

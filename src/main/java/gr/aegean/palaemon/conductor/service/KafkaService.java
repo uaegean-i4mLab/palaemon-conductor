@@ -1,9 +1,6 @@
 package gr.aegean.palaemon.conductor.service;
 
-import gr.aegean.palaemon.conductor.model.TO.EvacuationCoordinatorEventTO;
-import gr.aegean.palaemon.conductor.model.TO.PameasNotificationTO;
-import gr.aegean.palaemon.conductor.model.TO.SmartSafetySystemEventTO;
-import gr.aegean.palaemon.conductor.model.TO.SrapTO;
+import gr.aegean.palaemon.conductor.model.TO.*;
 import gr.aegean.palaemon.conductor.model.pojo.BraceletPojo;
 import gr.aegean.palaemon.conductor.model.pojo.LegacySystemTO;
 
@@ -26,6 +23,8 @@ public interface KafkaService {
 
 
     public void writeToLegacySystem(LegacySystemTO legacySystemTO);
+
+    public void writeToSBMessageTO(SbPaMEASMessageTO sbPaMEASMessageTO);
 
 
     public void writeToSRAP(SrapTO SrapTO);

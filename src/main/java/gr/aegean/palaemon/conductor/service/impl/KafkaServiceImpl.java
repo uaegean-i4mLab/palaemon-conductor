@@ -48,6 +48,7 @@ public class KafkaServiceImpl implements KafkaService {
 
     static final String NOTIFICATION_TOPIC = "pameas-notification";
     static final String LOCATION_TOPIC = "pameas-location";
+    static final String SB_MESSAGE_TOPIC = "smart-bracelet-pameas-evac-msg";
 
     private final KafkaProducer<String, PameasNotificationTO> notificationProducer;
 
@@ -79,6 +80,9 @@ public class KafkaServiceImpl implements KafkaService {
 
     private final KafkaProducer<String, LegacySystemTO> legacyProducer;
 
+    private final KafkaProducer<String, SbPaMEASMessageTO> sbPaMEASMessageTOKafkaProducer;
+
+
     @Autowired
     public KafkaServiceImpl(KafkaProducer<String, PameasNotificationTO> notificationProducer,
                             KafkaProducer<String, BraceletPojo> braceletProducer,
@@ -86,7 +90,8 @@ public class KafkaServiceImpl implements KafkaService {
                             KafkaProducer<String, EvacuationCoordinatorEventTO> evacuationCoordinatorProducer,
                             KafkaProducer<String, SmartSafetySystemEventTO> smartSafetyProducer,
                             KafkaProducer<String,SrapTO> srapProducer,
-                            KafkaProducer<String, LegacySystemTO> legacyProducer) {
+                            KafkaProducer<String, LegacySystemTO> legacyProducer,
+                            KafkaProducer<String, SbPaMEASMessageTO> sbPaMEASMessageTOKafkaProducer) {
         this.notificationProducer = notificationProducer;
         this.braceletProducer = braceletProducer;
         this.heartBeatProducer = heartBeatProducer;
@@ -94,6 +99,7 @@ public class KafkaServiceImpl implements KafkaService {
         this.smartSafetyProducer = smartSafetyProducer;
         this.srapProducer = srapProducer;
         this.legacyProducer= legacyProducer;
+        this.sbPaMEASMessageTOKafkaProducer = sbPaMEASMessageTOKafkaProducer;
     }
 
 
@@ -109,6 +115,19 @@ public class KafkaServiceImpl implements KafkaService {
         }
     }
 
+    @Override
+    public void writeToSBMessageTO(SbPaMEASMessageTO sbPaMEASMessageTO){
+        try {
+            log.info("pushing sb message to  kafka {}", sbPaMEASMessageTO);
+            this.sbPaMEASMessageTOKafkaProducer.send(new ProducerRecord<>(SB_MESSAGE_TOPIC, sbPaMEASMessageTO));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        } finally {
+//            producer.close();
+        }
+    }
+
+
     @KafkaListener(topics = "smart-safety-system", groupId = "uaeg-consumer-group")
     @Override
     public void monitorSmartSafety(String message) {
@@ -121,7 +140,8 @@ public class KafkaServiceImpl implements KafkaService {
                     || smartSafetySystemEventTO.getType().equals("Grounding")) {
 
                 Optional<String> geofenceName =
-                        distanceCalculatorService.getGeofenceFromCordsAndDeck(smartSafetySystemEventTO.getDeck(), smartSafetySystemEventTO.getPositionX(), smartSafetySystemEventTO.getPositionY());
+                        distanceCalculatorService.getGeofenceFromCordsAndDeck(smartSafetySystemEventTO.getDeck(),
+                                smartSafetySystemEventTO.getPositionX(), smartSafetySystemEventTO.getPositionY());
                 if (geofenceName.isPresent()) {
                     BlockedGeofenceTO blockedGeofenceTO = new BlockedGeofenceTO(geofenceName.get(), "blocked");
 
@@ -369,7 +389,9 @@ public class KafkaServiceImpl implements KafkaService {
                 log.info("response {}", response.body());
             }
 
-            if (pameasNotificationTO.getType().equals("PASSENGER_ALERT_COMPLETED")) {
+
+            if (pameasNotificationTO.getType().equals("PASSENGER_ALERT_COMPLETED")
+            ||pameasNotificationTO.getType().equals("SEND_MUSTER_INSTRUCTIONS")) {
                 PhaseTaskTO phaseTaskTO = new PhaseTaskTO("6", "6.2");
                 String conductorUrl = System.getenv("CONDUCTOR_URI");
                 HttpRequest request = HttpRequest.newBuilder()

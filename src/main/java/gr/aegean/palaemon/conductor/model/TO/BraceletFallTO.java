@@ -18,7 +18,7 @@ public class BraceletFallTO {
      */
 
     private String timestamp;
-    @JsonProperty("ID")
+    @JsonProperty("component_id")
     private String id;
     @JsonProperty("event_id")
     private int eventId;

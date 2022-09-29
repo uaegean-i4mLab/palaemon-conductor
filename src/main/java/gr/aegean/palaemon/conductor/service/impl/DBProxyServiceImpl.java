@@ -1,5 +1,6 @@
 package gr.aegean.palaemon.conductor.service.impl;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gr.aegean.palaemon.conductor.model.TO.EvacuationStatusTO;
@@ -126,7 +127,7 @@ public class DBProxyServiceImpl implements DBProxyService {
         ResponseEntity<String> response = restTemplate.exchange(
                 uri, HttpMethod.GET, requestEntity, String.class);
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().configure(JsonParser.Feature.IGNORE_UNDEFINED,true);
         try {
             return mapper.readValue(response.getBody(), ShipsGeofences.class);
         } catch (JsonProcessingException e) {
@@ -181,7 +182,7 @@ public class DBProxyServiceImpl implements DBProxyService {
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
         ResponseEntity<String> responseString = restTemplate.exchange(
                 uri, HttpMethod.GET, requestEntity, String.class);
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().configure(JsonParser.Feature.IGNORE_UNDEFINED,true);
 
         try {
             return Arrays.asList(mapper.readValue(responseString.getBody(), PameasPerson[].class));
@@ -204,7 +205,7 @@ public class DBProxyServiceImpl implements DBProxyService {
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
         ResponseEntity<String> responseString = restTemplate.exchange(
                 uri, HttpMethod.GET, requestEntity, String.class);
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().configure(JsonParser.Feature.IGNORE_UNDEFINED,true);
 
         try {
             return Arrays.asList(mapper.readValue(responseString.getBody(), PameasPerson[].class));
@@ -226,7 +227,7 @@ public class DBProxyServiceImpl implements DBProxyService {
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
         ResponseEntity<String> responseString = restTemplate.exchange(
                 uri, HttpMethod.GET, requestEntity, String.class);
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().configure(JsonParser.Feature.IGNORE_UNDEFINED,true);
         Optional<PameasPerson> result = Optional.empty();
 
         try {

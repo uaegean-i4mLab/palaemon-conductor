@@ -18,5 +18,7 @@ public class Geofence {
     @JsonProperty("mustering")
     private String musteringStation;
 
+    private String srapZone;
+
     
 }

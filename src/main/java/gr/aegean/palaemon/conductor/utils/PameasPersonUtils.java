@@ -1,6 +1,20 @@
 package gr.aegean.palaemon.conductor.utils;
 
+import gr.aegean.palaemon.conductor.model.TO.AddDevicePersonTO;
+import gr.aegean.palaemon.conductor.model.TO.ConnectedPersonTO;
+import gr.aegean.palaemon.conductor.model.TO.LocationTO;
+import gr.aegean.palaemon.conductor.model.TO.PersonTO;
+import gr.aegean.palaemon.conductor.model.location.UserGeofenceUnit;
+import gr.aegean.palaemon.conductor.model.location.UserLocationUnit;
 import gr.aegean.palaemon.conductor.model.pojo.PameasPerson;
+import gr.aegean.palaemon.conductor.model.pojo.Personalinfo;
+import org.apache.commons.codec.digest.DigestUtils;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class PameasPersonUtils {
 
@@ -51,4 +65,88 @@ public class PameasPersonUtils {
         return originalPerson;
 
     }
+
+
+    public static PersonTO buildPersonTO(String saturation, String heartBeat, String name, String surname, String identifier,
+                                  String gender, String age, ArrayList<ConnectedPersonTO> connectedPassengers, String embarkation,
+                                  String disembarkation, String ticketNumber, String email, String postalAddress,
+                                  String emergencyContact, String countryOfResidence, String medicalCondition,
+                                  String mobilityIssues, String pregnencyData, boolean isCrew, Personalinfo.AssignmentStatus assigmentStatus,
+                                  String[] prefLanguage, String role, String musterStation){
+        PersonTO p = new PersonTO();
+        p.setSaturation(saturation);
+        p.setHeartBeat(heartBeat);
+        p.setName(name);
+        p.setSurname(surname);
+        p.setIdentifier(identifier);
+        p.setGender(gender);
+        p.setAge(age);
+        p.setConnectedPassengers(connectedPassengers);
+        p.setEmbarkationPort(embarkation);
+        p.setDisembarkationPort(disembarkation);
+        p.setTicketNumber(ticketNumber);
+        p.setEmail(email);
+        p.setPostalAddress(postalAddress);
+        p.setEmergencyContact(emergencyContact);
+        p.setCountryOfResidence(countryOfResidence);
+        p.setMedicalCondition(medicalCondition);
+        p.setMobilityIssues(mobilityIssues);
+        p.setPrengencyData(pregnencyData);
+        p.setCrew(isCrew);
+        p.setAssignmentStatus(assigmentStatus);
+        p.setAssignedMusteringStation(musterStation);
+        p.setPreferredLanguage(prefLanguage);
+        p.setRole(role);
+        return p;
+    }
+
+    public static AddDevicePersonTO addDevicePersonTO(String identifier, String macAddress, String imsi, String imei,
+                                               String messagingAppClientId, String braceletId){
+        AddDevicePersonTO devicePersonTO = new AddDevicePersonTO();
+        devicePersonTO.setIdentifier(identifier);
+        devicePersonTO.setMacAddress(macAddress);
+        devicePersonTO.setImsi(imsi);
+        devicePersonTO.setImei(imei);
+        devicePersonTO.setMessagingAppClientId(messagingAppClientId);
+        devicePersonTO.setBraceletId(braceletId);
+        return  devicePersonTO;
+    }
+
+    public static LocationTO addLocationTO(String deck, String timestamp, String macAddress, String gfId,
+                                           String gfEvent, String dwellTime, String gfName, String isAsosciated,
+                                           String floorId, String yLocation, String xLocation, String campusId,
+                                           String errorLevel, List<String> geofenceNames){
+
+        LocationTO location = new LocationTO();
+        UserGeofenceUnit geofenceUnit = new UserGeofenceUnit();
+        geofenceUnit.setDeck(deck);
+        geofenceUnit.setTimestamp(timestamp);
+        geofenceUnit.setMacAddress(macAddress);
+        geofenceUnit.setGfId(gfId);
+        geofenceUnit.setGfEvent(gfEvent);
+        geofenceUnit.setDwellTime(dwellTime);
+        geofenceUnit.setGfName(gfName);
+        geofenceUnit.setHashedMacAddress(DigestUtils.sha256Hex(macAddress));
+        geofenceUnit.setIsAssociated(isAsosciated);
+        location.setGeofence(geofenceUnit);
+
+        UserLocationUnit locationUnit = new UserLocationUnit();
+        locationUnit.setTimestamp(timestamp);
+        locationUnit.setIsAssociated(isAsosciated);
+        locationUnit.setBuildingId(deck);
+        locationUnit.setFloorId(floorId);
+        locationUnit.setHashedMacAddress(DigestUtils.sha256Hex(macAddress));
+        locationUnit.setYLocation(yLocation);
+        locationUnit.setXLocation(xLocation);
+        locationUnit.setCampusId(campusId);
+        locationUnit.setErrorLevel(errorLevel);
+        locationUnit.setGeofenceNames(geofenceNames);
+        location.setLocation(locationUnit);
+
+        location.setMacAddress(macAddress);
+        location.setHashedMacAddress(DigestUtils.sha256Hex(macAddress));
+
+        return location;
+    }
+
 }
