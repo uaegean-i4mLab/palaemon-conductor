@@ -113,7 +113,7 @@ public class Application extends SpringBootServletInitializer {
                 new UpdatePassengersMSandPathTask("update_passenger_ms_and_path", dbProxyService,kafkaService);
 
         Worker getSinglePassengerDetailsTask =
-                new GetSinglePassengerLocationHealthTask("get_single_passenger_location_health", dbProxyService);
+                new GetSinglePassengerIdLocationHealthTask("get_single_passenger_location_health", dbProxyService);
         Worker makePassengerIssueTask =
                 new MakePassengerIssueTask("make_passenger_issue", dbProxyService, kafkaService, passengerMessagingService);
 

@@ -12,13 +12,13 @@ import org.springframework.beans.factory.annotation.Configurable;
 import java.util.Optional;
 
 @Configurable
-public class GetSinglePassengerLocationHealthTask implements Worker {
+public class GetSinglePassengerIdLocationHealthTask implements Worker {
 
     /**
      * The logger.
      */
     private final Logger logger =
-            LoggerFactory.getLogger(GetSinglePassengerLocationHealthTask.class);
+            LoggerFactory.getLogger(GetSinglePassengerIdLocationHealthTask.class);
 
 
     /**
@@ -33,7 +33,7 @@ public class GetSinglePassengerLocationHealthTask implements Worker {
      *
      * @param taskDefName the task def name
      */
-    public GetSinglePassengerLocationHealthTask(String taskDefName, DBProxyService dbProxyService) {
+    public GetSinglePassengerIdLocationHealthTask(String taskDefName, DBProxyService dbProxyService) {
         this.taskDefName = taskDefName;
         this.dbProxyService = dbProxyService;
     }
@@ -108,6 +108,7 @@ public class GetSinglePassengerLocationHealthTask implements Worker {
 
                 }
                 //Register the output of the task
+                result.getOutputData().put("passengerId",passenger.get().getPersonalInfo().getPersonalId());
                 result.getOutputData().put("geofence", geofence);
                 result.getOutputData().put("healthIssues", healthIssues);
                 result.getOutputData().put("name", name);

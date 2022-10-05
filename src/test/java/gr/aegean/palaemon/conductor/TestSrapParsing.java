@@ -105,4 +105,46 @@ public class TestSrapParsing {
     }
 
 
+
+    @Test
+    public void testSrapPassengerIncident() {
+        try {
+            String receivedMessage =  "{\n" +
+                    "  \"messageId\": \"\",\n" +
+                    "  \"timestamp\": \"\",\n" +
+                    "  \"sender\": \"SRAP\",\n" +
+                    "  \"SRAP model\": \"Mustering Assessment\",\n" +
+                    "  \"Individual status\": {\n" +
+                    "    \"2549\": \"Assistance required\",\n" +
+                    "    \"2552\": \"Assistance required\",\n" +
+                    "    \"2554\": \"Assistance required\"\n" +
+                    "  },\n" +
+                    "  \"Escape routes\": {\n" +
+                    "    \"Z1D9\": \"Open\",\n" +
+                    "    \"Z2D9\": \"Distrupted\",\n" +
+                    "    \"Z3D9\": \"Open\"\n" +
+                    "  },\n" +
+                    "  \"Group performance\": {\n" +
+                    "    \"Z1D9\": \"Low\",\n" +
+                    "    \"Z2D9\": \"Medium\",\n" +
+                    "    \"Z3D9\": \"Low\",\n" +
+                    "    \"Z4D9\": \"High\"\n" +
+                    "  },\n" +
+                    "  \"Risk of delay\": {\n" +
+                    "    \"Z1D9\": \"Low\",\n" +
+                    "    \"Z2D9\": \"Medium\"\n" +
+                    "  }\n" +
+                    "}\n" +
+                    "\n" +
+                    "\n";
+            ObjectMapper mapper = new ObjectMapper();
+            SrapTO result = mapper.readValue(receivedMessage, SrapTO.class);
+            System.out.println(result.toString());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+
 }

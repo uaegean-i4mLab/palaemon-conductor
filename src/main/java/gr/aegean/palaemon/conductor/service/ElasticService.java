@@ -13,6 +13,8 @@ public interface ElasticService {
     public Optional<PameasPerson> getPersonByPersonalIdentifierDecrypted(String personalIdentifier);
     public List<PameasPerson> getAllPersonsDecrypted();
 
+    public Optional<PameasPerson> getPersonByAssignedMS(String ms);
+
     public List<PameasPerson> getAllPassengersDecrypted();
 
     public void updatePerson(String personIdentifier, PameasPerson person);

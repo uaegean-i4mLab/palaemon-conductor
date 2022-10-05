@@ -72,7 +72,7 @@ public class PameasPersonUtils {
                                   String disembarkation, String ticketNumber, String email, String postalAddress,
                                   String emergencyContact, String countryOfResidence, String medicalCondition,
                                   String mobilityIssues, String pregnencyData, boolean isCrew, Personalinfo.AssignmentStatus assigmentStatus,
-                                  String[] prefLanguage, String role, String musterStation){
+                                  String[] prefLanguage, String role, String musterStation, String emergencyDuty){
         PersonTO p = new PersonTO();
         p.setSaturation(saturation);
         p.setHeartBeat(heartBeat);
@@ -97,6 +97,7 @@ public class PameasPersonUtils {
         p.setAssignedMusteringStation(musterStation);
         p.setPreferredLanguage(prefLanguage);
         p.setRole(role);
+        p.setEmergencyDuty(emergencyDuty);
         return p;
     }
 

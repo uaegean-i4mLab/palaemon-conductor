@@ -378,32 +378,136 @@ public class InitializationControllers {
     @GetMapping("addTestPassengersOnD9")
     public @ResponseBody String addTestPassengersOnD9() {
         try {
-            addTestPerson("99", "102", "D9_test1",
+            //Healthy Test person on 9BG2 with Mumla_User and Nikos MAC Address
+            addTestPerson("","99", "102", "D9_test1",
                     "D9_test1_sur", "D9_1", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "123", "test@test.gr", "Address 1", "306943808730",
                     "GR", "none", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
                     new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:F7",
                     "502130123456789", "919825098250", "Mumla_User", "SB0001","9", "1600807918",
-                    "1", "event", "1231", "9CG3", "true", "9", "27.497502709677637",
-                    "91.91315958190962", "1", "0", List.of("9CG3"));
-
-            addTestPerson("99", "102", "D9_test2",
+                    "1", "event", "1231", "9BG2", "true", "9", "27.497502709677637",
+                    "91.91315958190962", "1", "0", List.of("9CG2"));
+            //Healthy Test user 9BG1
+            addTestPerson("","99", "102", "D9_test2",
                     "D9_test2_sur", "D9_2", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "456", "test2@test.gr", "Address 2", "306943808730",
                     "GR", "none", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
                     new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:F8",
                     "502130123456789", "919825098250", "Plumble_User", "SB0002","9", "1600807918",
-                    "1", "event", "1231", "S9-8.3", "true", "9", "27.80",
-                    "92.50", "1", "0", List.of("S9-8.3"));
-
-            addTestPerson("99", "102", "D9_test3",
+                    "1", "event", "1231", "9BG1", "true", "9", "27.80",
+                    "92.50", "1", "0", List.of("9BG1"));
+            // Healthy Test user on 9BG3
+            addTestPerson("","99", "102", "D9_test3",
                     "D9_test3_sur", "D9_3", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "456", "test3@test.gr", "Address 3", "306943808730",
-                    "GR", "", "unable_to_walk", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
                     new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:F9",
-                    "502130123456789", "919825098250", "Nikos-Admin", "SB0003","9", "1600807918",
+                    "502130123456789", "919825098250", "Nikos-Admin-2", "SB0003","9", "1600807918",
+                    "1", "event", "1231", "9BG3", "true", "9", "26.80",
+                    "93.50", "1", "0", List.of("9BG3"));
+            // Healthy Test user on 9BG4
+            addTestPerson("","99", "102", "D9_test4",
+                    "D9_test4_sur", "D9_4", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test4@test.gr", "Address 3", "306943808730",
+                    "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A1",
+                    "502130123456789", "919825098250", "9BG4-User", "SB0004","9", "1600807918",
+                    "1", "event", "1231", "9BG4", "true", "9", "26.80",
+                    "93.50", "1", "0", List.of("9BG4"));
+            // Healthy Test user on 9BG1+ (stairs)
+            addTestPerson("","99", "102", "D9_test5",
+                    "D9_test5_sur", "D9_5", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test5@test.gr", "Address 3", "306943808730",
+                    "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A2",
+                    "502130123456789", "919825098250", "9BG4-User", "SB0005","9", "1600807918",
+                    "1", "event", "1231", "9BG1+", "true", "9", "26.80",
+                    "93.50", "1", "0", List.of("9BG1+"));
+            // Healthy Test user on 9CG0 (stairs)
+            addTestPerson("","99", "102", "D9_test6",
+                    "D9_test6_sur", "D9_6", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test6@test.gr", "Address 3", "306943808730",
+                    "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A3",
+                    "502130123456789", "919825098250", "9CG0-User", "SB0006","9", "1600807918",
                     "1", "event", "1231", "9CG0", "true", "9", "26.80",
                     "93.50", "1", "0", List.of("9CG0"));
+            // Healthy Test user on GCab9223
+            addTestPerson("","99", "102", "D9_test7",
+                    "D9_test7_sur", "D9_7", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test7@test.gr", "Address 3", "306943808730",
+                    "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A4",
+                    "502130123456789", "919825098250", "GCab9223-User", "SB0007","9", "1600807918",
+                    "1", "event", "1231", "GCab9223", "true", "9", "26.80",
+                    "93.50", "1", "0", List.of("GCab9223"));
+            // Healthy Test user on GCab9217
+            addTestPerson("","99", "102", "D9_test8",
+                    "D9_test8_sur", "D9_8", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test8@test.gr", "Address 3", "306943808730",
+                    "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A5",
+                    "502130123456789", "919825098250", "GCab9222-User", "SB0008","9", "1600807918",
+                    "1", "event", "1231", "GCab9217", "true", "9", "26.80",
+                    "93.50", "1", "0", List.of("GCab9217"));
+            // Mobility Issues Test user on 9BG2
+            addTestPerson("","99", "102", "D9_test9",
+                    "D9_test9_sur", "D9_9", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test8@test.gr", "Address 3", "306943808730",
+                    "GR", "", "unable_to_walk", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A6",
+                    "502130123456789", "919825098250", "Mobility-Issues", "SB0009","9", "1600807918",
+                    "1", "event", "1231", "9BG2", "true", "9", "26.80",
+                    "93.50", "1", "0", List.of("9BG2"));
+            // Health Issues Test user on 9BG2
+            addTestPerson("","99", "102", "D9_test10",
+                    "D9_test10_sur", "D9_10", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test8@test.gr", "Address 3", "306943808730",
+                    "GR", "equip_required", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A7",
+                    "502130123456789", "919825098250", "Health-Issues", "SB0009","9", "1600807918",
+                    "1", "event", "1231", "9BG2", "true", "9", "26.80",
+                    "93.50", "1", "0", List.of("9BG2"));
+            // Pregnancy Issues Test user on 9BG2
+            addTestPerson("","99", "102", "D9_test11",
+                    "D9_test11_sur", "D9_11", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test8@test.gr", "Address 3", "306943808730",
+                    "GR", "", "", "complicated", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A8",
+                    "502130123456789", "919825098250", "Pregnancy-Issues", "SB0009","9", "1600807918",
+                    "1", "event", "1231", "9BG2", "true", "9", "26.80",
+                    "93.50", "1", "0", List.of("9BG2"));
+
+
+
+            // ADD a crew member on 9BG3 corridor
+            addTestPerson("medical_unit","99", "102", "D9_test12",
+                    "D9_test12_sur", "D9_12", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test12@test.gr", "Address 3", "306943808730",
+                    "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "crew", null,"58:37:8B:DE:42:A9",
+                    "502130123456789", "919825098250", "Nikos-Admin", "SB00012","9", "1600807918",
+                    "1", "event", "1231", "9BG3", "true", "9", "26.80",
+                    "93.50", "1", "0", List.of("9BG3"));
+            // ADD a crew member on 9BG4 corridor
+            addTestPerson("passenger_mustering_unit" ,"99", "102", "D9_test13",
+                    "D9_test12_sur", "D9_13", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test12@test.gr", "Address 3", "306943808730",
+                    "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "crew", null,"58:37:8B:DE:42:B1",
+                    "502130123456789", "919825098250", "Nikos-Admin", "SB00013","9", "1600807918",
+                    "1", "event", "1231", "9BG4", "true", "9", "26.80",
+                    "90.50", "1", "0", List.of("9BG4"));
+            // ADD a crew member on 9BG1
+            addTestPerson("first_response_unit" ,"99", "102", "D9_test14",
+                    "D9_test14_sur", "D9_14", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test14@test.gr", "Address 3", "306943808730",
+                    "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "crew", null,"58:37:8B:DE:42:B2",
+                    "502130123456789", "919825098250", "Nikos-Admin-3", "SB00014","9", "1600807918",
+                    "1", "event", "1231", "9BG1", "true", "9", "24.80",
+                    "85.50", "1", "0", List.of("9BG1"));
+
 
 
         } catch (Exception e) {
@@ -414,7 +518,7 @@ public class InitializationControllers {
     }
 
 
-    private void addTestPerson(String saturation, String heartBeat, String name, String surname, String identifier,
+    private void addTestPerson(String emergencyDuty, String saturation, String heartBeat, String name, String surname, String identifier,
                                String gender, String age, ArrayList<ConnectedPersonTO> connectedPassengers, String embarkation,
                                String disembarkation, String ticketNumber, String email, String postalAddress,
                                String emergencyContact, String countryOfResidence, String medicalCondition,
@@ -435,7 +539,7 @@ public class InitializationControllers {
                     surname, identifier, gender, age, connectedPassengers, embarkation,
                     disembarkation, ticketNumber, email, postalAddress, emergencyContact,
                     countryOfResidence, medicalCondition, mobilityIssues, pregnencyData, isCrew, assigmentStatus,
-                    prefLanguage, role, musterStation);
+                    prefLanguage, role, musterStation, emergencyDuty);
 
             HttpRequest request = null;
             if (accessTokenResponse != null) {

@@ -97,6 +97,7 @@ public class MakePassengerIssueTask implements Worker {
         String yLoc = (String) task.getInputData().get("yLoc");
         String deck = (String) task.getInputData().get("deck");
         String hashedMacAddress = (String) task.getInputData().get("passenger_id");
+        String passengerId = (String) task.getInputData().get("passengerId");
 
 
         logger.info("Running task: " + task.getTaskDefName());
@@ -111,6 +112,7 @@ public class MakePassengerIssueTask implements Worker {
         incidentTO.setTimestamp( new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()));
         incidentTO.setPassengerSurname(surname);
         incidentTO.setPregnancyStatus(pregnancyIssues);
+
         String id = UUID.randomUUID().toString();
         incidentTO.setId(id);
         incidentTO.setStatus(Incident.IncidentStatus.OPEN);
@@ -132,6 +134,8 @@ public class MakePassengerIssueTask implements Worker {
         pameasNotificationTO.setId(incidentTO.getId());
         pameasNotificationTO.setPassengerName(incidentTO.getPassengerName());
         pameasNotificationTO.setPassengerSurname(incidentTO.getPassengerSurname());
+        pameasNotificationTO.setPassengerId(passengerId);
+
         pameasNotificationTO.setStatus(notificationIncidentTO.getStatus());
         pameasNotificationTO.setMobilityIssues(notificationIncidentTO.getMobilityIssues());
         pameasNotificationTO.setAssignedCrewMemberId( null);

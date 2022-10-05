@@ -358,6 +358,11 @@ public class Wrappers {
             result.setId((String) map.get("id"));
         }
 
+        if(map.get("passengerId") != null){
+            result.setPassengerId((String)map.get("passengerId") );
+        }
+
+
         result.setTimestamp((String) map.get("timestamp"));
         result.setMacAddress((String) map.get("macAddress"));
         if (map.get("name") != null) {
@@ -510,6 +515,7 @@ public class Wrappers {
         incident.setYLoc(notification.getYloc());
         incident.setName(notification.getPassengerName());
         incident.setSurname(notification.getPassengerSurname());
+        incident.setPassengerId(notification.getPassengerId());
         return incident;
     }
 
@@ -649,7 +655,7 @@ public class Wrappers {
         return incidentCrewTO;
     }
 
-    public static PameasNotificationTO pameasPersonToNotificationTO(PameasPerson person) {
+    public static PameasNotificationTO pameasPersonToNotificationTO(PameasPerson person, String passengerId) {
 
         IncidentTO incident = new IncidentTO();
         incident.setPassengerSurname(person.getPersonalInfo().getSurname());
@@ -693,6 +699,7 @@ public class Wrappers {
         pameasNotificationTO.setYloc(incident.getYLoc());
         pameasNotificationTO.setStatus(incident.getStatus().toString());
         pameasNotificationTO.setPreferredLanguage(incident.getPreferredLanguage());
+        pameasNotificationTO.setPassengerId(passengerId);
 
 
         return pameasNotificationTO;

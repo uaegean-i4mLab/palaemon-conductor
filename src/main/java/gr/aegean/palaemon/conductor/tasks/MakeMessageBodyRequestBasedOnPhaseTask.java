@@ -119,57 +119,62 @@ public class MakeMessageBodyRequestBasedOnPhaseTask implements Worker {
         passengerMessageBodyRequests.setCurrentGeofences(geofences);
 
         Map<String, String> messageCodes = new HashMap<>();
-        if (audience.toLowerCase().equals("crew")) {
+        if (audience.toLowerCase().equals("crew") || (audience.toLowerCase().equals("both"))) {
             Map<String, String> crewLanguages = new HashMap<>();
             Map<String, String> crewActions = new HashMap<>();
             Map<String, String> crewPathIds = new HashMap<>();
             Map<String, String> crewAssignedMSs = new HashMap<>();
 
             List<LinkedHashMap> crewMembers = (List<LinkedHashMap>) task.getInputData().get("crew_details");
-            List<Passenger> crewMembersList = crewMembers.stream().map(Wrappers::hashMap2PameasPerson).map(Wrappers::paemasPerson2Passenger).
-                    collect(Collectors.toList());
-            crewMembersList.stream().forEach(crewMember -> {
-                messageCodes.put(crewMember.getHashedMacAddress(), messageCode);
-                crewLanguages.put(crewMember.getHashedMacAddress(), "en");
-                crewActions.put(crewMember.getHashedMacAddress(), "");
-                crewPathIds.put(crewMember.getHashedMacAddress(), "");
-                crewAssignedMSs.put(crewMember.getHashedMacAddress(), "");
-            });
+            if (crewMembers != null) {
+                List<Passenger> crewMembersList = crewMembers.stream().map(Wrappers::hashMap2PameasPerson).map(Wrappers::paemasPerson2Passenger).
+                        collect(Collectors.toList());
+                crewMembersList.stream().forEach(crewMember -> {
+                    messageCodes.put(crewMember.getHashedMacAddress(), messageCode);
+                    crewLanguages.put(crewMember.getHashedMacAddress(), "en");
+                    crewActions.put(crewMember.getHashedMacAddress(), "");
+                    crewPathIds.put(crewMember.getHashedMacAddress(), "");
+                    crewAssignedMSs.put(crewMember.getHashedMacAddress(), "");
+                });
 
-            passengerMessageBodyRequests.setPassengerLanguages(crewLanguages);
-            passengerMessageBodyRequests.setActions(crewActions);
-            passengerMessageBodyRequests.setMusterStation(crewAssignedMSs);
-            passengerMessageBodyRequests.setAssignedPathIDs(crewPathIds);
+                passengerMessageBodyRequests.setPassengerLanguages(crewLanguages);
+                passengerMessageBodyRequests.setActions(crewActions);
+                passengerMessageBodyRequests.setMusterStation(crewAssignedMSs);
+                passengerMessageBodyRequests.setAssignedPathIDs(crewPathIds);
+            }
         }
-        if (audience.toLowerCase().equals("passengers")) {
+        if (audience.toLowerCase().equals("passengers") || audience.toLowerCase().equals("both")) {
             Map<String, String> passengerLanguages = new HashMap<>();
             List<LinkedHashMap> passenger_details = (List<LinkedHashMap>) task.getInputData().get("passenger_details");
 
-            List<Passenger> passengerList = passenger_details.stream().map(Wrappers::hashMap2PameasPerson).map(Wrappers::paemasPerson2Passenger).
-                    collect(Collectors.toList());
+            if (passenger_details != null) {
+                List<Passenger> passengerList = passenger_details.stream().map(Wrappers::hashMap2PameasPerson).map(Wrappers::paemasPerson2Passenger).
+                        collect(Collectors.toList());
 
-            passenger_details.stream().map(Wrappers::hashMap2PameasPerson).forEach(pameasPerson -> {
-                pameasPerson.getPersonalInfo().getPreferredLanguage().forEach(s -> {
-                    passengerLanguages.put(pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress(), s);
+                passenger_details.stream().map(Wrappers::hashMap2PameasPerson).forEach(pameasPerson -> {
+                    pameasPerson.getPersonalInfo().getPreferredLanguage().forEach(s -> {
+                        passengerLanguages.put(pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress(), s);
+                    });
                 });
-            });
 
 
-            passengerMessageBodyRequests.setPassengerLanguages(passengerLanguages);
-            if (messageCode.equals("5.1") || messageCode.equals("6.2")) {
-                passengerMessageBodyRequests.setActions(new HashMap<>());
-                passengerMessageBodyRequests.setMusterStation(new HashMap<>());
-                passengerMessageBodyRequests.setAssignedPathIDs(new HashMap<>());
+                passengerMessageBodyRequests.setPassengerLanguages(passengerLanguages);
+                if (messageCode.equals("5.1") || messageCode.equals("6.2")) {
+                    passengerMessageBodyRequests.setActions(new HashMap<>());
+                    passengerMessageBodyRequests.setMusterStation(new HashMap<>());
+                    passengerMessageBodyRequests.setAssignedPathIDs(new HashMap<>());
+                }
+
+                passengerList.stream().forEach(passenger -> {
+                    messageCodes.put(passenger.getHashedMacAddress(), messageCode);
+                    if (messageCode.equals("5.1") || messageCode.equals("6.2")) {
+                        passengerMessageBodyRequests.getActions().put(passenger.getHashedMacAddress(), "");
+                        passengerMessageBodyRequests.getMusterStation().put(passenger.getHashedMacAddress(), "");
+                        passengerMessageBodyRequests.getAssignedPathIDs().put(passenger.getHashedMacAddress(), "");
+                    }
+                });
             }
 
-            passengerList.stream().forEach(passenger -> {
-                messageCodes.put(passenger.getHashedMacAddress(), messageCode);
-                if (messageCode.equals("5.1") || messageCode.equals("6.2")) {
-                    passengerMessageBodyRequests.getActions().put(passenger.getHashedMacAddress(), "");
-                    passengerMessageBodyRequests.getMusterStation().put(passenger.getHashedMacAddress(), "");
-                    passengerMessageBodyRequests.getAssignedPathIDs().put(passenger.getHashedMacAddress(), "");
-                }
-            });
         }
 
 

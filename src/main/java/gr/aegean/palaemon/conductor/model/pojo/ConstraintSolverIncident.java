@@ -25,6 +25,7 @@ public class ConstraintSolverIncident {
     private  String xLoc;
     @JsonProperty("y_loc")
     private  String yLoc;
+    private String passengerId;
 
     /*
 

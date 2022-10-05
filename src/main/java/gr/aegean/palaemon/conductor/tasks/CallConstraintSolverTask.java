@@ -94,9 +94,12 @@ public class CallConstraintSolverTask implements Worker {
         ArrayList<LinkedHashMap<String, Object>> crewMap =
                 (ArrayList<LinkedHashMap<String, Object>>) task.getInputData().get("crew");
 
-        ArrayList<ConstraintSolverIncident> constraintSolverIncidents = new ArrayList<>();
+
+        ArrayList<ConstraintSolverIncident> constraintSolverRequestIncidents = new ArrayList<>();
+        ArrayList<PameasNotificationTO> pameasNotificationTOs = new ArrayList<>();
         incident.forEach(inc -> {
-            constraintSolverIncidents.add(Wrappers.pameasNotificationTO2ConstraintSolverIncident(Wrappers.map2PameasNotificationTO(inc)));
+            constraintSolverRequestIncidents.add(Wrappers.pameasNotificationTO2ConstraintSolverIncident(Wrappers.map2PameasNotificationTO(inc)));
+            pameasNotificationTOs.add(Wrappers.map2PameasNotificationTO(inc));
         });
 
         logger.info("Input: ");
@@ -108,17 +111,19 @@ public class CallConstraintSolverTask implements Worker {
             crewMembers.add(Wrappers.hashMap2PameasPerson((LinkedHashMap<String, Object>) crw));
         });
 
-        PassengerIncidentSolutionTO solution = constraintSolverService.makeAssignment(constraintSolverIncidents, crewMembers);
+        PassengerIncidentSolutionTO solution = constraintSolverService.makeAssignment(constraintSolverRequestIncidents, crewMembers);
         if(solution != null){
             AtomicInteger i = new AtomicInteger();
             solution.getPassengerIncidentList().forEach(incidentAssignmentTO -> {
                 PameasNotificationTO notification = Wrappers.incidentAssignmentTO2PameasNotificationTO(incidentAssignmentTO);
-                notification.setHealthIssues(constraintSolverIncidents.get(i.get()).getHealthCondition());
-                notification.setMobilityIssues(constraintSolverIncidents.get(i.get()).getMobilityCondition());
-                notification.setPregnancyStatus(constraintSolverIncidents.get(i.get()).getPregnancyCondition());
-                notification.getIncident().setHealthIssues(constraintSolverIncidents.get(i.get()).getHealthCondition());
-                notification.getIncident().setMobilityIssues(constraintSolverIncidents.get(i.get()).getMobilityCondition());
-                notification.getIncident().setPregnancyStatus(constraintSolverIncidents.get(i.get()).getPregnancyCondition());
+                notification.setHealthIssues(constraintSolverRequestIncidents.get(i.get()).getHealthCondition());
+                notification.setMobilityIssues(constraintSolverRequestIncidents.get(i.get()).getMobilityCondition());
+                notification.setPregnancyStatus(constraintSolverRequestIncidents.get(i.get()).getPregnancyCondition());
+                notification.getIncident().setHealthIssues(constraintSolverRequestIncidents.get(i.get()).getHealthCondition());
+                notification.getIncident().setMobilityIssues(constraintSolverRequestIncidents.get(i.get()).getMobilityCondition());
+                notification.getIncident().setPregnancyStatus(constraintSolverRequestIncidents.get(i.get()).getPregnancyCondition());
+                // TODO Check this works correctly
+                notification.setPassengerId(pameasNotificationTOs.get(i.get()).getPassengerId());
 
 
                 i.getAndIncrement();

@@ -17,6 +17,7 @@ public class PameasNotificationTO {
     String macAddress;
     String passengerName;
     String passengerSurname;
+    String passengerId;
     String[] preferredLanguage;
     @JsonProperty("health_issues")
     String healthIssues;
