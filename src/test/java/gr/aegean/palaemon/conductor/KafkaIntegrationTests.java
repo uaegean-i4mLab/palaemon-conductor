@@ -3,6 +3,7 @@ package gr.aegean.palaemon.conductor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gr.aegean.palaemon.conductor.model.TO.EvacuationCoordinatorEventTO;
 import gr.aegean.palaemon.conductor.model.TO.PameasNotificationTO;
 import gr.aegean.palaemon.conductor.model.pojo.BraceletPojo;
 import gr.aegean.palaemon.conductor.service.KafkaService;
@@ -74,6 +75,46 @@ public class KafkaIntegrationTests {
     }
 
 
+
+
+    //WORKS OK
+    @Test // crew to positions
+    public void mockProtocolStatusSetTo2(){
+        EvacuationCoordinatorEventTO eventTO = new EvacuationCoordinatorEventTO();
+        eventTO.setEvacuationStatus(2);
+        eventTO.setOriginator("evacuation-coordinator");
+        eventTO.setTimestamp((new Timestamp(System.currentTimeMillis())).toString());
+        kafkaService.writeToEvacuationCoordinator(eventTO);
+    }
+
+
+    @Test //Alert passengers
+    public void mockProtocolStatusSetTo21(){
+        EvacuationCoordinatorEventTO eventTO = new EvacuationCoordinatorEventTO();
+        eventTO.setEvacuationStatus(21);
+        eventTO.setOriginator("evacuation-coordinator");
+        eventTO.setTimestamp((new Timestamp(System.currentTimeMillis())).toString());
+        kafkaService.writeToEvacuationCoordinator(eventTO);
+    }
+
+
+    @Test
+    public void mockProtocolStatusSetTo3(){
+        EvacuationCoordinatorEventTO eventTO = new EvacuationCoordinatorEventTO();
+        eventTO.setEvacuationStatus(3);
+        eventTO.setOriginator("evacuation-coordinator");
+        eventTO.setTimestamp((new Timestamp(System.currentTimeMillis())).toString());
+        kafkaService.writeToEvacuationCoordinator(eventTO);
+    }
+
+    @Test
+    public void mockProtocolStatusSetTo4(){
+        EvacuationCoordinatorEventTO eventTO = new EvacuationCoordinatorEventTO();
+        eventTO.setEvacuationStatus(4);
+        eventTO.setOriginator("evacuation-coordinator");
+        eventTO.setTimestamp((new Timestamp(System.currentTimeMillis())).toString());
+        kafkaService.writeToEvacuationCoordinator(eventTO);
+    }
 
 
 

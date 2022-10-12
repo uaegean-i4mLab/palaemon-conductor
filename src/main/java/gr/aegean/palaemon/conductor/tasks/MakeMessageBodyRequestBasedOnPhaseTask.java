@@ -101,10 +101,14 @@ public class MakeMessageBodyRequestBasedOnPhaseTask implements Worker {
         Map<String, String> geofences = new LinkedHashMap<>();
         if (passengerAssignments != null) {
             passengerAssignments.forEach(passengerAssignmentResponse -> {
-                pathIds.put(passengerAssignmentResponse.get("hashedMacAddress"), passengerAssignmentResponse.get("pathId"));
-                actions.put(passengerAssignmentResponse.get("hashedMacAddress"), passengerAssignmentResponse.get("action"));
-                assignedMSs.put(passengerAssignmentResponse.get("hashedMacAddress"), passengerAssignmentResponse.get("musterStation"));
-                geofences.put(passengerAssignmentResponse.get("hashedMacAddress"), passengerAssignmentResponse.get("geofence"));
+                if (passengerAssignmentResponse.get("pathId") != null && passengerAssignmentResponse.get("action") != null
+                        && passengerAssignmentResponse.get("musterStation") != null
+                        && passengerAssignmentResponse.get("geofence") != null) {
+                    pathIds.put(passengerAssignmentResponse.get("hashedMacAddress"), passengerAssignmentResponse.get("pathId"));
+                    actions.put(passengerAssignmentResponse.get("hashedMacAddress"), passengerAssignmentResponse.get("action"));
+                    assignedMSs.put(passengerAssignmentResponse.get("hashedMacAddress"), passengerAssignmentResponse.get("musterStation"));
+                    geofences.put(passengerAssignmentResponse.get("hashedMacAddress"), passengerAssignmentResponse.get("geofence"));
+                }
             });
         }
 
@@ -153,7 +157,9 @@ public class MakeMessageBodyRequestBasedOnPhaseTask implements Worker {
 
                 passenger_details.stream().map(Wrappers::hashMap2PameasPerson).forEach(pameasPerson -> {
                     pameasPerson.getPersonalInfo().getPreferredLanguage().forEach(s -> {
-                        passengerLanguages.put(pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress(), s);
+                        if (pameasPerson.getNetworkInfo().getDeviceInfoList().size() > 0) {
+                            passengerLanguages.put(pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress(), s);
+                        }
                     });
                 });
 

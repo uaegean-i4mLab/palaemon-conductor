@@ -131,32 +131,33 @@ public class KafkaServiceImpl implements KafkaService {
     @Override
     public void monitorSmartSafety(String message) {
         log.info("Received Message in smart-safety-system ${}", message);
-        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        try {
-            SmartSafetySystemEventTO smartSafetySystemEventTO = mapper.readValue(message, SmartSafetySystemEventTO.class);
-            if (smartSafetySystemEventTO.getType().equals("Fall")
-                    || smartSafetySystemEventTO.getType().equals("Fire")
-                    || smartSafetySystemEventTO.getType().equals("Grounding")) {
-
-                Optional<String> geofenceName =
-                        distanceCalculatorService.getGeofenceFromCordsAndDeck(smartSafetySystemEventTO.getDeck(),
-                                smartSafetySystemEventTO.getPositionX(), smartSafetySystemEventTO.getPositionY());
-                if (geofenceName.isPresent()) {
-                    BlockedGeofenceTO blockedGeofenceTO = new BlockedGeofenceTO(geofenceName.get(), "blocked");
-
-                    String conductorUrl = System.getenv("CONDUCTOR_URI");
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create(conductorUrl + "workflow/detect_blocked_geofence?priority=0"))
-                            .header("Content-Type", "application/json")
-                            .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(blockedGeofenceTO)))
-                            .build();
-                    HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-                    log.info("made a call to ${} detect_blocked_geofence", conductorUrl);
-                }
-            }
-        } catch (InterruptedException | IOException e) {
-            log.error(e.getMessage());
-        }
+        log.info("Will do nothing, bridge will decide");
+//        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//        try {
+//            SmartSafetySystemEventTO smartSafetySystemEventTO = mapper.readValue(message, SmartSafetySystemEventTO.class);
+//            if (smartSafetySystemEventTO.getType().equals("Fall")
+//                    || smartSafetySystemEventTO.getType().equals("Fire")
+//                    || smartSafetySystemEventTO.getType().equals("Grounding")) {
+//
+//                Optional<String> geofenceName =
+//                        distanceCalculatorService.getGeofenceFromCordsAndDeck(smartSafetySystemEventTO.getDeck(),
+//                                smartSafetySystemEventTO.getPositionX(), smartSafetySystemEventTO.getPositionY());
+//                if (geofenceName.isPresent()) {
+//                    BlockedGeofenceTO blockedGeofenceTO = new BlockedGeofenceTO(geofenceName.get(), "blocked");
+//
+//                    String conductorUrl = System.getenv("CONDUCTOR_URI");
+//                    HttpRequest request = HttpRequest.newBuilder()
+//                            .uri(URI.create(conductorUrl + "workflow/detect_blocked_geofence?priority=0"))
+//                            .header("Content-Type", "application/json")
+//                            .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(blockedGeofenceTO)))
+//                            .build();
+//                    HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+//                    log.info("made a call to ${} detect_blocked_geofence", conductorUrl);
+//                }
+//            }
+//        } catch (InterruptedException | IOException e) {
+//            log.error(e.getMessage());
+//        }
     }
 
     @Override
@@ -176,10 +177,12 @@ public class KafkaServiceImpl implements KafkaService {
                 response.setOperationMode(1);
             }
             response.setTimestamp(new Timestamp(System.currentTimeMillis()).toString());
-            this.heartBeatProducer.send(new ProducerRecord<>("evacuation-component-status", response));
+//            this.heartBeatProducer.send(new ProducerRecord<>("evacuation-component-status", response));
 
             //if the status was set to 2 (EMBARKATION) start the mustering flows
+            //PIMM Activate Evacuation Protocol
             if (eventTO.getEvacuationStatus() == 2) {
+                //instruct crew to positions!
                 PhaseTaskTO phaseTaskTO = new PhaseTaskTO("4", "4.1");
                 String conductorUrl = System.getenv("CONDUCTOR_URI");
                 HttpRequest request = HttpRequest.newBuilder()
@@ -188,21 +191,67 @@ public class KafkaServiceImpl implements KafkaService {
                         .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(phaseTaskTO)))
                         .build();
                 HttpResponse<String> httpResponse = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+                log.info("SEND CREW TO POSITIONS!");
                 log.info("made a call to ${} instruct_crew_to_positions", conductorUrl);
             }
 
+            if (eventTO.getEvacuationStatus() == 21) {
+                //instruct crew to positions!
+                PhaseTaskTO phaseTaskTO = new PhaseTaskTO("5", "5.1");
+                String conductorUrl = System.getenv("CONDUCTOR_URI");
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(conductorUrl + "workflow/alert_passengers?priority=0"))
+                        .header("Content-Type", "application/json")
+                        .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(phaseTaskTO)))
+                        .build();
+                HttpResponse<String> httpResponse = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+                log.info("ALERT PASSENGERS!");
+                log.info("made a call to ${} alert_passengers", conductorUrl);
+            }
+
+
+            //All_crew in position is called by PIMM directly
+
+            //PIMM Passenger Mustering button
             if (eventTO.getEvacuationStatus() == 3) {
-                //send proceed to Embarkation to Crew and Passengers
-                PhaseTaskTO phaseTaskTO = new PhaseTaskTO("6", "6.1");
+                //SEND INSTRUCTIONS (life jackets etc.)
+//                PhaseTaskTO phaseTaskTO = new PhaseTaskTO("6", "6.1");
+                String conductorUrl = System.getenv("CONDUCTOR_URI");
+//                HttpRequest request = HttpRequest.newBuilder()
+//                        .uri(URI.create(conductorUrl + "workflow/embarkation_messaging?priority=0"))
+//                        .header("Content-Type", "application/json")
+//                        .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(phaseTaskTO)))
+//                        .build();
+//                HttpResponse<String> httpResponse = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+//                log.info("made a call to ${} instruct_crew_to_positions", conductorUrl);
+
+                PhaseTaskTO phaseTaskTO = new PhaseTaskTO("6", "6.2");
+                //SEND MUSTERING DIRECTIONS
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(conductorUrl + "workflow/mustering_instruction_passengers?priority=0"))
+                        .header("Content-Type", "application/json")
+                        .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(phaseTaskTO)))
+                        .build();
+                HttpResponse<String>  httpResponse = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+                log.info("SEND NOTIFICATIONS AND MUSTERING INSTRUCTIONS to PASSENGERS!");
+                log.info("made a call to {}mustering_instruction_passengers", conductorUrl);
+                log.info("response {}", httpResponse.body());
+            }
+
+            // PIMM EMBARKATION
+            if (eventTO.getEvacuationStatus() == 4) {
+                PhaseTaskTO phaseTaskTO = new PhaseTaskTO("7", "7.1");
                 String conductorUrl = System.getenv("CONDUCTOR_URI");
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(conductorUrl + "workflow/embarkation_messaging?priority=0"))
                         .header("Content-Type", "application/json")
                         .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(phaseTaskTO)))
                         .build();
+                log.info("SEND EMBARKATION NOTIFICATIONS!!");
                 HttpResponse<String> httpResponse = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-                log.info("made a call to ${} instruct_crew_to_positions", conductorUrl);
+                log.info("made a call to ${} start embarkation", conductorUrl);
             }
+
 
 
             if (eventTO.getEvacuationStatus() == 1) {
@@ -225,6 +274,7 @@ public class KafkaServiceImpl implements KafkaService {
 
     public void sendHeartBeatResponse(String topic) {
         KafkaHeartBeatResponse response = new KafkaHeartBeatResponse();
+        response.setOriginator("PaMEAS-Location");
         if (this.evacuationStatusTO == null) {
             evacuationStatusTO = new EvacuationStatusTO();
             evacuationStatusTO.setStatus("0");
@@ -239,6 +289,7 @@ public class KafkaServiceImpl implements KafkaService {
             response.setOperationMode(0);
         }
         response.setTimestamp(new Timestamp(System.currentTimeMillis()).toString());
+        log.info("heatBeatResponse ${}", response.toString());
         this.heartBeatProducer.send(new ProducerRecord<>(topic, response));
     }
 
@@ -489,23 +540,27 @@ public class KafkaServiceImpl implements KafkaService {
 
             //PASSENGER_EXITING_MS
             if (pameasNotificationTO.getType().equals("PASSENGER_EXITING_MS")) {
-                 Optional<PameasPerson> person = this.elasticService.getPersonByHashedMacAddress(pameasNotificationTO.getMacAddress());
+                Optional<PameasPerson> person = this.elasticService.getPersonByHashedMacAddress(pameasNotificationTO.getMacAddress());
                 Optional<PameasPerson> crewMember = this.elasticService.getPersonByAssignedMS(person.get().getPersonalInfo().getAssignedMusteringStation());
 
-                 if(person.isPresent()){
-                     List<MessageBody> messageBodies = new ArrayList<>();
-                     MessageBody mb = new MessageBody();
-                     mb.setContent("Your are leaving the Muster Station! RETURN IMMEDIATELY!");
-                     mb.setHashedMacAddress(person.get().getNetworkInfo().getMessagingAppClientId());
-                     this.passengerMessagingService.callSendMessages(messageBodies);
+                if (person.isPresent()) {
+                    List<MessageBody> messageBodies = new ArrayList<>();
+                    MessageBody mb = new MessageBody();
+                    mb.setContent("Your are leaving the Muster Station! RETURN IMMEDIATELY!");
+                    mb.setHashedMacAddress(person.get().getNetworkInfo().getMessagingAppClientId());
+                    this.passengerMessagingService.callSendMessages(messageBodies);
 
-                     MessageBody mb2 = new MessageBody();
-                     mb2.setContent("ATTENTION!!! Passenger " + person.get().getPersonalInfo().getSurname()+" is leaving the Muster Station!!");
-                     mb2.setHashedMacAddress(crewMember.get().getNetworkInfo().getMessagingAppClientId());
-                     messageBodies.clear();
-                     messageBodies.add(mb2);
-                     this.crewMessagingService.callSendMessages(messageBodies);
-                 }
+                    MessageBody mb2 = new MessageBody();
+                    mb2.setContent("ATTENTION!!! Passenger " + person.get().getPersonalInfo().getSurname() + " is leaving the Muster Station!!");
+                    mb2.setHashedMacAddress(crewMember.get().getNetworkInfo().getMessagingAppClientId());
+                    MessageBody mb3 = new MessageBody();
+                    mb3.setContent("Passenger is heading towards :" + person.get().getLocationInfo().getGeofenceHistory().get(person.get().getLocationInfo().getGeofenceHistory().size() - 1).getGfName());
+                    mb3.setHashedMacAddress(crewMember.get().getNetworkInfo().getMessagingAppClientId());
+                    messageBodies.clear();
+                    messageBodies.add(mb2);
+                    messageBodies.add(mb3);
+                    this.crewMessagingService.callSendMessages(messageBodies);
+                }
 
             }
 

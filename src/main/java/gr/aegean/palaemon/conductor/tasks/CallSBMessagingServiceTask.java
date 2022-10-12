@@ -101,7 +101,7 @@ public class CallSBMessagingServiceTask implements Worker {
 
         parsedBodies.stream().forEach(messageBody -> {
             Optional<PameasPerson> p = getPersonFromHashMac(messageBody.getHashedMacAddress(), users);
-            if(p.isPresent()){
+            if (p.isPresent()) {
                 String braceletId = getSBFromPerson(p.get());
                 SbPaMEASMessageTO measMessageTO = new SbPaMEASMessageTO();
                 measMessageTO.setId(braceletId);
@@ -128,7 +128,9 @@ public class CallSBMessagingServiceTask implements Worker {
     }
 
     private Optional<PameasPerson> getPersonFromHashMac(String hashedMac, List<PameasPerson> persons) {
-        return persons.stream().filter(pameasPerson -> pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress().equals(hashedMac)).findFirst();
+        return persons.stream().filter(pameasPerson ->
+                pameasPerson.getNetworkInfo().getDeviceInfoList() != null && pameasPerson.getNetworkInfo().getDeviceInfoList().size() > 0 &&
+                        pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress().equals(hashedMac)).findFirst();
     }
 
 }

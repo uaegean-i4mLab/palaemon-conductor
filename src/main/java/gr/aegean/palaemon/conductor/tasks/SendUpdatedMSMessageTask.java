@@ -86,6 +86,7 @@ public class SendUpdatedMSMessageTask implements Worker {
 
         LinkedHashMap<String, Object> msUpdatesMap = (LinkedHashMap<String, Object>) task.getInputData().get("ms_updates");
         List<LinkedHashMap> crewMembersMap = (List<LinkedHashMap>) task.getInputData().get("crew_details");
+        String blockedGeofence = (String) task.getInputData().get("blocked_geofence");
 
         List<Passenger> crewMembers = crewMembersMap.stream().map(Wrappers::hashMap2PameasPerson).map(Wrappers::paemasPerson2Passenger).
                 collect(Collectors.toList());
@@ -94,6 +95,19 @@ public class SendUpdatedMSMessageTask implements Worker {
         logger.info("MusterStation updates:   {}", msUpdatesMap);
         logger.info("Crew Members updates:   {}", crewMembersMap);
 
+
+        if(blockedGeofence != null){
+            String messageTxt = "Area  " + blockedGeofence +
+                    " is blocked!!" + " Direct passengers to the MS avoiding " + blockedGeofence;
+            List<MessageBody> messageBodies = new ArrayList<>();
+            crewMembers.forEach(crewMember -> {
+                MessageBody mb = new MessageBody();
+                mb.setContent(messageTxt);
+                mb.setHashedMacAddress(crewMember.getHashedMacAddress());
+                messageBodies.add(mb);
+            });
+            crewMessagingService.callSendMessages(messageBodies);
+        }
 //        PassengerMessageBodyRequests mbRequest = Wrappers.hashMap2MessageBodyRequest(messageBodyRequest);
         if (msUpdatesMap.size() > 0) {
             StringBuilder sb = new StringBuilder();
@@ -112,6 +126,8 @@ public class SendUpdatedMSMessageTask implements Worker {
             });
             crewMessagingService.callSendMessages(messageBodies);
         }
+
+
 
 
         logger.info("Output: ");

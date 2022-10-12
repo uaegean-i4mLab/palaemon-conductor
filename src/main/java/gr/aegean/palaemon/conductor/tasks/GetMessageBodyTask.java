@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,20 +83,26 @@ public class GetMessageBodyTask implements Worker {
 
         logger.info("Running task: " + task.getTaskDefName());
 
-        LinkedHashMap<String, Object> messageBodyRequest = (LinkedHashMap<String, Object>) task.getInputData().get("message_body_request");
+        if( task.getInputData().get("message_body_request") != null){
+            LinkedHashMap<String, Object> messageBodyRequest = (LinkedHashMap<String, Object>) task.getInputData().get("message_body_request");
 
-        logger.info("Input: ");
-        logger.info("Message Body Request:   {}", messageBodyRequest);
+            logger.info("Input: ");
+            logger.info("Message Body Request:   {}", messageBodyRequest);
 
-        PassengerMessageBodyRequests mbRequest = Wrappers.hashMap2MessageBodyRequest(messageBodyRequest);
+            PassengerMessageBodyRequests mbRequest = Wrappers.hashMap2MessageBodyRequest(messageBodyRequest);
 
-        logger.info("Output: ");
-        List<Map<String, String>> messageBodies = rulesEngineService.getMessageBody(mbRequest);
-        List<MessageBody> output = messageBodies.stream().map(Wrappers::hashmap2MessageBody).collect(Collectors.toList());
+            logger.info("Output: ");
+            List<Map<String, String>> messageBodies = rulesEngineService.getMessageBody(mbRequest);
+            List<MessageBody> output = messageBodies.stream().map(Wrappers::hashmap2MessageBody).collect(Collectors.toList());
 //        logger.info("Passenger Assigments: {}", assignmentResponses);
-        result.getOutputData().put("message_bodies", output);
-        logger.info("message_bodies: {}", output);
-        logger.info("-----\n");
+            result.getOutputData().put("message_bodies", output);
+            logger.info("message_bodies: {}", output);
+            logger.info("-----\n");
+        }else{
+            logger.info("no message bodies generated");
+            result.getOutputData().put("message_bodies", new ArrayList<>());
+        }
+
     }
 
 

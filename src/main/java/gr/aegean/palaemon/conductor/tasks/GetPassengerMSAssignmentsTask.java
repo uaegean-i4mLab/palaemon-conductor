@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Configurable
@@ -90,6 +91,7 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         List<LinkedHashMap> geofences = (List<LinkedHashMap>) task.getInputData().get("geofences");
         List<LinkedHashMap> passengers = (List<LinkedHashMap>) task.getInputData().get("passenger_details");
         String messageCode = (String) task.getInputData().get("message_code");
+
 
 //        logger.info("Input: ");
 //        logger.info("Geofence(s) Param:   {}", geofences);
@@ -185,7 +187,7 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         });
         //
 
-
+        AtomicBoolean isPathUpdated = new AtomicBoolean(false);
         List<String> hashedMacAddresses = new ArrayList<>();
         List<String> mStations = new ArrayList<>();
         //check updated assignments and //compare and propagate results // and store them in the DB
@@ -196,6 +198,7 @@ public class GetPassengerMSAssignmentsTask implements Worker {
 
 
             if (originalAssignments.get(hashedMac) != null && !originalAssignments.get(hashedMac).equals(ms)) {
+                isPathUpdated.set(true);
                 old2NewMSAssignments.put(originalAssignments.get(hashedMac), ms);
                 //dbProxyService.updatePassengerAssignedMS(ms, hashedMac);
                 hashedMacAddresses.add(hashedMac);
@@ -214,6 +217,7 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         result.getOutputData().put("passenger_assignments", assignmentResponses);
         result.getOutputData().put("message_body_request", passengerMessageBodyRequests);
         result.getOutputData().put("ms_updates", old2NewMSAssignments);
+        result.getOutputData().put("is_path_update",isPathUpdated.get());
         logger.info("-----\n");
 
 

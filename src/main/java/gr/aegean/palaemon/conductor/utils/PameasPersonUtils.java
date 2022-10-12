@@ -98,6 +98,7 @@ public class PameasPersonUtils {
         p.setPreferredLanguage(prefLanguage);
         p.setRole(role);
         p.setEmergencyDuty(emergencyDuty);
+
         return p;
     }
 

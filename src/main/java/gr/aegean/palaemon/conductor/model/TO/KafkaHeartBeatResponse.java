@@ -10,6 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class KafkaHeartBeatResponse {
 
+    @JsonProperty("component_id")
     private String originator;
     @JsonProperty("operation_mode")
     private int operationMode;

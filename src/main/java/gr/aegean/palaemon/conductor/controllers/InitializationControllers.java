@@ -1,13 +1,12 @@
 package gr.aegean.palaemon.conductor.controllers;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import gr.aegean.palaemon.conductor.model.TO.*;
-import gr.aegean.palaemon.conductor.model.location.UserGeofenceUnit;
-import gr.aegean.palaemon.conductor.model.location.UserLocationUnit;
-import gr.aegean.palaemon.conductor.model.pojo.*;
+import gr.aegean.palaemon.conductor.model.pojo.KeycloakAccessTokenResponse;
+import gr.aegean.palaemon.conductor.model.pojo.LegacySystemTO;
+import gr.aegean.palaemon.conductor.model.pojo.Personalinfo;
+import gr.aegean.palaemon.conductor.model.pojo.SmokeDetectedTO;
 import gr.aegean.palaemon.conductor.service.KafkaService;
-import gr.aegean.palaemon.conductor.utils.PameasPersonUtils;
+import gr.aegean.palaemon.conductor.utils.TestingUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -31,7 +30,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Controller
 @Slf4j
@@ -54,23 +52,34 @@ public class InitializationControllers {
                 "S9-8.1", "S8-7.1", "S7-6.1", "8G1",
                 "8G2", "8G3", "8G4", "8G5", "8G6", "8G7", "8G8",
                 "8G9", "8G10", "7BG4", "7BG5", "7DG1", "7DG2", "7DG3", "7DG4",
-                "7DG3", "7CG1", "7CG2", "7BG1", "7BG2", "7BG3", "7BG5", "7BG6");
+                "7DG3", "7CG1", "7CG2", "7BG1", "7BG2", "7BG3", "7BG5", "7BG6",
+                "9BG1", "9BG2", "9CG0", "9BG4", "9BG3", "9BG1+");
 
 
         try {
 
 
-            KeycloakAccessTokenResponse accessTokenResponse = getOAuthAccessToken();
+            KeycloakAccessTokenResponse accessTokenResponse = TestingUtils.getOAuthAccessToken();
             geofenceName.forEach(geoName -> {
 //                log.info("writing geo:" + geoName);
                 HttpRequest.Builder request = HttpRequest.newBuilder();
-                if (geoName.equals("7DG4") || geoName.equals("7BG6")) {
-                    request.uri(URI.create(this.DB_PROXY_URI + "addGeofence/"))
-                            .header("Content-Type", "application/json")
-                            .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
-                            .method("POST", HttpRequest.BodyPublishers.ofString("{\n   \t \"gfName\" : \"" +
-                                    geoName + "\",\n \t\t \"mustering\" : true,\n\t\t \"status\":\"OPEN\",\n\t\t \"deck\":\"7\"\n  }"))
-                    ;
+                if (geoName.equals("7DG4") || geoName.equals("7BG6") || geoName.equals("9CG0")) {
+
+                    if (!geoName.equals("9CG0")) {
+                        request.uri(URI.create(this.DB_PROXY_URI + "addGeofence/"))
+                                .header("Content-Type", "application/json")
+                                .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
+                                .method("POST", HttpRequest.BodyPublishers.ofString("{\n   \t \"gfName\" : \"" +
+                                        geoName + "\",\n \t\t \"mustering\" : true,\n\t\t \"status\":\"OPEN\",\n\t\t \"deck\":\"7\"\n  }"));
+                    } else {
+                        request.uri(URI.create(this.DB_PROXY_URI + "addGeofence/"))
+                                .header("Content-Type", "application/json")
+                                .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
+                                .method("POST", HttpRequest.BodyPublishers.ofString("{\n   \t \"gfName\" : \"" +
+                                        geoName + "\",\n \t\t \"mustering\" : true,\n\t\t \"status\":\"OPEN\",\n\t\t \"deck\":\"9\"\n  }"));
+                    }
+
+
                 } else {
                     if (geoName.indexOf("8") == 0 || geoName.indexOf("S8") == 0) {
                         request
@@ -119,7 +128,7 @@ public class InitializationControllers {
     public @ResponseBody String addCrewMember() {
 
         try {
-            KeycloakAccessTokenResponse accessTokenResponse = getOAuthAccessToken();
+            KeycloakAccessTokenResponse accessTokenResponse = TestingUtils.getOAuthAccessToken();
             //add Person
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(this.DB_PROXY_URI + "addPerson/"))
@@ -165,14 +174,14 @@ public class InitializationControllers {
                             "  \"macAddress\":\"58:37:8B:DE:42:F7\"," +
                             "\n\t\"hashedMacAddress\":\"dabf99b54f86bcc4f5949a8bcd7e29961081b36d42cb0905e1e52a131652adf9\"," +
                             "\n\t\"geofence\":{\n\t\t\"gfEvent\":\"2132121\",\n\t\t\"gfId\":\"1\",\n\t\t\"gfName\":\"7BG1\"," +
-                            "\n\t\t\"macAddress\":\"58:37:8B:DE:42:F8\",\n\t\t\"isAssociated\":\"false\",\n\t\t\"dwellTime\":\"1600807918\"," +
+                            "\n\t\t\"macAddress\":\"58:37:8B:DE:42:F8\",\n\t\t\"isAssociated\":\"false\",\n\t\t\"dwellTime\":\"1665427687\"," +
                             "\n\t\t\"hashedMacAddress\":\"dabf99b54f86bcc4f5949a8bcd7e29961081b36d42cb0905e1e52a131652adf9\"," +
-                            "\n\t\t\"timestamp\":\"1600807918\",\n\t\t\"deck\":\"7\"\n\t}," +
+                            "\n\t\t\"timestamp\":\"1665427687\",\n\t\t\"deck\":\"7\"\n\t}," +
                             "\n\t \"location\":{\n\t\t \"xLocation\":\"91.91315958190962\",\n\t\t \"yLocation\":\"27.497502709677637\"," +
                             "\n\t\t \"errorLevel\":\"0\",\n\t\t \"isAssociated\":\"false\",\n\t\t \"campusId\":\"7\"," +
                             "\n\t\t \"buildingId\":\"shipA\",\n\t\t \"floorId\":\"floor0\"," +
                             "\n\t\t \"hashedMacAddress\": \"dabf99b54f86bcc4f5949a8bcd7e29961081b36d42cb0905e1e52a131652adf9\"," +
-                            "\n\t\t \"geofenceId\":\"1\",\n\t\t \"geofenceNames\":[\"geofence1\"],\n\t\t \"timestamp\":\"1600807918\"\n\t }\n  }"))
+                            "\n\t\t \"geofenceId\":\"1\",\n\t\t \"geofenceNames\":[\"geofence1\"],\n\t\t \"timestamp\":\"1665427687\"\n\t }\n  }"))
                     .build();
             response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
@@ -187,7 +196,7 @@ public class InitializationControllers {
     public @ResponseBody String addTestPassengerWithHealthIssues() {
 
         try {
-            KeycloakAccessTokenResponse accessTokenResponse = getOAuthAccessToken();
+            KeycloakAccessTokenResponse accessTokenResponse = TestingUtils.getOAuthAccessToken();
             //add Person
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(this.DB_PROXY_URI + "addPerson/"))
@@ -233,14 +242,14 @@ public class InitializationControllers {
                             "  \"macAddress\":\"58:37:8B:DE:42:G7\"," +
                             "\n\t\"hashedMacAddress\":\"5f4f0a1aa2f93d195f609e4b50870d53ac4a1930525f0902a1a45ecc5a254565\"," +
                             "\n\t\"geofence\":{\n\t\t\"gfEvent\":\"2132121\",\n\t\t\"gfId\":\"1\",\n\t\t\"gfName\":\"7BG1\"," +
-                            "\n\t\t\"macAddress\":\"58:37:8B:DE:42:G7\",\n\t\t\"isAssociated\":\"false\",\n\t\t\"dwellTime\":\"1600807918\"," +
+                            "\n\t\t\"macAddress\":\"58:37:8B:DE:42:G7\",\n\t\t\"isAssociated\":\"false\",\n\t\t\"dwellTime\":\"1665427687\"," +
                             "\n\t\t\"hashedMacAddress\":\"5f4f0a1aa2f93d195f609e4b50870d53ac4a1930525f0902a1a45ecc5a254565\"," +
-                            "\n\t\t\"timestamp\":\"1600807918\",\n\t\t\"deck\":\"7\"\n\t}," +
+                            "\n\t\t\"timestamp\":\"1665427687\",\n\t\t\"deck\":\"7\"\n\t}," +
                             "\n\t \"location\":{\n\t\t \"xLocation\":\"91.91315958190962\",\n\t\t \"yLocation\":\"27.497502709677637\"," +
                             "\n\t\t \"errorLevel\":\"0\",\n\t\t \"isAssociated\":\"false\",\n\t\t \"campusId\":\"7\"," +
                             "\n\t\t \"buildingId\":\"shipA\",\n\t\t \"floorId\":\"floor0\"," +
                             "\n\t\t \"hashedMacAddress\": \"5f4f0a1aa2f93d195f609e4b50870d53ac4a1930525f0902a1a45ecc5a254565\"," +
-                            "\n\t\t \"geofenceId\":\"1\",\n\t\t \"geofenceNames\":[\"geofence1\"],\n\t\t \"timestamp\":\"1600807918\"\n\t }\n  }"))
+                            "\n\t\t \"geofenceId\":\"1\",\n\t\t \"geofenceNames\":[\"geofence1\"],\n\t\t \"timestamp\":\"1665427687\"\n\t }\n  }"))
                     .build();
             response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
@@ -255,7 +264,7 @@ public class InitializationControllers {
     public @ResponseBody String addTestPassengerWithMobilityIssues() {
 
         try {
-            KeycloakAccessTokenResponse accessTokenResponse = getOAuthAccessToken();
+            KeycloakAccessTokenResponse accessTokenResponse = TestingUtils.getOAuthAccessToken();
             //add Person
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(this.DB_PROXY_URI + "addPerson/"))
@@ -301,14 +310,14 @@ public class InitializationControllers {
                             "  \"macAddress\":\"58:37:8B:DE:42:G8\"," +
                             "\n\t\"hashedMacAddress\":\"bdc3cff7d90a485e082be0cdd06442e7040ffef6d4bbb40478b34ffd1e6c30bb\"," +
                             "\n\t\"geofence\":{\n\t\t\"gfEvent\":\"2132121\",\n\t\t\"gfId\":\"1\",\n\t\t\"gfName\":\"7BG1\"," +
-                            "\n\t\t\"macAddress\":\"58:37:8B:DE:42:G8\",\n\t\t\"isAssociated\":\"false\",\n\t\t\"dwellTime\":\"1600807918\"," +
+                            "\n\t\t\"macAddress\":\"58:37:8B:DE:42:G8\",\n\t\t\"isAssociated\":\"false\",\n\t\t\"dwellTime\":\"1665427687\"," +
                             "\n\t\t\"hashedMacAddress\":\"bdc3cff7d90a485e082be0cdd06442e7040ffef6d4bbb40478b34ffd1e6c30bb\"," +
-                            "\n\t\t\"timestamp\":\"1600807918\",\n\t\t\"deck\":\"7\"\n\t}," +
+                            "\n\t\t\"timestamp\":\"1665427687\",\n\t\t\"deck\":\"7\"\n\t}," +
                             "\n\t \"location\":{\n\t\t \"xLocation\":\"91.91315958190962\",\n\t\t \"yLocation\":\"27.497502709677637\"," +
                             "\n\t\t \"errorLevel\":\"0\",\n\t\t \"isAssociated\":\"false\",\n\t\t \"campusId\":\"7\"," +
                             "\n\t\t \"buildingId\":\"shipA\",\n\t\t \"floorId\":\"floor0\"," +
                             "\n\t\t \"hashedMacAddress\": \"bdc3cff7d90a485e082be0cdd06442e7040ffef6d4bbb40478b34ffd1e6c30bb\"," +
-                            "\n\t\t \"geofenceId\":\"1\",\n\t\t \"geofenceNames\":[\"geofence1\"],\n\t\t \"timestamp\":\"1600807918\"\n\t }\n  }"))
+                            "\n\t\t \"geofenceId\":\"1\",\n\t\t \"geofenceNames\":[\"geofence1\"],\n\t\t \"timestamp\":\"1665427687\"\n\t }\n  }"))
                     .build();
             response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
@@ -322,7 +331,7 @@ public class InitializationControllers {
     @GetMapping("addTestPassengerOn7DG3")
     public @ResponseBody String addTestPassengerOn7DG3() {
         try {
-            KeycloakAccessTokenResponse accessTokenResponse = getOAuthAccessToken();
+            KeycloakAccessTokenResponse accessTokenResponse = TestingUtils.getOAuthAccessToken();
             //add Person
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(this.DB_PROXY_URI + "addPerson/"))
@@ -364,7 +373,7 @@ public class InitializationControllers {
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
                     .method("POST", HttpRequest.BodyPublishers.ofString("{\n    \"macAddress\":\"58:37:8B:DE:42:F7\"," +
-                            "\n\t\"hashedMacAddress\":\"b356d0ea840b0550a2acb26acea468a80b895607d55db030f0b12abf5e8ce759\",\n\t\"geofence\":{\n\t\t\"gfEvent\":\"2132121\",\n\t\t\"gfId\":\"1\",\n\t\t\"gfName\":\"7DG3\",\n\t\t\"macAddress\":\"58:37:8B:DE:42:F8\",\n\t\t\"isAssociated\":\"false\",\n\t\t\"dwellTime\":\"1600807918\",\n\t\t\"hashedMacAddress\":\"b356d0ea840b0550a2acb26acea468a80b895607d55db030f0b12abf5e8ce759\",\n\t\t\"timestamp\":\"1600807918\",\n\t\t\"deck\":\"7\"\n\t},\n\t \"location\":{\n\t\t \"xLocation\":\"91.91315958190962\",\n\t\t \"yLocation\":\"27.497502709677637\",\n\t\t \"errorLevel\":\"0\",\n\t\t \"isAssociated\":\"false\",\n\t\t \"campusId\":\"7\",\n\t\t \"buildingId\":\"shipA\",\n\t\t \"floorId\":\"floor0\",\n\t\t \"hashedMacAddress\": \"b356d0ea840b0550a2acb26acea468a80b895607d55db030f0b12abf5e8ce759\",\n\t\t \"geofenceId\":\"1\",\n\t\t \"geofenceNames\":[\"geofence1\"],\n\t\t \"timestamp\":\"1600807918\"\n\t }\n  }"))
+                            "\n\t\"hashedMacAddress\":\"b356d0ea840b0550a2acb26acea468a80b895607d55db030f0b12abf5e8ce759\",\n\t\"geofence\":{\n\t\t\"gfEvent\":\"2132121\",\n\t\t\"gfId\":\"1\",\n\t\t\"gfName\":\"7DG3\",\n\t\t\"macAddress\":\"58:37:8B:DE:42:F8\",\n\t\t\"isAssociated\":\"false\",\n\t\t\"dwellTime\":\"1665427687\",\n\t\t\"hashedMacAddress\":\"b356d0ea840b0550a2acb26acea468a80b895607d55db030f0b12abf5e8ce759\",\n\t\t\"timestamp\":\"1665427687\",\n\t\t\"deck\":\"7\"\n\t},\n\t \"location\":{\n\t\t \"xLocation\":\"91.91315958190962\",\n\t\t \"yLocation\":\"27.497502709677637\",\n\t\t \"errorLevel\":\"0\",\n\t\t \"isAssociated\":\"false\",\n\t\t \"campusId\":\"7\",\n\t\t \"buildingId\":\"shipA\",\n\t\t \"floorId\":\"floor0\",\n\t\t \"hashedMacAddress\": \"b356d0ea840b0550a2acb26acea468a80b895607d55db030f0b12abf5e8ce759\",\n\t\t \"geofenceId\":\"1\",\n\t\t \"geofenceNames\":[\"geofence1\"],\n\t\t \"timestamp\":\"1665427687\"\n\t }\n  }"))
                     .build();
             response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
@@ -374,140 +383,146 @@ public class InitializationControllers {
         return "OK";
     }
 
+    @GetMapping("addOnlyTestCrewOnD9")
+    public @ResponseBody String addOnlyTestCrewOnD9() {
+        try {
+            TestingUtils.addTestPerson("medical_unit", "99", "102", "D9_test12",
+                    "D9_test12_sur", "D9_12", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test12@test.gr", "Address 3", "306943808730",
+                    "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "crew", "9CG0, muster-station", "58:37:8B:DE:42:B0",
+                    "502130123456789", "919825098250", "306943808730", "SB00012", "9", "1665427687",
+                    "1", "event", "1231", "9BG3", "true", "9", "26.80",
+                    "93.50", "1", "0", List.of("9BG3"));
+            // ADD a crew member on 9BG4 corridor
+            TestingUtils.addTestPerson("passenger_mustering_unit", "99", "102", "D9_test13",
+                    "D9_test12_sur", "D9_13", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test13@test.gr", "Address 3", "306943808730",
+                    "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "crew", null, "58:37:8B:DE:42:B1",
+                    "502130123456789", "919825098250", "306943808730", "SB00013", "9", "1665427687",
+                    "1", "event", "1231", "9BG4", "true", "9", "26.80",
+                    "90.50", "1", "0", List.of("9BG4"));
+            // ADD a crew member on 9BG1
+            TestingUtils.addTestPerson("first_response_unit", "99", "102", "D9_test14",
+                    "D9_test14_sur", "D9_14", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test14@test.gr", "Address 3", "306943808730",
+                    "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "crew", null, "58:37:8B:DE:42:B2",
+                    "502130123456789", "919825098250", "306943808730", "SB00014", "9", "1665427687",
+                    "1", "event", "1231", "9BG1", "true", "9", "24.80",
+                    "85.50", "1", "0", List.of("9BG1"));
+
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+        return "OK";
+    }
 
     @GetMapping("addTestPassengersOnD9")
     public @ResponseBody String addTestPassengersOnD9() {
         try {
             //Healthy Test person on 9BG2 with Mumla_User and Nikos MAC Address
-            addTestPerson("","99", "102", "D9_test1",
+            TestingUtils.addTestPerson("", "99", "102", "D9_test1",
                     "D9_test1_sur", "D9_1", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "123", "test@test.gr", "Address 1", "306943808730",
-                    "GR", "none", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:F7",
-                    "502130123456789", "919825098250", "Mumla_User", "SB0001","9", "1600807918",
+                    "GR", "none", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "passenger", null, "58:37:8B:DE:42:F7",
+                    "502130123456789", "919825098250", "Mumla_User", "SB0001", "9", "1665427687",
                     "1", "event", "1231", "9BG2", "true", "9", "27.497502709677637",
                     "91.91315958190962", "1", "0", List.of("9CG2"));
             //Healthy Test user 9BG1
-            addTestPerson("","99", "102", "D9_test2",
+            TestingUtils.addTestPerson("", "99", "102", "D9_test2",
                     "D9_test2_sur", "D9_2", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "456", "test2@test.gr", "Address 2", "306943808730",
                     "GR", "none", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:F8",
-                    "502130123456789", "919825098250", "Plumble_User", "SB0002","9", "1600807918",
+                    new String[]{"EN"}, "passenger", null, "58:37:8B:DE:42:F8",
+                    "502130123456789", "919825098250", "Plumble_User", "SB0002", "9", "1665427687",
                     "1", "event", "1231", "9BG1", "true", "9", "27.80",
                     "92.50", "1", "0", List.of("9BG1"));
             // Healthy Test user on 9BG3
-            addTestPerson("","99", "102", "D9_test3",
+            TestingUtils.addTestPerson("", "99", "102", "D9_test3",
                     "D9_test3_sur", "D9_3", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "456", "test3@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:F9",
-                    "502130123456789", "919825098250", "Nikos-Admin-2", "SB0003","9", "1600807918",
+                    new String[]{"EN"}, "passenger", null, "58:37:8B:DE:42:F9",
+                    "502130123456789", "919825098250", "Nikos-Admin-2", "SB0003", "9", "1665427687",
                     "1", "event", "1231", "9BG3", "true", "9", "26.80",
                     "93.50", "1", "0", List.of("9BG3"));
             // Healthy Test user on 9BG4
-            addTestPerson("","99", "102", "D9_test4",
+            TestingUtils.addTestPerson("", "99", "102", "D9_test4",
                     "D9_test4_sur", "D9_4", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "456", "test4@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A1",
-                    "502130123456789", "919825098250", "9BG4-User", "SB0004","9", "1600807918",
+                    new String[]{"EN"}, "passenger", null, "58:37:8B:DE:42:A1",
+                    "502130123456789", "919825098250", "9BG4-User", "SB0004", "9", "1665427687",
                     "1", "event", "1231", "9BG4", "true", "9", "26.80",
                     "93.50", "1", "0", List.of("9BG4"));
             // Healthy Test user on 9BG1+ (stairs)
-            addTestPerson("","99", "102", "D9_test5",
+            TestingUtils.addTestPerson("", "99", "102", "D9_test5",
                     "D9_test5_sur", "D9_5", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "456", "test5@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A2",
-                    "502130123456789", "919825098250", "9BG4-User", "SB0005","9", "1600807918",
+                    new String[]{"EN"}, "passenger", null, "58:37:8B:DE:42:A2",
+                    "502130123456789", "919825098250", "9BG4-User", "SB0005", "9", "1665427687",
                     "1", "event", "1231", "9BG1+", "true", "9", "26.80",
                     "93.50", "1", "0", List.of("9BG1+"));
             // Healthy Test user on 9CG0 (stairs)
-            addTestPerson("","99", "102", "D9_test6",
+            TestingUtils.addTestPerson("", "99", "102", "D9_test6",
                     "D9_test6_sur", "D9_6", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "456", "test6@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A3",
-                    "502130123456789", "919825098250", "9CG0-User", "SB0006","9", "1600807918",
+                    new String[]{"EN"}, "passenger", null, "58:37:8B:DE:42:A3",
+                    "502130123456789", "919825098250", "9CG0-User", "SB0006", "9", "1665427687",
                     "1", "event", "1231", "9CG0", "true", "9", "26.80",
                     "93.50", "1", "0", List.of("9CG0"));
             // Healthy Test user on GCab9223
-            addTestPerson("","99", "102", "D9_test7",
+            TestingUtils.addTestPerson("", "99", "102", "D9_test7",
                     "D9_test7_sur", "D9_7", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "456", "test7@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A4",
-                    "502130123456789", "919825098250", "GCab9223-User", "SB0007","9", "1600807918",
+                    new String[]{"EN"}, "passenger", null, "58:37:8B:DE:42:A4",
+                    "502130123456789", "919825098250", "GCab9223-User", "SB0007", "9", "1665427687",
                     "1", "event", "1231", "GCab9223", "true", "9", "26.80",
                     "93.50", "1", "0", List.of("GCab9223"));
             // Healthy Test user on GCab9217
-            addTestPerson("","99", "102", "D9_test8",
+            TestingUtils.addTestPerson("", "99", "102", "D9_test8",
                     "D9_test8_sur", "D9_8", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "456", "test8@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A5",
-                    "502130123456789", "919825098250", "GCab9222-User", "SB0008","9", "1600807918",
+                    new String[]{"EN"}, "passenger", null, "58:37:8B:DE:42:A5",
+                    "502130123456789", "919825098250", "GCab9222-User", "SB0008", "9", "1665427687",
                     "1", "event", "1231", "GCab9217", "true", "9", "26.80",
                     "93.50", "1", "0", List.of("GCab9217"));
             // Mobility Issues Test user on 9BG2
-            addTestPerson("","99", "102", "D9_test9",
+            TestingUtils.addTestPerson("", "99", "102", "D9_test9",
                     "D9_test9_sur", "D9_9", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "456", "test8@test.gr", "Address 3", "306943808730",
                     "GR", "", "unable_to_walk", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A6",
-                    "502130123456789", "919825098250", "Mobility-Issues", "SB0009","9", "1600807918",
+                    new String[]{"EN"}, "passenger", null, "58:37:8B:DE:42:A6",
+                    "502130123456789", "919825098250", "Mobility-Issues", "SB0009", "9", "1665427687",
                     "1", "event", "1231", "9BG2", "true", "9", "26.80",
                     "93.50", "1", "0", List.of("9BG2"));
             // Health Issues Test user on 9BG2
-            addTestPerson("","99", "102", "D9_test10",
+            TestingUtils.addTestPerson("", "99", "102", "D9_test10",
                     "D9_test10_sur", "D9_10", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "456", "test8@test.gr", "Address 3", "306943808730",
                     "GR", "equip_required", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A7",
-                    "502130123456789", "919825098250", "Health-Issues", "SB0009","9", "1600807918",
+                    new String[]{"EN"}, "passenger", null, "58:37:8B:DE:42:A7",
+                    "502130123456789", "919825098250", "Health-Issues", "SB0009", "9", "1665427687",
                     "1", "event", "1231", "9BG2", "true", "9", "26.80",
                     "93.50", "1", "0", List.of("9BG2"));
             // Pregnancy Issues Test user on 9BG2
-            addTestPerson("","99", "102", "D9_test11",
+            TestingUtils.addTestPerson("", "99", "102", "D9_test11",
                     "D9_test11_sur", "D9_11", "female", "1950-01-01", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "456", "test8@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "complicated", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "passenger", null,"58:37:8B:DE:42:A8",
-                    "502130123456789", "919825098250", "Pregnancy-Issues", "SB0009","9", "1600807918",
+                    new String[]{"EN"}, "passenger", null, "58:37:8B:DE:42:A8",
+                    "502130123456789", "919825098250", "Pregnancy-Issues", "SB0009", "9", "1665427687",
                     "1", "event", "1231", "9BG2", "true", "9", "26.80",
                     "93.50", "1", "0", List.of("9BG2"));
-
-
-
-            // ADD a crew member on 9BG3 corridor
-            addTestPerson("medical_unit","99", "102", "D9_test12",
-                    "D9_test12_sur", "D9_12", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
-                    "CHANIA", "456", "test12@test.gr", "Address 3", "306943808730",
-                    "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "crew", null,"58:37:8B:DE:42:A9",
-                    "502130123456789", "919825098250", "Nikos-Admin", "SB00012","9", "1600807918",
-                    "1", "event", "1231", "9BG3", "true", "9", "26.80",
-                    "93.50", "1", "0", List.of("9BG3"));
-            // ADD a crew member on 9BG4 corridor
-            addTestPerson("passenger_mustering_unit" ,"99", "102", "D9_test13",
-                    "D9_test12_sur", "D9_13", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
-                    "CHANIA", "456", "test12@test.gr", "Address 3", "306943808730",
-                    "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "crew", null,"58:37:8B:DE:42:B1",
-                    "502130123456789", "919825098250", "Nikos-Admin", "SB00013","9", "1600807918",
-                    "1", "event", "1231", "9BG4", "true", "9", "26.80",
-                    "90.50", "1", "0", List.of("9BG4"));
-            // ADD a crew member on 9BG1
-            addTestPerson("first_response_unit" ,"99", "102", "D9_test14",
-                    "D9_test14_sur", "D9_14", "male", "1950-01-01", new ArrayList<>(), "PIRAEUS",
-                    "CHANIA", "456", "test14@test.gr", "Address 3", "306943808730",
-                    "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "crew", null,"58:37:8B:DE:42:B2",
-                    "502130123456789", "919825098250", "Nikos-Admin-3", "SB00014","9", "1600807918",
-                    "1", "event", "1231", "9BG1", "true", "9", "24.80",
-                    "85.50", "1", "0", List.of("9BG1"));
-
 
 
         } catch (Exception e) {
@@ -515,70 +530,6 @@ public class InitializationControllers {
             return null;
         }
         return "OK";
-    }
-
-
-    private void addTestPerson(String emergencyDuty, String saturation, String heartBeat, String name, String surname, String identifier,
-                               String gender, String age, ArrayList<ConnectedPersonTO> connectedPassengers, String embarkation,
-                               String disembarkation, String ticketNumber, String email, String postalAddress,
-                               String emergencyContact, String countryOfResidence, String medicalCondition,
-                               String mobilityIssues, String pregnencyData, boolean isCrew, Personalinfo.AssignmentStatus assigmentStatus,
-                               String[] prefLanguage, String role, String musterStation,
-                               String macAddress, String imsi, String imei,
-                               String messagingAppClientId, String braceletId,
-                               String deck, String timestamp, String gfId,
-                               String gfEvent, String dwellTime, String gfName, String isAsosciated,
-                               String floorId, String yLocation, String xLocation, String campusId,
-                               String errorLevel, List<String> geofenceNames) {
-        try {
-            KeycloakAccessTokenResponse accessTokenResponse = getOAuthAccessToken();
-            ObjectMapper mapper = new ObjectMapper();
-
-            //add Person
-            PersonTO p = PameasPersonUtils.buildPersonTO(saturation, heartBeat, name,
-                    surname, identifier, gender, age, connectedPassengers, embarkation,
-                    disembarkation, ticketNumber, email, postalAddress, emergencyContact,
-                    countryOfResidence, medicalCondition, mobilityIssues, pregnencyData, isCrew, assigmentStatus,
-                    prefLanguage, role, musterStation, emergencyDuty);
-
-            HttpRequest request = null;
-            if (accessTokenResponse != null) {
-                request = HttpRequest.newBuilder()
-                        .uri(URI.create(this.DB_PROXY_URI + "addPerson/"))
-                        .header("Content-Type", "application/json")
-                        .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
-                        .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(p)))
-                        .build();
-            }else{
-                log.error("accessTokenResponse form Keycloak null");
-            }
-            HttpResponse<String> response;
-            response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            //add device
-            AddDevicePersonTO devicePersonTO = PameasPersonUtils.addDevicePersonTO(identifier, macAddress,
-                    imsi, imei, messagingAppClientId, braceletId);
-            TimeUnit.SECONDS.sleep(2);
-            request = HttpRequest.newBuilder()
-                    .uri(URI.create(this.DB_PROXY_URI + "addDevice/"))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
-                    .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(devicePersonTO)))
-                    .build();
-            response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            //add location
-            LocationTO location = PameasPersonUtils.addLocationTO(deck, timestamp, macAddress,
-                    gfId, gfEvent, dwellTime, gfName, isAsosciated, floorId, yLocation,
-                    xLocation, campusId, errorLevel, geofenceNames);
-            request = HttpRequest.newBuilder()
-                    .uri(URI.create(this.DB_PROXY_URI + "addLocation/"))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
-                    .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(location)))
-                    .build();
-            response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
     }
 
 
@@ -678,15 +629,6 @@ public class InitializationControllers {
     }
 
 
-    @PostMapping("/srap-block-mvz")
-    public @ResponseBody String srapBlockedGeofence(@RequestBody BlockedGeofenceTO blockedGeofenceTO) {
-        SrapTO srapTO = new SrapTO();
-        srapTO.setStatus("closed");
-        srapTO.setZoneId(blockedGeofenceTO.getGeofence());
-        this.kafkaService.writeToSRAP(srapTO);
-
-        return "will block zone:" + blockedGeofenceTO.getGeofence();
-    }
 
 
     @PostMapping("/generateSmokeDetectorAlarm")
@@ -716,23 +658,6 @@ public class InitializationControllers {
         this.kafkaService.writeToSmartSafetySystem(smartSafetySystemEventTO);
 
         return "ok";
-    }
-
-
-    private KeycloakAccessTokenResponse getOAuthAccessToken() {
-        try {
-            AtomicReference<HttpRequest> request = new AtomicReference<>(HttpRequest.newBuilder()
-                    .uri(URI.create(OAUTH_URI))
-                    .header("Content-Type", "application/x-www-form-urlencoded")
-                    .method("POST", HttpRequest.BodyPublishers.ofString("client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET + "&grant_type=client_credentials&scope=openid"))
-                    .build());
-            AtomicReference<HttpResponse<String>> response = new AtomicReference<>(HttpClient.newHttpClient().send(request.get(), HttpResponse.BodyHandlers.ofString()));
-            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return mapper.readValue(response.get().body(), KeycloakAccessTokenResponse.class);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return null;
-        }
     }
 
 

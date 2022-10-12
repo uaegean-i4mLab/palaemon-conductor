@@ -9,6 +9,7 @@ import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,10 +84,29 @@ public class CallPassengerMessagingServiceTask implements Worker {
         logger.info("Running task: " + task.getTaskDefName());
 
         ArrayList<Map<String, String>> messageBodies = (ArrayList<Map<String, String>>) task.getInputData().get("message_bodies");
+        boolean isPathUpdate = false;
+        if (task.getInputData().get("is_path_update") != null) {
+            isPathUpdate = (boolean) task.getInputData().get("is_path_update");
+        }
 
         logger.info("Input: ");
         logger.info("Message Bodies:   {}", messageBodies);
         List<MessageBody> parsedBodies = messageBodies.stream().map(Wrappers::hashmap2MessageBody).collect(Collectors.toList());
+        if (isPathUpdate) {
+            List<MessageBody> updates = parsedBodies.stream().filter(messageBody -> {
+                        return !StringUtils.isEmpty(messageBody.getContent());
+                    }).
+                    map(messageBody -> {
+                        MessageBody mb = new MessageBody();
+                        mb.setHashedMacAddress(messageBody.getHashedMacAddress());
+                        mb.setVisualAid("");
+                        mb.setContent("ATTENTION! ROUTE TO THE MUSTER STATION HAS CHANGED!");
+                        return mb;
+                    }).collect(Collectors.toList());
+            passengerMessagingService.callSendMessages(updates);
+        }
+
+
         passengerMessagingService.callSendMessages(parsedBodies);
 
         logger.info("Output: ");
