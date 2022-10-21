@@ -361,6 +361,15 @@ public class KafkaServiceImpl implements KafkaService {
                     if (srapTO.getIndividualStatus().get(key).equals("assistance_required")) {
                         Optional<PameasPerson> person = this.elasticService.getPersonByPersonalIdentifierDecrypted(key);
                         if (person.isPresent()) {
+                            try {
+                                person.get().getPersonalInfo().setName(cryptoUtils.decryptBase64Message(person.get().getPersonalInfo().getName()));
+                                person.get().getPersonalInfo().setSurname(cryptoUtils.decryptBase64Message(person.get().getPersonalInfo().getSurname()));
+                            } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException |
+                                     IllegalBlockSizeException | BadPaddingException e) {
+                                log.error(e.getMessage());
+                            }
+
+
                             PameasNotificationTO notificationTO = Wrappers.pameasPersonToNotificationTO(person.get(),
                                     person.get().getPersonalInfo().getPersonalId());
                             this.writePameasNotification(notificationTO);
@@ -746,6 +755,11 @@ public class KafkaServiceImpl implements KafkaService {
     @KafkaListener(topics = "weather", groupId = "uaeg-consumer-group")
     public void monitorWeather(String message) {
         log.info("message from /weather ${}", message);
+    }
+
+    @KafkaListener(topics = "smoke-detector", groupId = "uaeg-consumer-group")
+    public void monitorSmoke(String message) {
+        log.info("message from /smoke-detector ${}", message);
     }
 }
 

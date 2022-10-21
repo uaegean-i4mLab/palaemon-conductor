@@ -91,6 +91,17 @@ public class TestingUtils {
                     .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(location)))
                     .build();
             response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            //add second location to generate speed mock value
+             location = PameasPersonUtils.addLocationTO(deck, timestamp, macAddress,
+                    gfId, gfEvent, dwellTime, gfName, isAsosciated, floorId, yLocation,
+                    xLocation, campusId, errorLevel, geofenceNames);
+            request = HttpRequest.newBuilder()
+                    .uri(URI.create(  DB_PROXY_URI + "addLocation/"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + accessTokenResponse.getAccessToken())
+                    .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(location)))
+                    .build();
+            response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
             log.error(e.getMessage());
         }

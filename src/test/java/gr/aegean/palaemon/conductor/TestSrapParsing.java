@@ -147,4 +147,18 @@ public class TestSrapParsing {
     }
 
 
+    @Test
+    public void testsStrapNewMessage(){
+        try {
+        String s= " {\"messageId\": \"urn:uuid:af422fac-4e15-11ed-a01b-94e8c03e5f16\", \"timestamp\": \"2022-10-17T15:17:35Z\", \"sender\": \"SRAP\", \"SRAP model\": \"Situation Assessment\", \"Effectiveness of mitigation measures\": \"Not Effective\", \"Passengers proximity to hazards\": \"Low\", \"Status of Passive containment\": \"Effective\", \"Spreading\": \"Not Contained\", \"Structural Integrity\": \"Not compromised\", \"Stability\": \"Sufficient\", \"Hull status\": \"Safe\", \"Ability to communicate\": \"Fully operational\", \"Critical system status\": \"Fully operational\", \"Vessel Status\": \"Safe\", \"Pax vulnerability onboard\": \"High\", \"Situation Assessment\": \"Sound GA\", \"Individual status\": {}, \"Escape routes\": {}, \"Group performance\": {}, \"Risk of delay\": {}, \"Status\": \"Stay Check\"}";
+        ObjectMapper mapper = new ObjectMapper();
+        SrapTO result = mapper.readValue(s, SrapTO.class);
+        System.out.println(result.toString());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+
 }

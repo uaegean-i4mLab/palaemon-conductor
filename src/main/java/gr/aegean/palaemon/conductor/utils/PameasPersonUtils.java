@@ -45,6 +45,7 @@ public class PameasPersonUtils {
         originalPerson.getPersonalInfo().setEmergencyDuty(nPerson.getPersonalInfo().getEmergencyDuty());
         originalPerson.getPersonalInfo().setHeartBeat(nPerson.getPersonalInfo().getHeartBeat());
         originalPerson.getPersonalInfo().setOxygenSaturation(  nPerson.getPersonalInfo().getOxygenSaturation());
+        originalPerson.getPersonalInfo().setAssignedMusteringStation(nPerson.getPersonalInfo().getAssignedMusteringStation());
 
 
 
@@ -120,6 +121,7 @@ public class PameasPersonUtils {
                                            String errorLevel, List<String> geofenceNames){
 
         LocationTO location = new LocationTO();
+
         UserGeofenceUnit geofenceUnit = new UserGeofenceUnit();
         geofenceUnit.setDeck(deck);
         geofenceUnit.setTimestamp(timestamp);

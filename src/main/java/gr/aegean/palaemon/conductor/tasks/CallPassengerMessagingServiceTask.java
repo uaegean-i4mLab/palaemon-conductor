@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Configurable
@@ -93,17 +94,27 @@ public class CallPassengerMessagingServiceTask implements Worker {
         logger.info("Message Bodies:   {}", messageBodies);
         List<MessageBody> parsedBodies = messageBodies.stream().map(Wrappers::hashmap2MessageBody).collect(Collectors.toList());
         if (isPathUpdate) {
-            List<MessageBody> updates = parsedBodies.stream().filter(messageBody -> {
-                        return !StringUtils.isEmpty(messageBody.getContent());
-                    }).
-                    map(messageBody -> {
-                        MessageBody mb = new MessageBody();
-                        mb.setHashedMacAddress(messageBody.getHashedMacAddress());
-                        mb.setVisualAid("");
-                        mb.setContent("ATTENTION! ROUTE TO THE MUSTER STATION HAS CHANGED!");
-                        return mb;
-                    }).collect(Collectors.toList());
-            passengerMessagingService.callSendMessages(updates);
+//            List<MessageBody> updates = parsedBodies.stream().filter(messageBody -> {
+//                        return !StringUtils.isEmpty(messageBody.getContent());
+//                    }).
+//                    map(messageBody -> {
+//                        MessageBody mb = new MessageBody();
+//                        mb.setHashedMacAddress(messageBody.getHashedMacAddress());
+//                        mb.setVisualAid("");
+//                        mb.setContent("ATTENTION! ROUTE TO THE MUSTER STATION HAS CHANGED!");
+//                        return mb;
+//                    }).collect(Collectors.toList());
+//            passengerMessagingService.callSendMessages(updates);
+            Pattern p = Pattern.compile("<h3>.*:<\\/div>",
+                    Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+            parsedBodies = parsedBodies.stream().peek(parsedBody -> {
+                if (parsedBody.getContent() != null) {
+
+                    String updatedBody = p.matcher(parsedBody.getContent()).replaceAll("<h3>UPDATED PATH</h3><div> Path to Mustering Station has changed!!. Follow immediately the following path:</div>");
+                    parsedBody.setContent(updatedBody);
+                }
+            }).collect(Collectors.toList());
+
         }
 
 
