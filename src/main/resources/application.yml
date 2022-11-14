@@ -1,3 +1,7 @@
+logging:
+  level:
+    org.elasticsearch.client.RestClient: ERROR
+
 #logging:
 #  level:
 #    root: INFO

@@ -55,6 +55,7 @@ public class PameasPersonUtils {
         } else {
             originalPerson.getNetworkInfo().setDeviceInfoList(nPerson.getNetworkInfo().getDeviceInfoList());
             originalPerson.getNetworkInfo().setMessagingAppClientId(nPerson.getNetworkInfo().getMessagingAppClientId());
+            originalPerson.getNetworkInfo().setBraceletId(nPerson.getNetworkInfo().getBraceletId());
         }
         if (originalPerson.getLocationInfo() == null) {
             originalPerson.setLocationInfo(nPerson.getLocationInfo());

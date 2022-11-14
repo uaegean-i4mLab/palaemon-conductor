@@ -13,6 +13,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -606,7 +607,7 @@ public class InitializationControllers {
         HttpEntity<PhaseTaskTO> request =
                 new HttpEntity<PhaseTaskTO>(phaseTaskTO, headers);
 
-        String uri = "http://localhost:8080/api/workflow/alert_passengers?priority=0";
+        String uri = System.getenv("CONDUCTOR_URI") + "/workflow/alert_passengers?priority=0";
         ResponseEntity<String> responseEntityStr = restTemplate.
                 postForEntity(uri, request, String.class);
 
@@ -627,8 +628,6 @@ public class InitializationControllers {
         this.kafkaService.writeToSmartSafetySystem(eventTO);
         return "OK";
     }
-
-
 
 
     @PostMapping("/generateSmokeDetectorAlarm")

@@ -219,6 +219,38 @@ public class TestingControllers {
         return "OK";
     }
 
+    @GetMapping("addSitumTestUser")
+    public @ResponseBody String addSitumTestUSER() {
+        try {
+            // Passenger on D7
+            TestingUtils.addTestPerson("", "99", "102", "SitumUser1",
+                    "SitumUser1", "a101", "male", "42", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "456", "test14@test.gr", "Address 3", "306943808730",
+                    "GR", "assisted_gait", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "passenger", null, "684560580327",
+                    "502130123456789", "919825098250", "Mumla_User", "SB0007", "7", "1665427687",
+                    "1", "event", "1231", "7DG3", "true", "7", "24.80",
+                    "85.50", "1", "0", List.of("7DG3"));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+        return "OK";
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @PostMapping("/srap-block-mvz")
     public @ResponseBody String srapBlockedGeofence(@RequestBody BlockedGeofenceTO blockedGeofenceTO) {
@@ -272,6 +304,7 @@ public class TestingControllers {
                 String idDecrypted = toFullyUpdate.get().getPersonalInfo().getPersonalId();
                 try {
                     toFullyUpdate.get().getNetworkInfo().setMessagingAppClientId("Mumla_User");
+                    toFullyUpdate.get().getNetworkInfo().setBraceletId("SB0001");
                     toFullyUpdate.get().getPersonalInfo().setName(this.cryptoUtils.encryptBase64(toFullyUpdate.get().getPersonalInfo().getName()));
                     toFullyUpdate.get().getPersonalInfo().setSurname(this.cryptoUtils.encryptBase64(toFullyUpdate.get().getPersonalInfo().getSurname()));
                     toFullyUpdate.get().getPersonalInfo().setPersonalId(this.cryptoUtils.encryptBase64(toFullyUpdate.get().getPersonalInfo().getPersonalId()));
