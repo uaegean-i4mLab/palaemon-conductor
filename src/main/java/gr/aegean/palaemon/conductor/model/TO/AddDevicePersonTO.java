@@ -17,4 +17,5 @@ public class AddDevicePersonTO {
     private String imei;
     private String messagingAppClientId;
     private String braceletId;
+    private String ticketNumber;
 }

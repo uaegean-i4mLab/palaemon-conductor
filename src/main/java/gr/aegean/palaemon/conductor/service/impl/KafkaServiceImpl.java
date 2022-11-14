@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gr.aegean.palaemon.conductor.model.TO.*;
+import gr.aegean.palaemon.conductor.model.components.HandlePassengerIssueAsync;
 import gr.aegean.palaemon.conductor.model.pojo.*;
 import gr.aegean.palaemon.conductor.service.*;
 import gr.aegean.palaemon.conductor.utils.CryptoUtils;
@@ -69,6 +70,9 @@ public class KafkaServiceImpl implements KafkaService {
 
     @Autowired
     CryptoUtils cryptoUtils;
+
+    @Autowired
+    HandlePassengerIssueAsync handlePassengerIssueAsync;
 
     private final KafkaProducer<String, KafkaHeartBeatResponse> heartBeatProducer;
     private final KafkaProducer<String, EvacuationCoordinatorEventTO> evacuationCoordinatorProducer;
@@ -304,7 +308,7 @@ public class KafkaServiceImpl implements KafkaService {
     @Override
     @KafkaListener(topics = "smart-bracelet-sensor-data", groupId = "uaeg-consumer-group")
     public void monitorBraceletSaturation(String message) {
-        log.info("message from /smart-bracelet-sensor-data ${}", message);
+//        log.info("message from /smart-bracelet-sensor-data ${}", message);
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
@@ -577,19 +581,20 @@ public class KafkaServiceImpl implements KafkaService {
             if (pameasNotificationTO.getType().equals("PASSENGER_ISSUE")) {
                 String conductorUrl = System.getenv("CONDUCTOR_URI");
                 ConstraintSolverIncident incident = Wrappers.pameasNotificationTO2ConstraintSolverIncident(pameasNotificationTO);
-                ArrayList<ConstraintSolverIncident> incidentArrayList = new ArrayList<>();
-                incidentArrayList.add(incident);
-
-                ProposeAssignmentRequestTO requestTO = new ProposeAssignmentRequestTO(incidentArrayList);
-
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(conductorUrl + "workflow/porpose_assignment?priority=0"))
-                        .header("Content-Type", "application/json")
-                        .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(requestTO)))
-                        .build();
-                HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-                log.info("made a call to {}porpose_assignment", conductorUrl);
-                log.info("response {}", response.body());
+                this.handlePassengerIssueAsync.addIncident(incident);
+//                ArrayList<ConstraintSolverIncident> incidentArrayList = new ArrayList<>();
+//                incidentArrayList.add(incident);
+//
+//                ProposeAssignmentRequestTO requestTO = new ProposeAssignmentRequestTO(incidentArrayList);
+//
+//                HttpRequest request = HttpRequest.newBuilder()
+//                        .uri(URI.create(conductorUrl + "workflow/porpose_assignment?priority=0"))
+//                        .header("Content-Type", "application/json")
+//                        .method("POST", HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(requestTO)))
+//                        .build();
+//                HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+//                log.info("made a call to {}porpose_assignment", conductorUrl);
+//                log.info("response {}", response.body());
 
             }
 
