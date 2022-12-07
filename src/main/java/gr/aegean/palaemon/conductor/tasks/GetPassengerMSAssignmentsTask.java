@@ -89,7 +89,7 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         logger.info("Running task: " + task.getTaskDefName());
 
         List<LinkedHashMap> geofences = (List<LinkedHashMap>) task.getInputData().get("geofences");
-        List<LinkedHashMap> passengers = (List<LinkedHashMap>) task.getInputData().get("passenger_details");
+//        List<LinkedHashMap> passengers = (List<LinkedHashMap>) task.getInputData().get("passenger_details");
         String messageCode = (String) task.getInputData().get("message_code");
 
 
@@ -97,7 +97,9 @@ public class GetPassengerMSAssignmentsTask implements Worker {
 //        logger.info("Geofence(s) Param:   {}", geofences);
 //        logger.info("Passenger Details Param:   {}", passengers);
 
-        List<Passenger> passengerList = passengers.stream().map(Wrappers::hashMap2PameasPerson).map(Wrappers::paemasPerson2Passenger).
+//        List<Passenger> passengerList = passengers.stream().map(Wrappers::hashMap2PameasPerson)
+        List<PameasPerson> passengersPaMEASPerson = dbProxyService.getPassengerDetails();
+        List<Passenger> passengerList = passengersPaMEASPerson.stream().map(Wrappers::paemasPerson2Passenger).
                 collect(Collectors.toList());
         List<Geofence> geofenceList = geofences.stream().map(Wrappers::hashMap2Geofence).collect(Collectors.toList());
         List<String> blocked = geofenceList.stream().filter(geofence -> geofence.getStatus().toUpperCase().equals("BLOCKED"))
@@ -138,7 +140,7 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         LinkedHashMap<String, String> languages = new LinkedHashMap<>();
         LinkedHashMap<String, String> messageCodes = new LinkedHashMap<>();
         LinkedHashMap<String, String> currentGeofenceList = new LinkedHashMap<>();
-        passengers.stream().map(Wrappers::hashMap2PameasPerson).forEach(passenger -> {
+        passengersPaMEASPerson.forEach(passenger -> {
             if (passenger.getLocationInfo().getGeofenceHistory() != null && passenger.getLocationInfo().getGeofenceHistory().size() > 0) {
                 String hashedMac = passenger.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress();
                 String language = passenger.getPersonalInfo().getPreferredLanguage().get(0);
@@ -179,7 +181,7 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         Map<String, String> originalAssignments = new HashMap<>();
         Map<String, String> old2NewMSAssignments = new HashMap<>();
         //calculate original passenger MSs
-        passengers.stream().map(Wrappers::hashMap2PameasPerson).forEach(pameasPerson -> {
+        passengersPaMEASPerson.forEach(pameasPerson -> {
             if (!StringUtils.isEmpty(pameasPerson.getPersonalInfo().getAssignedMusteringStation())) {
                 originalAssignments.put(pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress(),
                         pameasPerson.getPersonalInfo().getAssignedMusteringStation());
@@ -212,8 +214,8 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         }
 
 
-        logger.info("Output: ");
-        logger.info("Passenger Assigments: {}", assignmentResponses);
+//        logger.info("Output: ");
+//        logger.info("Passenger Assigments: {}", assignmentResponses);
         result.getOutputData().put("passenger_assignments", assignmentResponses);
         result.getOutputData().put("message_body_request", passengerMessageBodyRequests);
         result.getOutputData().put("ms_updates", old2NewMSAssignments);

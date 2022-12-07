@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 @Configurable
 public class GetMessageBodyTask implements Worker {
@@ -85,18 +86,22 @@ public class GetMessageBodyTask implements Worker {
 
         if( task.getInputData().get("message_body_request") != null){
             LinkedHashMap<String, Object> messageBodyRequest = (LinkedHashMap<String, Object>) task.getInputData().get("message_body_request");
+            String assignemntTypetype = (String) task.getInputData().get("assignemnt_type");
 
-            logger.info("Input: ");
-            logger.info("Message Body Request:   {}", messageBodyRequest);
+//            logger.info("Input: ");
+//            logger.info("Message Body Request:   {}", messageBodyRequest);
 
             PassengerMessageBodyRequests mbRequest = Wrappers.hashMap2MessageBodyRequest(messageBodyRequest);
+            if(!StringUtils.isEmpty(assignemntTypetype)){
+                mbRequest.setAssignmentType(assignemntTypetype);
+            }
 
             logger.info("Output: ");
             List<Map<String, String>> messageBodies = rulesEngineService.getMessageBody(mbRequest);
             List<MessageBody> output = messageBodies.stream().map(Wrappers::hashmap2MessageBody).collect(Collectors.toList());
 //        logger.info("Passenger Assigments: {}", assignmentResponses);
             result.getOutputData().put("message_bodies", output);
-            logger.info("message_bodies: {}", output);
+//            logger.info("message_bodies: {}", output);
             logger.info("-----\n");
         }else{
             logger.info("no message bodies generated");

@@ -159,7 +159,7 @@ public class MakePassengerIssueTask implements Worker {
         ArrayList<MessageBody> bodies = new ArrayList<>();
         MessageBody body = new MessageBody();
         body.setContent(messageToPassenger);
-        body.setHashedMacAddress(hashedMacAddress);
+        body.setRecipient(hashedMacAddress);
         bodies.add(body);
         this.passengerMessagingService.callSendMessages(bodies);
 

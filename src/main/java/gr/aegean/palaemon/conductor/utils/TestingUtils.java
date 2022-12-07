@@ -71,10 +71,10 @@ public class TestingUtils {
             //add device
             AddDevicePersonTO devicePersonTO = PameasPersonUtils.addDevicePersonTO(identifier, macAddress,
                     imsi, imei, messagingAppClientId, braceletId);
-            if(devicePersonTO.getMacAddress().equals("684560580327")){
-                log.info("ADDING A SITUM account to a test crew");
-                devicePersonTO.setTicketNumber(p.getTicketNumber());
-            }
+//            if(devicePersonTO.getMacAddress().equals("684560580327")){
+//                log.info("ADDING A SITUM account to a test crew");
+//                devicePersonTO.setTicketNumber(p.getTicketNumber());
+//            }
 
 
             TimeUnit.SECONDS.sleep(2);

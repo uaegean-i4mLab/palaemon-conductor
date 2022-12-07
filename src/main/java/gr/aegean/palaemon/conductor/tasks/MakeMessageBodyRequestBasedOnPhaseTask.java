@@ -3,8 +3,10 @@ package gr.aegean.palaemon.conductor.tasks;
 import com.netflix.conductor.client.worker.Worker;
 import com.netflix.conductor.common.metadata.tasks.Task;
 import com.netflix.conductor.common.metadata.tasks.TaskResult;
+import gr.aegean.palaemon.conductor.model.pojo.PameasPerson;
 import gr.aegean.palaemon.conductor.model.pojo.Passenger;
 import gr.aegean.palaemon.conductor.model.pojo.PassengerMessageBodyRequests;
+import gr.aegean.palaemon.conductor.service.DBProxyService;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,16 +31,17 @@ public class MakeMessageBodyRequestBasedOnPhaseTask implements Worker {
     /**
      * The task definition name, present in the Workflow Definition.
      */
-    private String taskDefName;
+    private final String taskDefName;
 
-
+    private final DBProxyService dbProxyService;
     /**
      * Instantiates a new worker.
      *
      * @param taskDefName the task def name
      */
-    public MakeMessageBodyRequestBasedOnPhaseTask(String taskDefName) {
+    public MakeMessageBodyRequestBasedOnPhaseTask(String taskDefName, DBProxyService dbProxyService) {
         this.taskDefName = taskDefName;
+        this.dbProxyService = dbProxyService;
 
     }
 
@@ -149,13 +152,17 @@ public class MakeMessageBodyRequestBasedOnPhaseTask implements Worker {
         }
         if (audience.toLowerCase().equals("passengers") || audience.toLowerCase().equals("both")) {
             Map<String, String> passengerLanguages = new HashMap<>();
-            List<LinkedHashMap> passenger_details = (List<LinkedHashMap>) task.getInputData().get("passenger_details");
+//            List<LinkedHashMap> passenger_details = (List<LinkedHashMap>) task.getInputData().get("passenger_details");
+            List<PameasPerson> personList = dbProxyService.getPassengerDetails();
 
-            if (passenger_details != null) {
-                List<Passenger> passengerList = passenger_details.stream().map(Wrappers::hashMap2PameasPerson).map(Wrappers::paemasPerson2Passenger).
+            if (personList != null) {
+                List<Passenger> passengerList = //passenger_details.stream().map(Wrappers::hashMap2PameasPerson)
+                        personList.stream()
+                        .map(Wrappers::paemasPerson2Passenger).
                         collect(Collectors.toList());
 
-                passenger_details.stream().map(Wrappers::hashMap2PameasPerson).forEach(pameasPerson -> {
+//                passenger_details.stream().map(Wrappers::hashMap2PameasPerson)
+                personList.forEach(pameasPerson -> {
                     pameasPerson.getPersonalInfo().getPreferredLanguage().forEach(s -> {
                         if (pameasPerson.getNetworkInfo().getDeviceInfoList().size() > 0) {
                             passengerLanguages.put(pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress(), s);
@@ -171,7 +178,7 @@ public class MakeMessageBodyRequestBasedOnPhaseTask implements Worker {
                     passengerMessageBodyRequests.setAssignedPathIDs(new HashMap<>());
                 }
 
-                passengerList.stream().forEach(passenger -> {
+                passengerList.forEach(passenger -> {
                     messageCodes.put(passenger.getHashedMacAddress(), messageCode);
                     if (messageCode.equals("5.1") || messageCode.equals("6.2")) {
                         passengerMessageBodyRequests.getActions().put(passenger.getHashedMacAddress(), "");

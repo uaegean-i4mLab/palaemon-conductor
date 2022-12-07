@@ -69,7 +69,7 @@ public class UpdatePassengersMSandPathTask implements Worker {
 
 
         processUpdatePassengerMSandPath(task, result);
-
+        logger.info("-----");
 
         return result;
 
@@ -106,6 +106,7 @@ public class UpdatePassengersMSandPathTask implements Worker {
         PameasNotificationTO pameasNotificationTO = new PameasNotificationTO();
         pameasNotificationTO.setType("PASSENGER_INSTRUCTION_COMPLETED");
         kafkaService.writeToPameasNotification(pameasNotificationTO);
+        logger.info("--------------");
 
 
     }

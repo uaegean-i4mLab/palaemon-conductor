@@ -15,6 +15,8 @@ public interface ElasticService {
 
     public Optional<PameasPerson> getPersonByAssignedMS(String ms);
 
+    public Optional<PameasPerson> getCrewAssignedToMS(String ms);
+
     public List<PameasPerson> getAllPassengersDecrypted();
 
     public void updatePerson(String personIdentifier, PameasPerson person);

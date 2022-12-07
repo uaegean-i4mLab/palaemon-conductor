@@ -98,7 +98,7 @@ public class Application extends SpringBootServletInitializer {
                 new GetMessageObjectTask("get_message_object", rulesEngineService);
 
         Worker makeMessageBodRequest =
-                new MakeMessageBodyRequestBasedOnPhaseTask("make_message_body_req");
+                new MakeMessageBodyRequestBasedOnPhaseTask("make_message_body_req", dbProxyService);
 
         Worker updateInPositionTask =
                 new UpdateCrewMemberInPositionTask("update_crew_in_position", dbProxyService);

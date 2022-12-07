@@ -35,11 +35,11 @@ public class PassengerPassengerMessagingServiceImpl implements PassengerMessagin
             HttpHeaders headers = new HttpHeaders();
             HttpEntity<MessagingServiceRequest> request = new HttpEntity<>(serviceRequest, headers);
             ObjectMapper mapper = new ObjectMapper();
-            try {
-                log.info("Calling messaging service with {}", mapper.writeValueAsString(serviceRequest));
-            } catch (JsonProcessingException e) {
-                log.error(e.getMessage());
-            }
+//            try {
+//                log.info("Calling messaging service with {}", mapper.writeValueAsString(serviceRequest));
+//            } catch (JsonProcessingException e) {
+//                log.error(e.getMessage());
+//            }
 
             restTemplate.postForObject(url, request, String.class);
         });

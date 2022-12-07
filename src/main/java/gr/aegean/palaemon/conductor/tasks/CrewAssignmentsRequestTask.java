@@ -7,7 +7,6 @@ import gr.aegean.palaemon.conductor.model.TO.PameasNotificationTO;
 import gr.aegean.palaemon.conductor.model.pojo.*;
 import gr.aegean.palaemon.conductor.service.CrewMessagingService;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
-import gr.aegean.palaemon.conductor.service.PassengerMessagingService;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,7 +151,7 @@ public class CrewAssignmentsRequestTask implements Worker {
                             .append("Passenger speaks ")
                             .append(notificationTO.getPreferredLanguage()[0]);
                     body.setContent(builder.toString());
-                    body.setHashedMacAddress(dbCrewMember.get().getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress());
+                    body.setRecipient(dbCrewMember.get().getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress());
                     bodies.add(body);
                     crewMessagingService.callSendMessages(bodies);
 

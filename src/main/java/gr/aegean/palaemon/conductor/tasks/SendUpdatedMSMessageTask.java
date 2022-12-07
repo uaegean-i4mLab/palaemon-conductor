@@ -6,7 +6,6 @@ import com.netflix.conductor.common.metadata.tasks.TaskResult;
 import gr.aegean.palaemon.conductor.model.pojo.MessageBody;
 import gr.aegean.palaemon.conductor.model.pojo.Passenger;
 import gr.aegean.palaemon.conductor.service.CrewMessagingService;
-import gr.aegean.palaemon.conductor.service.PassengerMessagingService;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +102,7 @@ public class SendUpdatedMSMessageTask implements Worker {
             crewMembers.forEach(crewMember -> {
                 MessageBody mb = new MessageBody();
                 mb.setContent(messageTxt);
-                mb.setHashedMacAddress(crewMember.getHashedMacAddress());
+                mb.setRecipient(crewMember.getHashedMacAddress());
                 messageBodies.add(mb);
             });
             crewMessagingService.callSendMessages(messageBodies);
@@ -121,7 +120,7 @@ public class SendUpdatedMSMessageTask implements Worker {
             crewMembers.forEach(crewMember -> {
                 MessageBody mb = new MessageBody();
                 mb.setContent(messageTxt);
-                mb.setHashedMacAddress(crewMember.getHashedMacAddress());
+                mb.setRecipient(crewMember.getHashedMacAddress());
                 messageBodies.add(mb);
             });
             crewMessagingService.callSendMessages(messageBodies);

@@ -91,8 +91,8 @@ public class CallSBMessagingServiceTask implements Worker {
 
         ArrayList<Map<String, String>> messageBodies = (ArrayList<Map<String, String>>) task.getInputData().get("message_bodies");
 
-        logger.info("Input: ");
-        logger.info("Message Bodies:   {}", messageBodies);
+//        logger.info("Input: ");
+//        logger.info("Message Bodies:   {}", messageBodies);
         List<MessageBody> parsedBodies = messageBodies.stream().map(Wrappers::hashmap2MessageBody).collect(Collectors.toList());
 
         List<PameasPerson> passengers = dbProxyService.getPassengerDetails();
@@ -100,7 +100,7 @@ public class CallSBMessagingServiceTask implements Worker {
         List<PameasPerson> users = Stream.concat(passengers.stream(), crewMembers.stream()).collect(Collectors.toList());
 
         parsedBodies.stream().forEach(messageBody -> {
-            Optional<PameasPerson> p = getPersonFromHashMac(messageBody.getHashedMacAddress(), users);
+            Optional<PameasPerson> p = getPersonFromHashMac(messageBody.getRecipient(), users);
             if (p.isPresent()) {
                 String braceletId = getSBFromPerson(p.get());
                 SbPaMEASMessageTO measMessageTO = new SbPaMEASMessageTO();

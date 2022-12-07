@@ -35,13 +35,13 @@ public class Wrappers {
 
         passenger.setDistances(new ArrayList<>());
         List<String> medicalConditions = new ArrayList<>();
-        if(StringUtils.isEmpty(pameasPerson.getPersonalInfo().getMedicalCondition())){
-            if(StringUtils.isEmpty(pameasPerson.getPersonalInfo().getMobilityIssues())){
+        if (StringUtils.isEmpty(pameasPerson.getPersonalInfo().getMedicalCondition())) {
+            if (StringUtils.isEmpty(pameasPerson.getPersonalInfo().getMobilityIssues())) {
                 medicalConditions.add(pameasPerson.getPersonalInfo().getPrengencyData());
-            }else{
+            } else {
                 medicalConditions.add(pameasPerson.getPersonalInfo().getMobilityIssues());
             }
-        }else{
+        } else {
             medicalConditions.add(pameasPerson.getPersonalInfo().getMedicalCondition());
         }
 
@@ -133,13 +133,13 @@ public class Wrappers {
         LocationInfo locationInfo = new LocationInfo();
         List<UserLocationUnit> locations = new ArrayList<>();
         List<UserGeofenceUnit> geofenceUnits = new ArrayList<>();
-        if (((List) hashMap.get("locationHistory"))!= null && ((List) hashMap.get("locationHistory")).size() > 0) {
+        if (((List) hashMap.get("locationHistory")) != null && ((List) hashMap.get("locationHistory")).size() > 0) {
             locations = (List<UserLocationUnit>) ((List) hashMap.get("locationHistory")).stream().map(locationUnit -> {
                 return hashMap2UserLocationUnit((LinkedHashMap<String, Object>) locationUnit);
             }).collect(Collectors.toList());
 
         }
-        if (((List) hashMap.get("geofenceHistory"))!= null && ((List) hashMap.get("geofenceHistory")).size() > 0) {
+        if (((List) hashMap.get("geofenceHistory")) != null && ((List) hashMap.get("geofenceHistory")).size() > 0) {
             geofenceUnits = (List<UserGeofenceUnit>) ((List) hashMap.get("geofenceHistory")).stream().map(geofenceUnit -> {
                 return hashMap2UserGeofenceUnit((LinkedHashMap<String, Object>) geofenceUnit);
             }).collect(Collectors.toList());
@@ -212,7 +212,7 @@ public class Wrappers {
                 requests.setBlockedGeofences((ArrayList<String>) hashMap.get("blockedGeofences"));
             if (hashMap.get("messageCodes") != null)
                 requests.setMessageCodes((LinkedHashMap<String, String>) hashMap.get("messageCodes"));
-            if(hashMap.get("currentGeofences") != null)
+            if (hashMap.get("currentGeofences") != null)
                 requests.setCurrentGeofences((LinkedHashMap<String, String>) hashMap.get("currentGeofences"));
         }
 
@@ -243,7 +243,7 @@ public class Wrappers {
 
     public static MessageBody hashmap2MessageBody(Map<String, String> input) {
         MessageBody mb = new MessageBody();
-        mb.setHashedMacAddress(input.get("hashedMacAddress"));
+        mb.setRecipient(input.get("hashedMacAddress"));
         mb.setContent(input.get("content"));
         mb.setVisualAid(input.get("visualAid"));
         return mb;
@@ -254,7 +254,7 @@ public class Wrappers {
         receiver.setGlobal("false");
         receiver.setVisualAid(messageBody.getVisualAid());
         receiver.setMsgType("NOTIFICATION");
-        receiver.setRecipient(messageBody.getHashedMacAddress());
+        receiver.setRecipient(messageBody.getRecipient());
         receiver.setTextMsg(messageBody.getContent());
         return receiver;
     }
@@ -358,8 +358,8 @@ public class Wrappers {
             result.setId((String) map.get("id"));
         }
 
-        if(map.get("passengerId") != null){
-            result.setPassengerId((String)map.get("passengerId") );
+        if (map.get("passengerId") != null) {
+            result.setPassengerId((String) map.get("passengerId"));
         }
 
 
@@ -386,20 +386,17 @@ public class Wrappers {
             languageArray[0] = (String) map.get("passengerLanguage");
             result.setPreferredLanguage(languageArray);
         }
-        if(map.get("incident") != null){
-            HashMap<String,String> incident = ((HashMap) map.get("incident"));
+        if (map.get("incident") != null) {
+            HashMap<String, String> incident = ((HashMap) map.get("incident"));
             result.setMobilityIssues(incident.get("mobility_issues"));
             result.setPregnancyStatus(incident.get("pregnancy_status"));
             result.setHealthIssues(incident.get("health_issues"));
-        }else{
-            result.setMobilityIssues((String)map.get("mobilityCondition"));
-            result.setPregnancyStatus((String)map.get("pregnancyCondition"));
-            result.setHealthIssues((String)map.get("healthCondition"));
+        } else {
+            result.setMobilityIssues((String) map.get("mobilityCondition"));
+            result.setPregnancyStatus((String) map.get("pregnancyCondition"));
+            result.setHealthIssues((String) map.get("healthCondition"));
 
         }
-
-
-
 
 
         if (map.get("assignedCrewMemberId") != null) {
@@ -423,7 +420,7 @@ public class Wrappers {
         result.setGeofence((String) map.get("geofence"));
 
         NotificationIncidentTO notificationIncidentTO = new NotificationIncidentTO();
-        notificationIncidentTO.setDeck((String)map.get("deck"));
+        notificationIncidentTO.setDeck((String) map.get("deck"));
         notificationIncidentTO.setStatus(result.getStatus());
         notificationIncidentTO.setId(result.getId());
         notificationIncidentTO.setPassengerName(result.getPassengerName());
@@ -580,36 +577,42 @@ public class Wrappers {
         notificationTO.setXloc(solution.getXLoc());
         notificationTO.setYloc(solution.getYLoc());
         notificationTO.setGeofence(solution.getGeofence());
-        switch(solution.getHealthCondition()) {
-            case NO_CONDITION:
-            case NONE:
-                notificationTO.setPregnancyStatus("");
-                notificationTO.setMobilityIssues("");
-                notificationTO.setHealthIssues("");
-                break;
+        if (solution.getHealthCondition() != null) {
+            switch (solution.getHealthCondition()) {
+                case NO_CONDITION:
+                case NONE:
+                    notificationTO.setPregnancyStatus("");
+                    notificationTO.setMobilityIssues("");
+                    notificationTO.setHealthIssues("");
+                    break;
 
-            case COGNITIVE_IMPAIRED:
-            case HEARING_IMPAIRED:
-            case HEAVE_DOSES:
-            case MEDICAL_EQUIP_NEEDED:
-                notificationTO.setPregnancyStatus("");
-                notificationTO.setMobilityIssues("");
-                notificationTO.setHealthIssues(solution.getHealthCondition().getCondition());
-                break;
-            case GAIT:
-            case SEVER_WALKING_DISABILITY:
-            case UNABLE_TO_WALT:
-            case STRETCHER:
-            case VISUALLY_IMPAIRED:
-            case WALKING_DISABILITY:
-                notificationTO.setPregnancyStatus("");
-                notificationTO.setMobilityIssues(solution.getHealthCondition().getCondition());
-                notificationTO.setHealthIssues("");
-            case COMPLICATED_PREGNANCY:
-            case NORMAL_PREGNANCY:
-                notificationTO.setPregnancyStatus(solution.getHealthCondition().getCondition());
-                notificationTO.setMobilityIssues("");
-                notificationTO.setHealthIssues("");
+                case COGNITIVE_IMPAIRED:
+                case HEARING_IMPAIRED:
+                case HEAVE_DOSES:
+                case MEDICAL_EQUIP_NEEDED:
+                    notificationTO.setPregnancyStatus("");
+                    notificationTO.setMobilityIssues("");
+                    notificationTO.setHealthIssues(solution.getHealthCondition().getCondition());
+                    break;
+                case GAIT:
+                case SEVER_WALKING_DISABILITY:
+                case UNABLE_TO_WALT:
+                case STRETCHER:
+                case VISUALLY_IMPAIRED:
+                case WALKING_DISABILITY:
+                    notificationTO.setPregnancyStatus("");
+                    notificationTO.setMobilityIssues(solution.getHealthCondition().getCondition());
+                    notificationTO.setHealthIssues("");
+                case COMPLICATED_PREGNANCY:
+                case NORMAL_PREGNANCY:
+                    notificationTO.setPregnancyStatus(solution.getHealthCondition().getCondition());
+                    notificationTO.setMobilityIssues("");
+                    notificationTO.setHealthIssues("");
+            }
+        } else {
+            notificationTO.setPregnancyStatus("");
+            notificationTO.setMobilityIssues("");
+            notificationTO.setHealthIssues("");
         }
 
 

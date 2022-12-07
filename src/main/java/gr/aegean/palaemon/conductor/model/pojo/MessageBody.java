@@ -1,5 +1,6 @@
 package gr.aegean.palaemon.conductor.model.pojo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -8,7 +9,8 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class MessageBody {
-    private String hashedMacAddress;
+    @JsonProperty("hashedMacAddress")
+    private String recipient;
     private String content;
     private String visualAid;
 

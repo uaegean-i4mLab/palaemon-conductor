@@ -5,10 +5,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gr.aegean.palaemon.conductor.model.TO.EvacuationStatusTO;
 import gr.aegean.palaemon.conductor.model.TO.IncidentTO;
+import gr.aegean.palaemon.conductor.model.TO.LocationTO;
 import gr.aegean.palaemon.conductor.model.TO.UpdatePersonStatusTO;
 import gr.aegean.palaemon.conductor.model.pojo.*;
 import gr.aegean.palaemon.conductor.service.AccessTokenService;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
+import gr.aegean.palaemon.conductor.utils.PameasPersonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -18,6 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -320,5 +326,20 @@ public class DBProxyServiceImpl implements DBProxyService {
         ResponseEntity<IncidentTO> incidentTo = restTemplate.exchange(
                 uri, HttpMethod.GET, requestEntity, IncidentTO.class);
         return Optional.ofNullable(incidentTo.getBody());
+    }
+
+    @Override
+    public void addLocationToPassenger(LocationTO locationTO) {
+
+        String uri
+                = System.getenv("DB_PROXY_URI") + "addLocation/";
+        HttpHeaders headers = new HttpHeaders();
+        String bearer = "Bearer " + accessTokenService.getAccessToken().get();
+        headers.set("Authorization", bearer);
+        //add second location to generate speed mock value
+        HttpEntity<LocationTO> request = new HttpEntity<>(locationTO, headers);
+        String response = restTemplate.postForObject(uri, request, String.class);
+        log.info("added Location to passenger response {}", response);
+
     }
 }

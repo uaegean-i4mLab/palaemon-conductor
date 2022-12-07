@@ -23,10 +23,12 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.rmi.ConnectIOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -101,25 +103,25 @@ public class TRL4TestingControllers {
                     "Gilmore", "c4", "male", "35", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "456", "test13@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "crew", "", "684560580327",
+                    new String[]{"EN"}, "crew", "7BG6", "684560580327",
                     "502130123456789", "919825098250", "306943808730", "SB0001", "7", "1665427687",
                     "1", "event", "1231", "7BG6", "true", "7", "25.80",
                     "80.50", "1", "0", List.of("7BG6"));
 
             //Crew member 7DG4
-            TestingUtils.addTestPerson("medical_unit", "99", "102", "Nikos",
-                    "Triantafyllou", "c1", "male", "40", new ArrayList<>(), "PIRAEUS",
-                    "CHANIA", "456", "test12@test.gr", "Address 3", "306943808730",
+            TestingUtils.addTestPerson("medical_unit", "99", "102", "Richie",
+                    "Black", "c1", "male", "40", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "457", "test12@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "crew", "7DG4", "28:37:8B:DE:42:C2",
+                    new String[]{"EN"}, "crew", "", "28:37:8B:DE:42:C2",
                     "502130123456789", "919825098250", "306943808730", "SB00012", "7", "1665427687",
                     "1", "event", "1231", "7DG4", "true", "7", "26.80",
                     "93.50", "1", "0", List.of("7DG4"));
 
             // ADD a crew member on 7CG1 corridor
-            TestingUtils.addTestPerson("firefighting_unit", "99", "102", "Jack",
-                    "Black", "c2", "male", "35", new ArrayList<>(), "PIRAEUS",
-                    "CHANIA", "456", "test13@test.gr", "Address 3", "306943808730",
+            TestingUtils.addTestPerson("firefighting_unit", "99", "102", "Kyriakos",
+                    "Gian", "c2", "male", "35", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "458", "test13@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
                     new String[]{"EN"}, "crew", "", "28:37:8B:DE:42:C3",
                     "502130123456789", "919825098250", "306943808731", "SB00013", "9", "1665427687",
@@ -127,25 +129,25 @@ public class TRL4TestingControllers {
                     "120.50", "1", "0", List.of("7CG1"));
 
             //Crew member on 7BG6
-            TestingUtils.addTestPerson("passenger_mustering_unit", "99", "102", "Richie",
-                    "Gilmore", "c3", "male", "35", new ArrayList<>(), "PIRAEUS",
-                    "CHANIA", "456", "test13@test.gr", "Address 3", "306943808730",
+            TestingUtils.addTestPerson("firefighting_unit", "99", "102", "Nikos",
+                    "Trian", "c3", "male", "35", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "459", "test13@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
                     new String[]{"EN"}, "crew", "", "28:37:8B:DE:42:C4",
                     "502130123456789", "919825098250", "306943808734", "SB00014", "7", "1665427687",
-                    "1", "event", "1231", "7BG6", "true", "7", "30.80",
-                    "60.50", "1", "0", List.of("7BG6"));
+                    "1", "event", "1231", "7CG1", "true", "7", "30.80",
+                    "60.50", "1", "0", List.of("7CG1"));
 
 
             //Crew member on 7BG6
-            TestingUtils.addTestPerson("passenger_mustering_unit", "99", "102", "Richie",
-                    "Gilmore", "c5", "male", "35", new ArrayList<>(), "PIRAEUS",
-                    "CHANIA", "456", "test13@test.gr", "Address 3", "306943808730",
+            TestingUtils.addTestPerson("passenger_mustering_unit", "99", "102", "John",
+                    "Doe", "c5", "male", "35", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "460", "test13@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "crew", "", "28:37:8B:DE:42:C5",
+                    new String[]{"EN"}, "crew", "7DG4", "28:37:8B:DE:42:C5",
                     "502130123456789", "919825098250", "306943808738", "SB00015", "7", "1665427687",
-                    "1", "event", "1231", "7BG6", "true", "7", "25.80",
-                    "30.50", "1", "0", List.of("7BG6"));
+                    "1", "event", "1231", "7DG4", "true", "7", "25.80",
+                    "30.50", "1", "0", List.of("7DG4"));
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -184,6 +186,8 @@ public class TRL4TestingControllers {
                 response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
             } catch (IOException | InterruptedException e) {
                 log.error(e.getMessage());
+                log.error(e.getLocalizedMessage());
+                log.error(e.getCause().getMessage());
                 return "ERROR";
             }
         }
@@ -196,13 +200,12 @@ public class TRL4TestingControllers {
             // add messagingIds to passengers
             pameasPerson.getNetworkInfo().setMessagingAppClientId(messagingIds.get(0));
             messagingIds.remove(0);
-
-
             String personalIdDecrypted = pameasPerson.getPersonalInfo().getPersonalId();
             try {
                 pameasPerson.getPersonalInfo().setPersonalId(cryptoUtils.encryptBase64(pameasPerson.getPersonalInfo().getPersonalId()));
                 pameasPerson.getPersonalInfo().setName(cryptoUtils.encryptBase64(pameasPerson.getPersonalInfo().getName()));
                 pameasPerson.getPersonalInfo().setSurname(cryptoUtils.encryptBase64(pameasPerson.getPersonalInfo().getSurname()));
+                pameasPerson.getPersonalInfo().setTicketNumber(pameasPerson.getPersonalInfo().getName().substring(0,2));
                 this.elasticService.updatePerson(personalIdDecrypted, pameasPerson);
             } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException |
                      IllegalBlockSizeException | BadPaddingException e) {

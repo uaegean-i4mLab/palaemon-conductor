@@ -11,6 +11,7 @@ import gr.aegean.palaemon.conductor.utils.CryptoUtils;
 import gr.aegean.palaemon.conductor.utils.SRAPUtils;
 import gr.aegean.palaemon.conductor.utils.Wrappers;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,7 +122,7 @@ public class KafkaServiceImpl implements KafkaService {
     @Override
     public void writeToSBMessageTO(SbPaMEASMessageTO sbPaMEASMessageTO) {
         try {
-            log.info("pushing sb message to  kafka {}", sbPaMEASMessageTO);
+//            log.info("pushing sb message to  kafka {}", sbPaMEASMessageTO);
             this.sbPaMEASMessageTOKafkaProducer.send(new ProducerRecord<>(SB_MESSAGE_TOPIC, sbPaMEASMessageTO));
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -553,22 +554,32 @@ public class KafkaServiceImpl implements KafkaService {
 
             //PASSENGER_EXITING_MS
             if (pameasNotificationTO.getType().equals("PASSENGER_EXITING_MS")) {
-                Optional<PameasPerson> person = this.elasticService.getPersonByHashedMacAddress(pameasNotificationTO.getMacAddress());
-                Optional<PameasPerson> crewMember = this.elasticService.getPersonByAssignedMS(person.get().getPersonalInfo().getAssignedMusteringStation());
+                Optional<PameasPerson> person = this.elasticService.getPersonByHashedMacAddress(DigestUtils.sha256Hex(pameasNotificationTO.getMacAddress()));
+                Optional<PameasPerson> crewMember =
+                        this.elasticService.getCrewAssignedToMS(person.get().getPersonalInfo().getAssignedMusteringStation());
 
                 if (person.isPresent()) {
                     List<MessageBody> messageBodies = new ArrayList<>();
                     MessageBody mb = new MessageBody();
-                    mb.setContent("Your are leaving the Muster Station! RETURN IMMEDIATELY!");
-                    mb.setHashedMacAddress(person.get().getNetworkInfo().getMessagingAppClientId());
+                    mb.setContent("<header></header><main><h2 style='color: red; text-align: center;'>ALERT</h2>" +
+                            "<div style='font-size: x-large;'><b style='color: red; text-align: center;'>" +
+                            "Your are leaving the Muster Station! <span>RETURN IMMEDIATELY!</span></b></div>"+
+                            "</main>:: sound: siren");
+                    mb.setRecipient(DigestUtils.sha256Hex(pameasNotificationTO.getMacAddress()));
+                    messageBodies.add(mb);
                     this.passengerMessagingService.callSendMessages(messageBodies);
 
                     MessageBody mb2 = new MessageBody();
-                    mb2.setContent("ATTENTION!!! Passenger " + person.get().getPersonalInfo().getSurname() + " is leaving the Muster Station!!");
-                    mb2.setHashedMacAddress(crewMember.get().getNetworkInfo().getMessagingAppClientId());
+                    mb2.setContent("ATTENTION!!! Passenger "
+                            + this.cryptoUtils.decryptBase64Message(person.get().getPersonalInfo().getSurname()) +
+                            " "
+                            + this.cryptoUtils.decryptBase64Message(person.get().getPersonalInfo().getName()) +
+                            " is leaving the Muster Station!!");
+                    mb2.setRecipient(DigestUtils.sha256Hex(crewMember.get().getNetworkInfo().getDeviceInfoList().get(0).getMacAddress()));
                     MessageBody mb3 = new MessageBody();
-                    mb3.setContent("Passenger is heading towards :" + person.get().getLocationInfo().getGeofenceHistory().get(person.get().getLocationInfo().getGeofenceHistory().size() - 1).getGfName());
-                    mb3.setHashedMacAddress(crewMember.get().getNetworkInfo().getMessagingAppClientId());
+                    mb3.setContent("Passenger is heading towards :"
+                            + person.get().getLocationInfo().getGeofenceHistory().get(person.get().getLocationInfo().getGeofenceHistory().size() - 1).getGfName());
+                    mb3.setRecipient(DigestUtils.sha256Hex(crewMember.get().getNetworkInfo().getDeviceInfoList().get(0).getMacAddress()));
                     messageBodies.clear();
                     messageBodies.add(mb2);
                     messageBodies.add(mb3);
@@ -657,7 +668,8 @@ public class KafkaServiceImpl implements KafkaService {
             }
 
 
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException | NoSuchPaddingException | IllegalBlockSizeException |
+                 NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
             log.error(e.getMessage());
         }
     }

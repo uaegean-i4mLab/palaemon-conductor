@@ -90,8 +90,8 @@ public class CallPassengerMessagingServiceTask implements Worker {
             isPathUpdate = (boolean) task.getInputData().get("is_path_update");
         }
 
-        logger.info("Input: ");
-        logger.info("Message Bodies:   {}", messageBodies);
+//        logger.info("Input: ");
+//        logger.info("Message Bodies:   {}", messageBodies);
         List<MessageBody> parsedBodies = messageBodies.stream().map(Wrappers::hashmap2MessageBody).collect(Collectors.toList());
         if (isPathUpdate) {
 //            List<MessageBody> updates = parsedBodies.stream().filter(messageBody -> {

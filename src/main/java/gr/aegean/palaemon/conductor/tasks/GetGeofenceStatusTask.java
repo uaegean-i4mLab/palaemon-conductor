@@ -89,8 +89,8 @@ public class GetGeofenceStatusTask implements Worker {
 
         //Register the output of the task
         result.getOutputData().put("geofences", allGeofences);
-        logger.info("Ouput : ");
-        logger.info("geofences {}: ", allGeofences.toString());
+//        logger.info("Ouput : ");
+//        logger.info("geofences {}: ", allGeofences.toString());
 
         logger.info("-----\n");
 

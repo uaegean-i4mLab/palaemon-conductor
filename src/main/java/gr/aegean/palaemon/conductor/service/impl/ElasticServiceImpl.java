@@ -26,6 +26,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,7 +50,6 @@ public class ElasticServiceImpl implements ElasticService {
     CryptoUtils cryptoUtils;
 
 
-
     public Optional<PameasPerson> getPersonByAssignedMS(String ms) {
         String date = DateTimeFormatter.ofPattern("yyyy.MM.dd").format(LocalDate.now());
         Query searchQuery = new NativeSearchQueryBuilder()
@@ -59,6 +59,30 @@ public class ElasticServiceImpl implements ElasticService {
                 this.elasticsearchTemplate.search(searchQuery, PameasPerson.class, IndexCoordinates.of("pameas-person-" + date));
         if (matchingPersons.getTotalHits() > 0) {
             return Optional.of(matchingPersons.getSearchHit(0).getContent());
+        }
+        return Optional.empty();
+    }
+
+
+    public Optional<PameasPerson> getCrewAssignedToMS(String ms) {
+        String date = DateTimeFormatter.ofPattern("yyyy.MM.dd").format(LocalDate.now());
+        Query searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(matchQuery("personalInfo.assignedMusteringStation", ms).minimumShouldMatch("100%"))
+                .build();
+        SearchHits<PameasPerson> matchingPersons =
+                this.elasticsearchTemplate.search(searchQuery, PameasPerson.class, IndexCoordinates.of("pameas-person-" + date));
+
+        List<PameasPerson> crewMembers = new ArrayList<>();
+        matchingPersons.forEach(pameasPersonSearchHit ->
+        {
+            if(pameasPersonSearchHit.getContent().getPersonalInfo().isCrew()){
+                crewMembers.add(pameasPersonSearchHit.getContent());
+            }
+        });
+
+        //                        .filter(pameasPersonSearchHit -> pameasPersonSearchHit.getContent().getPersonalInfo().isCrew()).;
+        if (crewMembers.size() > 0) {
+            return Optional.of(crewMembers.get(0));
         }
         return Optional.empty();
     }
@@ -139,14 +163,14 @@ public class ElasticServiceImpl implements ElasticService {
         String date = DateTimeFormatter.ofPattern("yyyy.MM.dd").format(LocalDate.now());
 
         Query searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(matchQuery("networkInfo.braceletId",braceletId).minimumShouldMatch("100%"))
+                .withQuery(matchQuery("networkInfo.braceletId", braceletId).minimumShouldMatch("100%"))
                 .build();
         List<SearchHit<PameasPerson>> matchingPersons =
                 this.elasticsearchTemplate.search(searchQuery, PameasPerson.class, IndexCoordinates.of("pameas-person-" + date))
                         .stream().collect(Collectors.toList());
 
-        if(matchingPersons.size() >0){
-            return  Optional.of(matchingPersons.get(0).getContent());
+        if (matchingPersons.size() > 0) {
+            return Optional.of(matchingPersons.get(0).getContent());
         }
 
         return Optional.empty();
