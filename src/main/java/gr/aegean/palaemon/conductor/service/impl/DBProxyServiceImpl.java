@@ -90,6 +90,7 @@ public class DBProxyServiceImpl implements DBProxyService {
                 updatePersonRequest.setHashedMacAddress(hashedMacAddress[i]);
                 updatePersonRequest.setMusteringStation(musteringStation[i]);
                 bulkRequest[i] = updatePersonRequest;
+                log.info("passenger {} assigned to ms {}",updatePersonRequest.getHashedMacAddress(), updatePersonRequest.getMusteringStation());
             }
             HttpEntity<UpdatePersonStatusTO[]> request = new HttpEntity<>(bulkRequest, headers);
             String response = restTemplate.postForObject(url, request, String.class);

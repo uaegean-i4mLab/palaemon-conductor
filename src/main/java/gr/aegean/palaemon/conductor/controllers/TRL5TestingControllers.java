@@ -4,14 +4,17 @@ import gr.aegean.palaemon.conductor.model.TO.LocationTO;
 import gr.aegean.palaemon.conductor.model.location.UserGeofenceUnit;
 import gr.aegean.palaemon.conductor.model.location.UserLocationUnit;
 import gr.aegean.palaemon.conductor.model.pojo.PameasPerson;
+import gr.aegean.palaemon.conductor.model.pojo.Personalinfo;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
 import gr.aegean.palaemon.conductor.service.ElasticService;
+import gr.aegean.palaemon.conductor.utils.TestingUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -155,6 +158,23 @@ public class TRL5TestingControllers {
 
         log.info("updating person with macAddress {}", personToLeave.getNetworkInfo().getDeviceInfoList().get(0).getMacAddress());
 
+
+        return "OK";
+    }
+
+
+    @GetMapping("/trl5/testPAX")
+    public @ResponseBody String testPAX() {
+
+
+        TestingUtils.addTestPerson("", "99", "102", "Aggeliki",
+                "Souraiti", "pax1", "female", "20", new ArrayList<>(), "PIRAEUS",
+                "CHANIA", "A862050", "gelly.st@hotmail.com", "Address 3", "306943808730",
+                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P1",
+                "502130123456789", "919825098250", "", "SB000P1", "9", "1665427687",
+                "1", "event", "1231", "9BG4", "true", "9", "15.80",
+                "60.50", "1", "0", List.of("9BG4"));
 
         return "OK";
     }

@@ -155,7 +155,13 @@ public class MakePassengerIssueTask implements Worker {
         kafkaService.writeToPameasNotification(pameasNotificationTO);
 
 
-        String messageToPassenger = "Please stay where you are and do not make any attempt to move. Assistance is on its way and will arrive shortly.";
+        String messageToPassenger =
+        "<header></header><main><h2 style='color: red; text-align: center;'>Notification</h2>" +
+                "<div style='font-size: x-large;'><b> Please stay where you are and do not make any attempt to move</b>." +
+                " Assistance is on its way and will arrive shortly.</div>"+
+                "</main>";
+
+
         ArrayList<MessageBody> bodies = new ArrayList<>();
         MessageBody body = new MessageBody();
         body.setContent(messageToPassenger);
