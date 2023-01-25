@@ -1,6 +1,7 @@
 package gr.aegean.palaemon.conductor.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gr.aegean.palaemon.conductor.model.RestGenericResponse;
 import gr.aegean.palaemon.conductor.model.TO.BlockedGeofenceTO;
 import gr.aegean.palaemon.conductor.model.TO.SrapTO;
 import gr.aegean.palaemon.conductor.model.pojo.PameasPerson;
@@ -263,7 +264,7 @@ public class TestingControllers {
     }
 
     @PostMapping("/block-geofence")
-    public @ResponseBody String blockGeofence(@RequestBody BlockedGeofenceTO blockedGeofenceTO) {
+    public @ResponseBody RestGenericResponse blockGeofence(@RequestBody BlockedGeofenceTO blockedGeofenceTO) {
         String conductorUrl = System.getenv("CONDUCTOR_URI");
         ObjectMapper mapper = new ObjectMapper();
         HttpRequest request = null;
@@ -279,7 +280,7 @@ public class TestingControllers {
         } catch (IOException | InterruptedException e) {
             log.error(e.getMessage());
         }
-        return "OK";
+        return new RestGenericResponse("OK");
     }
 
 

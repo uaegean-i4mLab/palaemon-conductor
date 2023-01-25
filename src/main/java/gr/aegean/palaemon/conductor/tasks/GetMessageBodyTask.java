@@ -96,6 +96,7 @@ public class GetMessageBodyTask implements Worker {
                 mbRequest.setAssignmentType(assignemntTypetype);
             }
 
+
             logger.info("Output: ");
             List<Map<String, String>> messageBodies = rulesEngineService.getMessageBody(mbRequest);
             List<MessageBody> output = messageBodies.stream().map(Wrappers::hashmap2MessageBody).collect(Collectors.toList());

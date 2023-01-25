@@ -79,8 +79,6 @@ public class GetSinglePassengerIdLocationHealthTask implements Worker {
         Optional<PameasPerson> passenger = dbProxyService.getSinglePassengerDetails(hashedMacAddress);
 
         logger.info("Running task: " + task.getTaskDefName());
-        logger.info("Input: ");
-        logger.info("Output: ");
 
         if (passenger.isPresent()) {
 //            logger.info("Passenger: {}", passenger.get().getPersonalInfo().getPersonalId());

@@ -187,6 +187,7 @@ public class KafkaServiceImpl implements KafkaService {
             //if the status was set to 2 (EMBARKATION) start the mustering flows
             //PIMM Activate Evacuation Protocol
             if (eventTO.getEvacuationStatus() == 2) {
+                this.dbProxyService.setEvacuationStatus("2");
                 //instruct crew to positions!
                 PhaseTaskTO phaseTaskTO = new PhaseTaskTO("4", "4.1");
                 String conductorUrl = System.getenv("CONDUCTOR_URI");
@@ -201,6 +202,7 @@ public class KafkaServiceImpl implements KafkaService {
             }
 
             if (eventTO.getEvacuationStatus() == 21) {
+                this.dbProxyService.setEvacuationStatus("21");
                 //instruct crew to positions!
                 PhaseTaskTO phaseTaskTO = new PhaseTaskTO("5", "5.1");
                 String conductorUrl = System.getenv("CONDUCTOR_URI");
@@ -219,6 +221,7 @@ public class KafkaServiceImpl implements KafkaService {
 
             //PIMM Passenger Mustering button
             if (eventTO.getEvacuationStatus() == 3) {
+                this.dbProxyService.setEvacuationStatus("3");
                 //SEND INSTRUCTIONS (life jackets etc.)
 //                PhaseTaskTO phaseTaskTO = new PhaseTaskTO("6", "6.1");
                 String conductorUrl = System.getenv("CONDUCTOR_URI");
@@ -245,6 +248,7 @@ public class KafkaServiceImpl implements KafkaService {
 
             // PIMM EMBARKATION
             if (eventTO.getEvacuationStatus() == 4) {
+                this.dbProxyService.setEvacuationStatus("4");
                 PhaseTaskTO phaseTaskTO = new PhaseTaskTO("7", "7.1");
                 String conductorUrl = System.getenv("CONDUCTOR_URI");
                 HttpRequest request = HttpRequest.newBuilder()
@@ -260,6 +264,7 @@ public class KafkaServiceImpl implements KafkaService {
 
 
             if (eventTO.getEvacuationStatus() == 1) {
+                this.dbProxyService.setEvacuationStatus("1");
                 log.info("evacuation status changed to Situation Assessment. Nothing to do for now");
             }
 
@@ -558,7 +563,10 @@ public class KafkaServiceImpl implements KafkaService {
                 Optional<PameasPerson> crewMember =
                         this.elasticService.getCrewAssignedToMS(person.get().getPersonalInfo().getAssignedMusteringStation());
 
-                if (person.isPresent()) {
+                String evacuationStatus = this.dbProxyService.getEvacuationStatus();
+
+                if (person.isPresent() && (evacuationStatus.equals("3") || evacuationStatus.equals("6.3") )) {
+
                     List<MessageBody> messageBodies = new ArrayList<>();
                     MessageBody mb = new MessageBody();
                     mb.setContent("<header></header><main><h2 style='color: red; text-align: center;'>ALERT</h2>" +
@@ -575,16 +583,21 @@ public class KafkaServiceImpl implements KafkaService {
                             " "
                             + this.cryptoUtils.decryptBase64Message(person.get().getPersonalInfo().getName()) +
                             " is leaving the Muster Station!!");
-                    mb2.setRecipient(DigestUtils.sha256Hex(crewMember.get().getNetworkInfo().getDeviceInfoList().get(0).getMacAddress()));
-                    MessageBody mb3 = new MessageBody();
-                    mb3.setContent("Passenger is heading towards :"
-                            + person.get().getLocationInfo().getGeofenceHistory().get(person.get().getLocationInfo().getGeofenceHistory().size() - 1).getGfName());
-                    mb3.setRecipient(DigestUtils.sha256Hex(crewMember.get().getNetworkInfo().getDeviceInfoList().get(0).getMacAddress()));
-                    messageBodies.clear();
-                    messageBodies.add(mb2);
-                    messageBodies.add(mb3);
-                    this.crewMessagingService.callSendMessages(messageBodies);
-                }
+                    if(crewMember.isPresent()){
+                        mb2.setRecipient(DigestUtils.sha256Hex(crewMember.get().getNetworkInfo().getDeviceInfoList().get(0).getMacAddress()));
+                        MessageBody mb3 = new MessageBody();
+                        mb3.setContent("Passenger is heading towards :"
+                                + person.get().getLocationInfo().getGeofenceHistory().get(person.get().getLocationInfo().getGeofenceHistory().size() - 1).getGfName());
+                        mb3.setRecipient(DigestUtils.sha256Hex(crewMember.get().getNetworkInfo().getDeviceInfoList().get(0).getMacAddress()));
+                        messageBodies.clear();
+                        messageBodies.add(mb2);
+                        messageBodies.add(mb3);
+                        this.crewMessagingService.callSendMessages(messageBodies);
+                    }else{
+                        log.info("No crew member assigned to this MS! " + person.get().getPersonalInfo().getAssignedMusteringStation());
+                    }
+                    }
+
 
             }
 

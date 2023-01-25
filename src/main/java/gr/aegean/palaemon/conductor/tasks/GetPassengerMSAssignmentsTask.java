@@ -70,7 +70,7 @@ public class GetPassengerMSAssignmentsTask implements Worker {
         result.setStatus(TaskResult.Status.COMPLETED);
 
 
-        processGetPassengerAssignments(task, result);
+        makePassengerAssignments(task, result);
 
 
         return result;
@@ -83,7 +83,7 @@ public class GetPassengerMSAssignmentsTask implements Worker {
      * @param task   the task called from Conductor
      * @param result the result to return to Conductor
      */
-    private void processGetPassengerAssignments(Task task, TaskResult result) {
+    private void makePassengerAssignments(Task task, TaskResult result) {
 
 
         logger.info("Running task: " + task.getTaskDefName());
@@ -199,12 +199,13 @@ public class GetPassengerMSAssignmentsTask implements Worker {
 
 
 
-            if (originalAssignments.get(hashedMac) != null && !originalAssignments.get(hashedMac).equals(ms)) {
+            if ( (originalAssignments.get(hashedMac) != null && !originalAssignments.get(hashedMac).equals(ms))
+            || ms.contains("_UPDATED")) {
                 isPathUpdated.set(true);
                 old2NewMSAssignments.put(originalAssignments.get(hashedMac), ms);
                 //dbProxyService.updatePassengerAssignedMS(ms, hashedMac);
                 hashedMacAddresses.add(hashedMac);
-                mStations.add(ms);
+                mStations.add(ms.replace("_UPDATED",""));
             }
         });
         if(mStations.size() > 0){
@@ -213,6 +214,8 @@ public class GetPassengerMSAssignmentsTask implements Worker {
             dbProxyService.updatePassengerAssignedMSBulk(mStations.toArray(mStationsArr),hashedMacAddresses.toArray(hashedMacAddressesArr));
         }
 
+
+        dbProxyService.setEvacuationStatus("3");
 
 //        logger.info("Output: ");
 //        logger.info("Passenger Assigments: {}", assignmentResponses);

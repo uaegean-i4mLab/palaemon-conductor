@@ -18,7 +18,9 @@ import java.security.cert.CertificateFactory;
 public class SSLConfig {
     private final char[] KEYSTORE_PASS = EnvUtils.getEnvVar("SSL_KEYSTORE_PASS","testpass").toCharArray();
 
-    private final String certPathName =  EnvUtils.getEnvVar("SSL_ROOT_CERTIFICATE","/home/ni/code/java/palaemon-db-proxy/dfb.palaemon.itml.gr");
+    private final String certPathName =  EnvUtils.getEnvVar("SSL_ROOT_CERTIFICATE",
+            "/home/ni/code/java/palaemon-db-proxy/Builtin Object Token_ISRG Root X1");
+            //"/home/ni/code/java/palaemon-db-proxy/dfb.palaemon.itml.gr");
 //            new File(
 //            EnvUtils.getEnvVar("SSL_CERTIFICATE","/home/ni/code/java/palaemon-db-proxy/dfb.palaemon.itml.crt")).isFile() ?
 //            "/home/ni/code/java/palaemon-db-proxy/dfb.palaemon.itml.crt" : "tls.crt";

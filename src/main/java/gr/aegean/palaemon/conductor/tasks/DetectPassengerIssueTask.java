@@ -7,7 +7,6 @@ import gr.aegean.palaemon.conductor.model.TO.NotificationIncidentTO;
 import gr.aegean.palaemon.conductor.model.TO.PameasNotificationTO;
 import gr.aegean.palaemon.conductor.model.pojo.Incident;
 import gr.aegean.palaemon.conductor.model.TO.IncidentTO;
-import gr.aegean.palaemon.conductor.model.pojo.MessageBody;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
 import gr.aegean.palaemon.conductor.service.KafkaService;
 import gr.aegean.palaemon.conductor.service.PassengerMessagingService;
@@ -17,18 +16,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
 @Configurable
-public class MakePassengerIssueTask implements Worker {
+public class DetectPassengerIssueTask implements Worker {
 
     /**
      * The logger.
      */
     private final Logger logger =
-            LoggerFactory.getLogger(MakePassengerIssueTask.class);
+            LoggerFactory.getLogger(DetectPassengerIssueTask.class);
     private PassengerMessagingService passengerMessagingService;
 
     /**
@@ -44,7 +42,7 @@ public class MakePassengerIssueTask implements Worker {
      *
      * @param taskDefName the task def name
      */
-    public MakePassengerIssueTask(String taskDefName, DBProxyService dbProxyService, KafkaService kafkaService, PassengerMessagingService passengerMessagingService) {
+    public DetectPassengerIssueTask(String taskDefName, DBProxyService dbProxyService, KafkaService kafkaService, PassengerMessagingService passengerMessagingService) {
         this.taskDefName = taskDefName;
         this.dbProxyService = dbProxyService;
         this.kafkaService= kafkaService;
@@ -155,19 +153,7 @@ public class MakePassengerIssueTask implements Worker {
         kafkaService.writeToPameasNotification(pameasNotificationTO);
 
 
-        String messageToPassenger =
-        "<header></header><main><h2 style='color: red; text-align: center;'>Notification</h2>" +
-                "<div style='font-size: x-large;'><b> Please stay where you are and do not make any attempt to move</b>." +
-                " Assistance is on its way and will arrive shortly.</div>"+
-                "</main>";
 
-
-        ArrayList<MessageBody> bodies = new ArrayList<>();
-        MessageBody body = new MessageBody();
-        body.setContent(messageToPassenger);
-        body.setRecipient(hashedMacAddress);
-        bodies.add(body);
-        this.passengerMessagingService.callSendMessages(bodies);
 
     }
 }

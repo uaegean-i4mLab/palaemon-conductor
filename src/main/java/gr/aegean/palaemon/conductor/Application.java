@@ -115,7 +115,11 @@ public class Application extends SpringBootServletInitializer {
         Worker getSinglePassengerDetailsTask =
                 new GetSinglePassengerIdLocationHealthTask("get_single_passenger_location_health", dbProxyService);
         Worker makePassengerIssueTask =
-                new MakePassengerIssueTask("make_passenger_issue", dbProxyService, kafkaService, passengerMessagingService);
+                new DetectPassengerIssueTask("make_passenger_issue", dbProxyService, kafkaService, passengerMessagingService);
+
+
+        Worker declarePassengerIssue =
+                new DeclarePassengerIssueTask("declare_passenger_issue", dbProxyService, kafkaService, passengerMessagingService);
 
         Worker callConstraintSolverTask =
                 new CallConstraintSolverTask("call_constraint_solver", constraintSolverService, kafkaService);
@@ -159,7 +163,8 @@ public class Application extends SpringBootServletInitializer {
                         crewAssignmentsAcceptTask,
                         callCrewMessagingTask,
                         callPassengerMessagingService,
-                        callBraceletsMessagingService))
+                        callBraceletsMessagingService,
+                        declarePassengerIssue))
                 .withThreadCount(threadCount)
                 .build();
 
