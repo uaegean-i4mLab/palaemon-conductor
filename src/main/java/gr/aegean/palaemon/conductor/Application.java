@@ -139,6 +139,8 @@ public class Application extends SpringBootServletInitializer {
         Worker callBraceletsMessagingService =
                 new CallSBMessagingServiceTask("call_bracelets_messaging_service", kafkaService, dbProxyService);
 
+        Worker messageAllPassengersBlockedGeoTask =
+                new MessageAllPassengersBlockedGeoTask("message_passengers_blocked", dbProxyService,passengerMessagingService);
 
         // Create TaskRunnerConfigurer
         TaskRunnerConfigurer configurer = new TaskRunnerConfigurer.Builder(taskClient,
@@ -164,7 +166,8 @@ public class Application extends SpringBootServletInitializer {
                         callCrewMessagingTask,
                         callPassengerMessagingService,
                         callBraceletsMessagingService,
-                        declarePassengerIssue))
+                        declarePassengerIssue,
+                        messageAllPassengersBlockedGeoTask))
                 .withThreadCount(threadCount)
                 .build();
 

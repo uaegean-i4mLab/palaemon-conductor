@@ -1,18 +1,21 @@
 package gr.aegean.palaemon.conductor.controllers;
 
+import gr.aegean.palaemon.conductor.model.RestGenericResponse;
+import gr.aegean.palaemon.conductor.model.TO.AlertPaxInGeofenceTO;
 import gr.aegean.palaemon.conductor.model.TO.LocationTO;
 import gr.aegean.palaemon.conductor.model.location.UserGeofenceUnit;
 import gr.aegean.palaemon.conductor.model.location.UserLocationUnit;
-import gr.aegean.palaemon.conductor.model.pojo.KeycloakAccessTokenResponse;
-import gr.aegean.palaemon.conductor.model.pojo.PameasPerson;
-import gr.aegean.palaemon.conductor.model.pojo.Personalinfo;
+import gr.aegean.palaemon.conductor.model.pojo.*;
 import gr.aegean.palaemon.conductor.service.DBProxyService;
 import gr.aegean.palaemon.conductor.service.ElasticService;
+import gr.aegean.palaemon.conductor.service.PassengerMessagingService;
 import gr.aegean.palaemon.conductor.utils.TestingUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
@@ -37,23 +40,27 @@ public class PilotControllers {
     DBProxyService dbProxyService;
 
 
+    @Autowired
+    PassengerMessagingService passengerMessagingService;
+
+
     private final String DB_PROXY_URI = System.getenv("DB_PROXY_URI");
 
     @GetMapping("/pilot/makePax")
     public @ResponseBody String movePersonFromMSWithTicket123() {
 //
 
-        TestingUtils.addTestPerson("", "99", "102", "Evaggelos",
-                "Damigos", "pax1", "max", "20", new ArrayList<>(), "PIRAEUS",
+        TestingUtils.addTestPerson("", "99", "102", "Georgios",
+                "Spathias", "pax1", "max", "20", new ArrayList<>(), "PIRAEUS",
                 "CHANIA", "A862050", "gelly.st@hotmail.com", "Address 3", "306943808730",
                 "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
                 new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P1",
-                "502130123456789", "919825098250", "", "SB000P1", "9", "1665427687",
+                "502130123456789", "919825098250", "", "SB0001", "9", "1665427687",
                 "1", "event", "1231", "9BG2", "true", "9", "13.500000953674316",
                 "82.49999237060547", "1", "0", List.of("9BG2"));
 //
-        TestingUtils.addTestPerson("", "99", "102", "Georgios",
-                "Kalogridakis", "pax2", "max", "20", new ArrayList<>(), "PIRAEUS",
+        TestingUtils.addTestPerson("", "99", "102", "Aggeliki",
+                "Stouraiti", "pax2", "max", "20", new ArrayList<>(), "PIRAEUS",
                 "CHANIA", "A862051", "gelly.st@hotmail.com", "Address 3", "306943808730",
                 "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
                 new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P2",
@@ -61,8 +68,8 @@ public class PilotControllers {
                 "1", "event", "1231", "9BG4", "true", "9", "14.919761657714844",
                 "101.85546112060547", "1", "0", List.of("9BG4"));
 
-        TestingUtils.addTestPerson("", "99", "102", "Georgios",
-                "Kalos", "pax3", "max", "20", new ArrayList<>(), "PIRAEUS",
+        TestingUtils.addTestPerson("", "99", "102", "Charis",
+                "Oikonomidou", "pax3", "max", "20", new ArrayList<>(), "PIRAEUS",
                 "CHANIA", "A862052", "gelly.st@hotmail.com", "Address 3", "306943808730",
                 "GR", "", "", "complicated", false, Personalinfo.AssignmentStatus.UNASSIGNED,
                 new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P3",
@@ -70,8 +77,8 @@ public class PilotControllers {
                 "1", "event", "1231", "9C2YY", "true", "9", "4.50614070892334",
                 "45.40822219848633", "1", "0", List.of("9C2YY"));
 ////
-        TestingUtils.addTestPerson("", "99", "102", "Vasiliki",
-                "Karagianni", "pax4", "max", "20", new ArrayList<>(), "PIRAEUS",
+        TestingUtils.addTestPerson("", "99", "102", "Panagiotis",
+                "Siokouros", "pax4", "max", "20", new ArrayList<>(), "PIRAEUS",
                 "CHANIA", "A862053", "gelly.st@hotmail.com", "Address 3", "306943808730",
                 "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
                 new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P4",
@@ -79,8 +86,8 @@ public class PilotControllers {
                 "1", "event", "1231", "9C223", "true", "9", "15.80",
                 "98.50", "1", "0", List.of("9C223"));
 //
-        TestingUtils.addTestPerson("", "99", "102", "Ilias",
-                "Karaiskos", "pax5", "max", "20", new ArrayList<>(), "PIRAEUS",
+        TestingUtils.addTestPerson("", "99", "102", "Eirini",
+                "Stamatopoulou", "pax5", "max", "20", new ArrayList<>(), "PIRAEUS",
                 "CHANIA", "A862054", "gelly.st@hotmail.com", "Address 3", "306943808730",
                 "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
                 new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P5",
@@ -246,8 +253,8 @@ public class PilotControllers {
     @GetMapping("/pilot/crew")
     public @ResponseBody String addTestCrewMembersOnD7() {
         try {
-            TestingUtils.addTestPerson("passenger_assistance_units", "99", "102", "Marios",
-                    "Koimtzoglou", "c1", "male", "35", new ArrayList<>(), "PIRAEUS",
+            TestingUtils.addTestPerson("command_team", "99", "102", "Manolis",
+                    "Sofianopoylos", "c1", "male", "35", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "306970000005", "test13@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
                     new String[]{"EN"}, "crew", "9CG0", "58:37:8B:DE:42:C1",
@@ -255,32 +262,32 @@ public class PilotControllers {
                     "1", "event", "1231", "9BG4", "true", "7", "14.919761657714844",
                     "101.85546112060547", "1", "0", List.of("9BG4"));
 
-            TestingUtils.addTestPerson("command_team", "99", "102", "Evangelos",
+            TestingUtils.addTestPerson("medical_unit", "99", "102", "Evangelos",
                     "Sfakianakis", "c2", "male", "35", new ArrayList<>(), "PIRAEUS",
-                    "CHANIA", "C2", "test13@test.gr", "Address 3", "306943808730",
+                    "CHANIA", "306940000004", "test13@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
                     new String[]{"EN"}, "crew", "", "58:37:8B:DE:42:C2",
                     "502130123456789", "919825098250", "306940000004", "SB00015", "7", "1665427687",
                     "1", "event", "1231", "9CG0", "true", "7", "25.80",
                     "80.50", "1", "0", List.of("9CG0"));
 //
-            TestingUtils.addTestPerson("command_team", "99", "102", "Alexandros",
+            TestingUtils.addTestPerson("passenger_assistance_units", "99", "102", "Alexandros",
                     "Koimtzoglou", "c3", "female", "35", new ArrayList<>(), "PIRAEUS",
-                    "CHANIA", "C3", "test13@test.gr", "Address 3", "306943808730",
+                    "CHANIA", "306970000003", "test13@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
                     new String[]{"EN"}, "crew", "", "58:37:8B:DE:42:C3",
                     "502130123456789", "919825098250", "306970000003", "SB00013", "7", "1665427687",
                     "1", "event", "1231", "9BG2", "true", "7", "25.80",
                     "80.50", "1", "0", List.of("9BG2"));
 //
-//            TestingUtils.addTestPerson("command_team", "99", "102", "Natassa",
-//                    "Danopoulou", "c4", "female", "35", new ArrayList<>(), "PIRAEUS",
-//                    "CHANIA", "C4", "test13@test.gr", "Address 3", "306943808730",
-//                    "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
-//                    new String[]{"EN"}, "crew", "", "58:37:8B:DE:42:C4",
-//                    "502130123456789", "919825098250", "306982609448", "SB00015", "7", "1665427687",
-//                    "1", "event", "1231", "9BG2", "true", "7", "25.80",
-//                    "80.50", "1", "0", List.of("9BG2"));
+            TestingUtils.addTestPerson("command_team", "99", "102", "Marios",
+                    "Koimtzoglou", "c4", "female", "35", new ArrayList<>(), "PIRAEUS",
+                    "CHANIA", "306970000002", "test13@test.gr", "Address 3", "306943808730",
+                    "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
+                    new String[]{"EN"}, "crew", "", "58:37:8B:DE:42:C4",
+                    "502130123456789", "919825098250", "306970000002", "SB00015", "7", "1665427687",
+                    "1", "event", "1231", "9BG2", "true", "7", "25.80",
+                    "80.50", "1", "0", List.of("9BG2"));
 //
 //            TestingUtils.addTestPerson("command_team", "99", "102", "Nikos",
 //                    "Triantafyllou", "c5", "male", "35", new ArrayList<>(), "PIRAEUS",
@@ -299,4 +306,44 @@ public class PilotControllers {
         return "OK";
     }
 
+
+    @PostMapping("/alertAllPassengersInGeofence")
+    public @ResponseBody RestGenericResponse alertAllPassengersInGeofence(@RequestBody AlertPaxInGeofenceTO alertPaxInGeofenceTO) {
+        try {
+            List<PameasPerson> persons = this.dbProxyService.getPassengerDetails()
+                    .stream().filter(pameasPerson -> {
+                        int size = pameasPerson.getLocationInfo().getGeofenceHistory().size();
+                        if(size <= 0 || pameasPerson.getLocationInfo().getGeofenceHistory().get(size -1) == null){
+                            return false;
+                        }
+                        return pameasPerson.getLocationInfo().getGeofenceHistory().get(size -1).getGfName().equals(alertPaxInGeofenceTO.getGeofence());
+                    }).collect(Collectors.toList());
+
+            List<MessageBody> messageBodies =
+            persons.stream().map(pameasPerson -> {
+                MessageBody body = new MessageBody();
+                body.setRecipient("");
+               if(pameasPerson.getNetworkInfo().getDeviceInfoList().get(0) != null){
+                   body.setRecipient(pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress());
+               }
+                body.setContent( "<header></header><main><h2 style='color: red; text-align: center;'>Notification</h2>" +
+                        "<div style='font-size: x-large;'><b>Attention!! Immediately head to the Muster Station "+
+                        "This is not a drill! </b></div>"+
+                        "</main>:: sound: siren");
+               return body;
+            }).collect(Collectors.toList());
+
+            this.passengerMessagingService.callSendMessages(messageBodies);
+
+            return new RestGenericResponse("OK");
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new RestGenericResponse("ERROR");
+        }
+    }
+
+
+
 }
+
+
