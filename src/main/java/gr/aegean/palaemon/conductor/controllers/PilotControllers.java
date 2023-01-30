@@ -49,12 +49,12 @@ public class PilotControllers {
     @GetMapping("/pilot/makePax")
     public @ResponseBody String movePersonFromMSWithTicket123() {
 //
-
+//
         TestingUtils.addTestPerson("", "99", "102", "Georgios",
                 "Spathias", "pax1", "max", "20", new ArrayList<>(), "PIRAEUS",
                 "CHANIA", "A862050", "gelly.st@hotmail.com", "Address 3", "306943808730",
                 "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P1",
+                new String[]{"EN"}, "passenger", "9CG0", "28:37:8B:DE:42:P1",
                 "502130123456789", "919825098250", "", "SB0001", "9", "1665427687",
                 "1", "event", "1231", "9BG2", "true", "9", "13.500000953674316",
                 "82.49999237060547", "1", "0", List.of("9BG2"));
@@ -63,7 +63,7 @@ public class PilotControllers {
                 "Stouraiti", "pax2", "max", "20", new ArrayList<>(), "PIRAEUS",
                 "CHANIA", "A862051", "gelly.st@hotmail.com", "Address 3", "306943808730",
                 "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P2",
+                new String[]{"EN"}, "passenger", "9CG0", "28:37:8B:DE:42:P2",
                 "502130123456789", "919825098250", "", "SB000P2", "9", "1665427687",
                 "1", "event", "1231", "9BG4", "true", "9", "14.919761657714844",
                 "101.85546112060547", "1", "0", List.of("9BG4"));
@@ -72,7 +72,7 @@ public class PilotControllers {
                 "Oikonomidou", "pax3", "max", "20", new ArrayList<>(), "PIRAEUS",
                 "CHANIA", "A862052", "gelly.st@hotmail.com", "Address 3", "306943808730",
                 "GR", "", "", "complicated", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P3",
+                new String[]{"EN"}, "passenger", "9CG0", "28:37:8B:DE:42:P3",
                 "502130123456789", "919825098250", "", "SB000P2", "9", "1665427687",
                 "1", "event", "1231", "9C2YY", "true", "9", "4.50614070892334",
                 "45.40822219848633", "1", "0", List.of("9C2YY"));
@@ -81,7 +81,7 @@ public class PilotControllers {
                 "Siokouros", "pax4", "max", "20", new ArrayList<>(), "PIRAEUS",
                 "CHANIA", "A862053", "gelly.st@hotmail.com", "Address 3", "306943808730",
                 "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P4",
+                new String[]{"EN"}, "passenger", "9CG0", "28:37:8B:DE:42:P4",
                 "502130123456789", "919825098250", "", "SB000P2", "9", "1665427687",
                 "1", "event", "1231", "9C223", "true", "9", "15.80",
                 "98.50", "1", "0", List.of("9C223"));
@@ -90,7 +90,7 @@ public class PilotControllers {
                 "Stamatopoulou", "pax5", "max", "20", new ArrayList<>(), "PIRAEUS",
                 "CHANIA", "A862054", "gelly.st@hotmail.com", "Address 3", "306943808730",
                 "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P5",
+                new String[]{"EN"}, "passenger", "9CG0", "28:37:8B:DE:42:P5",
                 "502130123456789", "919825098250", "", "SB000P5", "9", "1665427687",
                 "1", "event", "1231", "9BG1", "true", "9", "31.80",
                 "90.50", "1", "0", List.of("9BG1"));
@@ -99,81 +99,81 @@ public class PilotControllers {
 //        // Second group 9C223
 //
 //
-//        TestingUtils.addTestPerson("", "99", "102", "Aimilios",
-//                "Kleftogiannis", "pax6", "max", "20", new ArrayList<>(), "PIRAEUS",
-//                "CHANIA", "A862055", "gelly.st@hotmail.com", "Address 3", "306943808730",
-//                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-//                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P6",
-//                "502130123456789", "919825098250", "", "SB000P5", "9", "1665427687",
-//                "1", "event", "1231", "9C223", "true", "9", "15.80",
-//                "98.50", "1", "0", List.of("9C223"));
-//
-//        // Third Group 9C2YY
-//
-//        TestingUtils.addTestPerson("", "99", "102", "Dimitrios",
-//                "Koutoukis", "pax7", "max", "20", new ArrayList<>(), "PIRAEUS",
-//                "CHANIA", "A862056", "gelly.st@hotmail.com", "Address 3", "306943808730",
-//                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-//                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P7",
-//                "502130123456789", "919825098250", "", "SB000P7", "9", "1665427687",
-//                "1", "event", "1231", "9C2YY", "true", "9", "40.80",
-//                "87.50", "1", "0", List.of("9C2YY"));
-//
-//        TestingUtils.addTestPerson("", "99", "102", "Anastasios",
-//                "Liveris", "pax8", "max", "20", new ArrayList<>(), "PIRAEUS",
-//                "CHANIA", "A862057", "gelly.st@hotmail.com", "Address 3", "306943808730",
-//                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-//                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P8",
-//                "502130123456789", "919825098250", "", "SB000P8", "9", "1665427687",
-//                "1", "event", "1231", "9C2YY", "true", "9", "15.80",
-//                "80.50", "1", "0", List.of("9C2YY"));
-//        // Fourth Group
-//
-//
-//        TestingUtils.addTestPerson("", "99", "102", "Georgia",
-//                "Makrodima", "pax9", "female", "20", new ArrayList<>(), "PIRAEUS",
-//                "CHANIA", "A862058", "gelly.st@hotmail.com", "Address 3", "306943808730",
-//                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-//                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P9",
-//                "502130123456789", "919825098250", "", "SB000P8", "9", "1665427687",
-//                "1", "event", "1231", "9BG2", "true", "9", "15.80",
-//                "85.50", "1", "0", List.of("9BG2"));
-//
-//        TestingUtils.addTestPerson("", "99", "102", "Evaggelos",
-//                "Maniatis", "pax10", "male", "20", new ArrayList<>(), "PIRAEUS",
-//                "CHANIA", "A862059", "gelly.st@hotmail.com", "Address 3", "306943808730",
-//                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-//                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P10",
-//                "502130123456789", "919825098250", "", "SB000P10", "9", "1665427687",
-//                "1", "event", "1231", "9BG2", "true", "9", "15.80",
-//                "91.50", "1", "0", List.of("9BG2"));
-//
-//        TestingUtils.addTestPerson("", "99", "102", "Konstantinos",
-//                "Moularas", "pax11", "male", "20", new ArrayList<>(), "PIRAEUS",
-//                "CHANIA", "A862060", "gelly.st@hotmail.com", "Address 3", "306943808730",
-//                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-//                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P11",
-//                "502130123456789", "919825098250", "", "SB000P10", "9", "1665427687",
-//                "1", "event", "1231", "9BG2", "true", "9", "15.80",
-//                "88.50", "1", "0", List.of("9BG2"));
-//
-//        TestingUtils.addTestPerson("", "99", "102", "Konstantinos",
-//                "Pantazis", "pax12", "male", "20", new ArrayList<>(), "PIRAEUS",
-//                "CHANIA", "A862061", "gelly.st@hotmail.com", "Address 3", "306943808730",
-//                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-//                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P12",
-//                "502130123456789", "919825098250", "", "SB000P11", "9", "1665427687",
-//                "1", "event", "1231", "9BG2", "true", "9", "15.80",
-//                "78.50", "1", "0", List.of("9BG2"));
-//
-//        TestingUtils.addTestPerson("", "99", "102", "Virginia",
-//                "Sklavounou", "pax13", "female", "20", new ArrayList<>(), "PIRAEUS",
-//                "CHANIA", "A862062", "gelly.st@hotmail.com", "Address 3", "306943808730",
-//                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
-//                new String[]{"EN"}, "passenger", "", "28:37:8B:DE:42:P13",
-//                "502130123456789", "919825098250", "", "SB000P11", "9", "1665427687",
-//                "1", "event", "1231", "9BG2", "true", "9", "15.80",
-//                "105.50", "1", "0", List.of("9BG2"));
+        TestingUtils.addTestPerson("", "99", "102", "Aimilios",
+                "Kleftogiannis", "pax6", "max", "20", new ArrayList<>(), "PIRAEUS",
+                "CHANIA", "A862055", "gelly.st@hotmail.com", "Address 3", "306943808730",
+                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                new String[]{"EN"}, "passenger", "9CG0", "28:37:8B:DE:42:P6",
+                "502130123456789", "919825098250", "", "SB000P5", "9", "1665427687",
+                "1", "event", "1231", "9C223", "true", "9", "15.80",
+                "98.50", "1", "0", List.of("9C223"));
+
+        // Third Group 9C2YY
+
+        TestingUtils.addTestPerson("", "99", "102", "Dimitrios",
+                "Koutoukis", "pax7", "max", "20", new ArrayList<>(), "PIRAEUS",
+                "CHANIA", "A862056", "gelly.st@hotmail.com", "Address 3", "306943808730",
+                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                new String[]{"EN"}, "passenger", "9CG0", "28:37:8B:DE:42:P7",
+                "502130123456789", "919825098250", "", "SB000P7", "9", "1665427687",
+                "1", "event", "1231", "9C2YY", "true", "9", "40.80",
+                "87.50", "1", "0", List.of("9C2YY"));
+
+        TestingUtils.addTestPerson("", "99", "102", "Anastasios",
+                "Liveris", "pax8", "max", "20", new ArrayList<>(), "PIRAEUS",
+                "CHANIA", "A862057", "gelly.st@hotmail.com", "Address 3", "306943808730",
+                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                new String[]{"EN"}, "passenger", "9CG0", "28:37:8B:DE:42:P8",
+                "502130123456789", "919825098250", "", "SB000P8", "9", "1665427687",
+                "1", "event", "1231", "9C2YY", "true", "9", "15.80",
+                "80.50", "1", "0", List.of("9C2YY"));
+        // Fourth Group
+
+
+        TestingUtils.addTestPerson("", "99", "102", "Georgia",
+                "Makrodima", "pax9", "female", "20", new ArrayList<>(), "PIRAEUS",
+                "CHANIA", "A862058", "gelly.st@hotmail.com", "Address 3", "306943808730",
+                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                new String[]{"EN"}, "passenger", "9CG0", "28:37:8B:DE:42:P9",
+                "502130123456789", "919825098250", "", "SB000P8", "9", "1665427687",
+                "1", "event", "1231", "9BG2", "true", "9", "15.80",
+                "85.50", "1", "0", List.of("9BG2"));
+
+        TestingUtils.addTestPerson("", "99", "102", "Evaggelos",
+                "Maniatis", "pax10", "male", "20", new ArrayList<>(), "PIRAEUS",
+                "CHANIA", "A862059", "gelly.st@hotmail.com", "Address 3", "306943808730",
+                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                new String[]{"EN"}, "passenger", "9CG0", "28:37:8B:DE:42:P10",
+                "502130123456789", "919825098250", "", "SB000P10", "9", "1665427687",
+                "1", "event", "1231", "9BG2", "true", "9", "15.80",
+                "91.50", "1", "0", List.of("9BG2"));
+
+        TestingUtils.addTestPerson("", "99", "102", "Konstantinos",
+                "Moularas", "pax11", "male", "20", new ArrayList<>(), "PIRAEUS",
+                "CHANIA", "A862060", "gelly.st@hotmail.com", "Address 3", "306943808730",
+                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                new String[]{"EN"}, "passenger", "9CG0", "28:37:8B:DE:42:P11",
+                "502130123456789", "919825098250", "", "SB000P10", "9", "1665427687",
+                "1", "event", "1231", "9BG2", "true", "9", "15.80",
+                "88.50", "1", "0", List.of("9BG2"));
+
+        TestingUtils.addTestPerson("", "99", "102", "Konstantinos",
+                "Pantazis", "pax12", "male", "20", new ArrayList<>(), "PIRAEUS",
+                "CHANIA", "A862061", "gelly.st@hotmail.com", "Address 3", "306943808730",
+                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                new String[]{"EN"}, "passenger", "9CG0", "28:37:8B:DE:42:P12",
+                "502130123456789", "919825098250", "", "SB000P11", "9", "1665427687",
+                "1", "event", "1231", "9BG2", "true", "9", "15.80",
+                "78.50", "1", "0", List.of("9BG2"));
+
+        TestingUtils.addTestPerson("", "99", "102", "Virginia",
+                "Sklavounou", "pax13", "female", "20", new ArrayList<>(), "PIRAEUS",
+                "CHANIA", "A862062", "gelly.st@hotmail.com", "Address 3", "306943808730",
+                "GR", "", "", "", false, Personalinfo.AssignmentStatus.UNASSIGNED,
+                new String[]{"EN"}, "passenger", "9CG0", "28:37:8B:DE:42:P13",
+                "502130123456789", "919825098250", "", "SB000P11", "9", "1665427687",
+                "1", "event", "1231", "9BG2", "true", "9", "15.80",
+                "105.50", "1", "0", List.of("9BG2"));
 
 
         return "ok";
@@ -182,12 +182,14 @@ public class PilotControllers {
 
     @GetMapping("/pilot/geo")
     public @ResponseBody String initGeofences() {
-        List<String> geofenceName = Arrays.asList("9BG1",
+        List<String> geofenceName = Arrays.asList(
+                "9BG1",
                 "9BG2", "9BG3", "9BG4", "9BG1+",
                 //  *************
                 // MUSTER STATION
                 "9CG0",
-                "9C223", "9C2YY"
+                "9C223", "9C2YY", "9BG5",
+                "9BG6"
         );
         try {
             KeycloakAccessTokenResponse accessTokenResponse = TestingUtils.getOAuthAccessToken();
@@ -257,7 +259,7 @@ public class PilotControllers {
                     "Sofianopoylos", "c1", "male", "35", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "306970000005", "test13@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "crew", "9CG0", "58:37:8B:DE:42:C1",
+                    new String[]{"EN"}, "crew", "", "58:37:8B:DE:42:C1",
                     "502130123456789", "919825098250", "306970000005", "SB00015", "7", "1665427687",
                     "1", "event", "1231", "9BG4", "true", "7", "14.919761657714844",
                     "101.85546112060547", "1", "0", List.of("9BG4"));
@@ -267,7 +269,7 @@ public class PilotControllers {
                     "CHANIA", "306940000004", "test13@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
                     new String[]{"EN"}, "crew", "", "58:37:8B:DE:42:C2",
-                    "502130123456789", "919825098250", "306940000004", "SB00015", "7", "1665427687",
+                    "502130123456789", "919825098250", "306970000004", "SB00015", "7", "1665427687",
                     "1", "event", "1231", "9CG0", "true", "7", "25.80",
                     "80.50", "1", "0", List.of("9CG0"));
 //
@@ -275,7 +277,7 @@ public class PilotControllers {
                     "Koimtzoglou", "c3", "female", "35", new ArrayList<>(), "PIRAEUS",
                     "CHANIA", "306970000003", "test13@test.gr", "Address 3", "306943808730",
                     "GR", "", "", "", true, Personalinfo.AssignmentStatus.UNASSIGNED,
-                    new String[]{"EN"}, "crew", "", "58:37:8B:DE:42:C3",
+                    new String[]{"EN"}, "crew", "9CG0", "58:37:8B:DE:42:C3",
                     "502130123456789", "919825098250", "306970000003", "SB00013", "7", "1665427687",
                     "1", "event", "1231", "9BG2", "true", "7", "25.80",
                     "80.50", "1", "0", List.of("9BG2"));
